@@ -3,6 +3,7 @@
 
 const N = 9;
 const SUB = 3;
+const EMPTY = 0;
 
 function randItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -45,11 +46,76 @@ function holesForDifficulty(difficulty) {
     case 'easy':
       return 27; // empties (easier: fewer blanks)
     case 'hard':
-      return 54;
+      return 54; // very challenging
     case 'medium':
     default:
-      return 48;
+      return 40;
   }
+}
+
+// Count solutions with early stop at `limit` (default 2).
+function countSolutions(board, limit = 2) {
+  // Find cell with minimum remaining values (MRV) to speed up.
+  function findBestCell() {
+    let bestR = -1,
+      bestC = -1,
+      bestOpts = null;
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        if (board[r][c] !== EMPTY) continue;
+        const opts = candidates(r, c);
+        if (bestOpts === null || opts.length < bestOpts.length) {
+          bestOpts = opts;
+          bestR = r;
+          bestC = c;
+          if (opts.length <= 1) return { r: bestR, c: bestC, opts: bestOpts };
+        }
+      }
+    }
+    return bestR === -1 ? null : { r: bestR, c: bestC, opts: bestOpts };
+  }
+
+  function candidates(r, c) {
+    const used = new Set();
+    for (let i = 0; i < N; i++) {
+      used.add(board[r][i]);
+      used.add(board[i][c]);
+    }
+    const br = Math.floor(r / 3) * 3;
+    const bc = Math.floor(c / 3) * 3;
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) used.add(board[br + i][bc + j]);
+    }
+    const arr = [];
+    for (let v = 1; v <= 9; v++) if (!used.has(v)) arr.push(v);
+    return arr;
+  }
+
+  let solutions = 0;
+  function backtrack() {
+    if (solutions >= limit) return; // early stop
+    const cell = findBestCell();
+    if (!cell) {
+      solutions++;
+      return;
+    }
+    const { r, c, opts } = cell;
+    if (opts.length === 0) return;
+    for (const v of opts) {
+      board[r][c] = v;
+      backtrack();
+      if (solutions >= limit) return;
+      board[r][c] = EMPTY;
+    }
+  }
+
+  backtrack();
+  return solutions;
+}
+
+function hasUniqueSolution(puzzle) {
+  const grid = puzzle.map((row) => row.slice());
+  return countSolutions(grid, 2) === 1;
 }
 
 export function generatePuzzle(difficulty = 'medium') {
@@ -65,17 +131,42 @@ export function generatePuzzle(difficulty = 'medium') {
   let removed = 0;
   for (const [r, c] of order) {
     if (removed >= empties) break;
-    // remove symmetrically to keep aesthetics
     const r2 = N - 1 - r;
     const c2 = N - 1 - c;
-    if (puzzle[r][c] !== 0) {
-      puzzle[r][c] = 0;
-      removed++;
+    // Try removing a symmetric pair first
+    const prev1 = puzzle[r][c];
+    const prev2 = puzzle[r2][c2];
+    let changed = false;
+    if (prev1 !== EMPTY) puzzle[r][c] = EMPTY;
+    if (prev2 !== EMPTY && (r2 !== r || c2 !== c)) puzzle[r2][c2] = EMPTY;
+    if (hasUniqueSolution(puzzle)) {
+      // Keep removals that preserve uniqueness
+      if (prev1 !== EMPTY) removed++;
+      if (prev2 !== EMPTY && (r2 !== r || c2 !== c)) removed++;
+      changed = true;
+    } else {
+      // Revert and try single removal (random which one first)
+      puzzle[r][c] = prev1;
+      if (r2 !== r || c2 !== c) puzzle[r2][c2] = prev2;
+      const singleFirst = Math.random() < 0.5 ? 0 : 1;
+      const singles = [
+        { rr: r, cc: c, prev: prev1 },
+        { rr: r2, cc: c2, prev: prev2 },
+      ];
+      for (let k = 0; k < 2 && removed < empties; k++) {
+        const { rr, cc, prev } = singles[(singleFirst + k) % 2];
+        if (prev === EMPTY) continue;
+        puzzle[rr][cc] = EMPTY;
+        if (hasUniqueSolution(puzzle)) {
+          removed++;
+          changed = true;
+          break;
+        } else {
+          puzzle[rr][cc] = prev;
+        }
+      }
     }
-    if (removed < empties && puzzle[r2][c2] !== 0) {
-      puzzle[r2][c2] = 0;
-      removed++;
-    }
+    // If nothing changed, continue to next pair
   }
 
   const mask = puzzle.map((row) => row.map((v) => v !== 0));
