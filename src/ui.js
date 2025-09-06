@@ -13,7 +13,8 @@ function createCell(r, c) {
   input.addEventListener('input', (e) => {
     const v = input.value.replace(/\D/g, '');
     input.value = v.slice(0, 1);
-    validateCell(cell);
+    if (input.value) pulse(cell);
+    recomputeValidity();
     cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
   });
   input.addEventListener('focus', () => cell.classList.add('focus'));
@@ -305,14 +306,26 @@ export function initUI(root) {
   }
 
   function recomputeValidity() {
-    // Re-evaluate all cells and lock on first invalid
-    lockedIdx = null;
+    // Re-evaluate all cells and lock on the first INVALID, EDITABLE cell if any
+    const invalidEditable = [];
+    const invalidAny = [];
     for (let idx = 0; idx < 81; idx++) {
       const cell = boardEl.children[idx];
       const ok = validateCell(cell);
-      if (!ok && lockedIdx == null) lockedIdx = idx;
+      if (!ok) {
+        const readOnly = cell.querySelector('input').readOnly;
+        if (!readOnly) invalidEditable.push(idx);
+        invalidAny.push(idx);
+      }
     }
+    const nextLock = invalidEditable.length
+      ? invalidEditable[0]
+      : invalidAny.length
+        ? invalidAny[0]
+        : null;
+    lockedIdx = nextLock;
     if (lockedIdx != null) {
+      // Force focus to an editable invalid cell when possible
       selectCell(lockedIdx);
       setStatus('Fix or clear the conflicting cell first.');
     } else {
