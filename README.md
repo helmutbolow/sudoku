@@ -1,6 +1,11 @@
 # Sudoku Web App (Vanilla JS)
 
+[![Pages](https://github.com/helmutbolow/sudoku/actions/workflows/pages.yml/badge.svg)](https://github.com/helmutbolow/sudoku/actions/workflows/pages.yml)
+[![CI](https://github.com/helmutbolow/sudoku/actions/workflows/ci.yml/badge.svg)](https://github.com/helmutbolow/sudoku/actions/workflows/ci.yml)
+
 A minimal, no-dependency Sudoku web app starter. Uses plain HTML/CSS/ES modules so you can open and hack immediately — great foundation to later migrate to React/Vite if you want.
+
+Live site: https://helmutbolow.github.io/sudoku/
 
 ## Run locally
 
@@ -10,6 +15,10 @@ Because browsers block ES modules from `file://` URLs, serve the folder with a s
 - Then open: http://localhost:8000/
 
 You should see a Sudoku grid with buttons to load a sample, clear, and solve.
+
+## Contributing
+
+See `CONTRIBUTING.md` for guidelines and coding style.
 
 ## Project structure
 
@@ -37,4 +46,3 @@ git commit -m "chore: scaffold vanilla sudoku app"
 ```
 
 (If your environment restricts git commands, let me know and I can run with approval.)
-
