@@ -8,6 +8,7 @@
   --accent: #ffb86b;
   --danger: #ff6b6b;
   --cell-size: 42px;
+  --block-border: 3px; /* thickness for 3x3 separators */
 }
 
 * {
@@ -80,7 +81,7 @@ main {
   display: grid;
   grid-template-columns: repeat(9, var(--cell-size));
   gap: 0;
-  border: 2px solid #2b2f43;
+  border: var(--block-border) solid #2b2f43;
   background: var(--panel);
 }
 
@@ -92,12 +93,8 @@ main {
   place-items: center;
 }
 
-.cell:nth-child(3n) {
-  border-right-width: 2px;
-}
-.cell:nth-child(9n + 1) {
-  border-left-width: 2px;
-}
+.cell:nth-child(3n) { border-right-width: var(--block-border); }
+.cell:nth-child(9n + 1) { border-left-width: var(--block-border); }
 
 /* Horizontal 3x3 separators */
 .cell {
@@ -114,9 +111,7 @@ main {
 }
 .cell[data-row='2']::after,
 .cell[data-row='5']::after,
-.cell[data-row='8']::after {
-  border-bottom-width: 2px;
-}
+.cell[data-row='8']::after { border-bottom-width: var(--block-border); }
 
 .cell input {
   width: 28px;
