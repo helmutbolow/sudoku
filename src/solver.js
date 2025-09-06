@@ -51,4 +51,3 @@ export function solve(board) {
   const ok = backtrack();
   return ok ? grid : null;
 }
-

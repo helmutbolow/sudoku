@@ -36,4 +36,3 @@ onReady(() => {
   // Load an initial sample
   fillSample(api);
 });
-

@@ -17,4 +17,3 @@ Describe the solution you'd like.
 Any alternative solutions or features you've considered.
 
 ### Additional Context
-

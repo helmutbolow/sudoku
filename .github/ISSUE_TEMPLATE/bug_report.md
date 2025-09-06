@@ -9,6 +9,7 @@ labels: bug
 A clear and concise description of the bug.
 
 ### Steps To Reproduce
+
 1.
 2.
 3.
@@ -18,8 +19,8 @@ A clear and concise description of the bug.
 ### Screenshots
 
 ### Environment
+
 - Browser:
 - URL:
 
 ### Additional Context
-
