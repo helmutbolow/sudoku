@@ -43,7 +43,7 @@ function generateComplete() {
 function holesForDifficulty(difficulty) {
   switch (difficulty) {
     case 'easy':
-      return 40; // empties
+      return 27; // empties (easier: fewer blanks)
     case 'hard':
       return 54;
     case 'medium':
