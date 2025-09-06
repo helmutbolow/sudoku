@@ -1,4 +1,5 @@
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
+import { initAutoTheme } from './theme.js';
 import { solve } from './solver.js';
 
 function onReady(fn) {
@@ -10,6 +11,9 @@ function onReady(fn) {
 }
 
 onReady(() => {
+  // Auto theme based on local time
+  initAutoTheme();
+
   const root = document.getElementById('app');
   const api = initUI(root);
 
