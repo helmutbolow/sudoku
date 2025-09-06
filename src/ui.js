@@ -386,6 +386,17 @@ export function initUI(root) {
 
   function flashError(cell) {
     cell.classList.remove('mistake-flash');
+    const input = cell.querySelector('input');
+    if (input) {
+      // briefly show the wrong digit in red before clearing
+      input.classList.remove('wrong-pop');
+      void input.offsetWidth;
+      input.classList.add('wrong-pop');
+      const shown = input.value;
+      setTimeout(() => {
+        if (input.value === shown) input.value = '';
+      }, 420);
+    }
     void cell.offsetWidth;
     cell.classList.add('mistake-flash');
   }

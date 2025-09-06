@@ -27,6 +27,11 @@ onReady(() => {
   const btnRedo = document.getElementById('redo');
   const btnRestart = document.getElementById('restart');
   const btnCheck = document.getElementById('check');
+  const errorBadge = document.getElementById('error-badge');
+  const over = document.getElementById('over-overlay');
+  const overText = document.getElementById('over-text');
+  const overRestart = document.getElementById('over-restart');
+  const overNew = document.getElementById('over-new');
   const LS_KEY = 'sudoku:difficulty';
   // notes removed
 
@@ -39,6 +44,31 @@ onReady(() => {
   let currentDifficulty = 'medium';
   let errorCount = 0;
   const ERROR_LIMIT = { easy: 3, medium: 5, hard: 9 };
+  function updateErrorsUI() {
+    if (!errorBadge) return;
+    const max = ERROR_LIMIT[currentDifficulty] || 3;
+    const remaining = Math.max(0, max - errorCount);
+    errorBadge.textContent = `Attempts: ${remaining}/${max}`;
+    errorBadge.classList.toggle('danger', remaining <= 2);
+  }
+  function showGameOver() {
+    if (!over) return;
+    over.classList.remove('hidden');
+    over.setAttribute('aria-hidden', 'false');
+    if (overText) overText.textContent = `Game over — attempts exhausted`;
+  }
+  function hideGameOver() {
+    if (!over) return;
+    over.classList.add('hidden');
+    over.setAttribute('aria-hidden', 'true');
+  }
+  if (overRestart) overRestart.addEventListener('click', () => btnRestart?.click());
+  if (overNew)
+    overNew.addEventListener('click', async () => {
+      const difficulty = select.value || currentDifficulty || 'medium';
+      await loadNewByDifficulty(difficulty);
+      hideGameOver();
+    });
 
   function cloneBoard(b) {
     return b.map((row) => row.slice());
@@ -53,7 +83,7 @@ onReady(() => {
     if (btnRestart) btnRestart.disabled = !originalPuzzle;
     if (btnCheck) btnCheck.disabled = !solutionGrid;
     // Update status with error counter if solution known
-    if (solutionGrid) api.setStatus(`Errors: ${errorCount}/${ERROR_LIMIT[currentDifficulty]}`);
+    if (solutionGrid) updateErrorsUI();
   }
   function applySnapshot(b) {
     // write board and re-apply mask
@@ -73,6 +103,8 @@ onReady(() => {
     // Reset errors based on difficulty
     errorCount = 0;
     updateActionButtons();
+    updateErrorsUI();
+    hideGameOver();
   }
   function pushHistoryFromCurrent() {
     const current = api.readBoard();
@@ -265,10 +297,11 @@ onReady(() => {
     if (errorCount >= max) {
       api.setStatus(`Game over — errors: ${errorCount}/${max}`);
       if (api.setEnabled) api.setEnabled(false);
+      updateErrorsUI();
+      showGameOver();
     } else {
-      if (r && c && digit !== null)
-        api.setStatus(`Wrong: ${digit} at R${r}C${c} — Errors: ${errorCount}/${max}`);
-      else api.setStatus(`Errors: ${errorCount}/${max}`);
+      if (r && c && digit !== null) api.setStatus(`Wrong: ${digit} at R${r}C${c}`);
+      updateErrorsUI();
     }
   });
 

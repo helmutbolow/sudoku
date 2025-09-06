@@ -27,11 +27,27 @@
 
         <button id="hint" title="Single-candidate hint">Hint</button>
         <button id="solve-board">Solve</button>
+        <span id="error-badge" class="badge" aria-live="polite">Attempts: --</span>
       </div>
     </header>
 
     <main>
       <div id="app" class="app"></div>
+      <div
+        id="over-overlay"
+        class="overlay hidden"
+        aria-hidden="true"
+        role="dialog"
+        aria-label="Game over"
+      >
+        <div class="overlay-card">
+          <div class="overlay-text" id="over-text">Game over</div>
+          <div style="display: flex; gap: 8px">
+            <button id="over-restart" class="ghost">Restart</button>
+            <button id="over-new" class="ghost">New</button>
+          </div>
+        </div>
+      </div>
       <div
         id="gen-overlay"
         class="overlay hidden"

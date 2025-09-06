@@ -109,6 +109,19 @@ body {
   background: var(--panel-2);
   transform: translateY(-0.5px);
 }
+.badge {
+  margin-left: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2a2f47;
+  color: var(--text);
+  font-size: 12px;
+}
+.badge.danger {
+  background: rgba(255, 0, 0, 0.08);
+  border-color: rgba(255, 0, 0, 0.35);
+}
 .actions select {
   appearance: none;
   -webkit-appearance: none;
