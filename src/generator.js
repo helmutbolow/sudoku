@@ -119,56 +119,65 @@ function hasUniqueSolution(puzzle) {
 }
 
 export function generatePuzzle(difficulty = 'medium') {
-  const full = generateComplete();
-  const empties = holesForDifficulty(difficulty);
+  // Try multiple times to guarantee uniqueness; bail out after a few attempts.
+  const ATTEMPTS = 8;
+  for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
+    const full = generateComplete();
+    const empties = holesForDifficulty(difficulty);
 
-  // Create an array of all cell positions and shuffle
-  const cells = [];
-  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) cells.push([r, c]);
-  const order = shuffled(cells);
+    // Create an array of all cell positions and shuffle
+    const cells = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) cells.push([r, c]);
+    const order = shuffled(cells);
 
-  const puzzle = full.map((row) => row.slice());
-  let removed = 0;
-  for (const [r, c] of order) {
-    if (removed >= empties) break;
-    const r2 = N - 1 - r;
-    const c2 = N - 1 - c;
-    // Try removing a symmetric pair first
-    const prev1 = puzzle[r][c];
-    const prev2 = puzzle[r2][c2];
-    let changed = false;
-    if (prev1 !== EMPTY) puzzle[r][c] = EMPTY;
-    if (prev2 !== EMPTY && (r2 !== r || c2 !== c)) puzzle[r2][c2] = EMPTY;
-    if (hasUniqueSolution(puzzle)) {
-      // Keep removals that preserve uniqueness
-      if (prev1 !== EMPTY) removed++;
-      if (prev2 !== EMPTY && (r2 !== r || c2 !== c)) removed++;
-      changed = true;
-    } else {
-      // Revert and try single removal (random which one first)
-      puzzle[r][c] = prev1;
-      if (r2 !== r || c2 !== c) puzzle[r2][c2] = prev2;
-      const singleFirst = Math.random() < 0.5 ? 0 : 1;
-      const singles = [
-        { rr: r, cc: c, prev: prev1 },
-        { rr: r2, cc: c2, prev: prev2 },
-      ];
-      for (let k = 0; k < 2 && removed < empties; k++) {
-        const { rr, cc, prev } = singles[(singleFirst + k) % 2];
-        if (prev === EMPTY) continue;
-        puzzle[rr][cc] = EMPTY;
-        if (hasUniqueSolution(puzzle)) {
-          removed++;
-          changed = true;
-          break;
-        } else {
-          puzzle[rr][cc] = prev;
+    const puzzle = full.map((row) => row.slice());
+    let removed = 0;
+    for (const [r, c] of order) {
+      if (removed >= empties) break;
+      const r2 = N - 1 - r;
+      const c2 = N - 1 - c;
+      // Try removing a symmetric pair first
+      const prev1 = puzzle[r][c];
+      const prev2 = puzzle[r2][c2];
+      if (prev1 !== EMPTY) puzzle[r][c] = EMPTY;
+      if (prev2 !== EMPTY && (r2 !== r || c2 !== c)) puzzle[r2][c2] = EMPTY;
+      if (hasUniqueSolution(puzzle)) {
+        if (prev1 !== EMPTY) removed++;
+        if (prev2 !== EMPTY && (r2 !== r || c2 !== c)) removed++;
+      } else {
+        // Revert and try single removal (random order)
+        puzzle[r][c] = prev1;
+        if (r2 !== r || c2 !== c) puzzle[r2][c2] = prev2;
+        const singles =
+          Math.random() < 0.5
+            ? [
+                { rr: r, cc: c, prev: prev1 },
+                { rr: r2, cc: c2, prev: prev2 },
+              ]
+            : [
+                { rr: r2, cc: c2, prev: prev2 },
+                { rr: r, cc: c, prev: prev1 },
+              ];
+        for (const { rr, cc, prev } of singles) {
+          if (removed >= empties) break;
+          if (prev === EMPTY) continue;
+          puzzle[rr][cc] = EMPTY;
+          if (hasUniqueSolution(puzzle)) {
+            removed++;
+            break;
+          } else {
+            puzzle[rr][cc] = prev;
+          }
         }
       }
     }
-    // If nothing changed, continue to next pair
-  }
 
-  const mask = puzzle.map((row) => row.map((v) => v !== 0));
-  return { puzzle, mask, solution: full };
+    // Final uniqueness assertion; if not unique, retry
+    if (hasUniqueSolution(puzzle)) {
+      const mask = puzzle.map((row) => row.map((v) => v !== 0));
+      return { puzzle, mask, solution: full };
+    }
+  }
+  // As a last resort, return a medium-strength unique puzzle
+  return generatePuzzle('medium');
 }

@@ -20,15 +20,7 @@ function createCell(r, c) {
   input.addEventListener('focus', () => cell.classList.add('focus'));
   input.addEventListener('blur', () => cell.classList.remove('focus'));
 
-  const notes = document.createElement('div');
-  notes.className = 'notes';
-  for (let i = 1; i <= 9; i++) {
-    const s = document.createElement('span');
-    s.dataset.n = String(i);
-    notes.appendChild(s);
-  }
-
-  cell.appendChild(notes);
+  // No notes grid; only a single input per cell
   cell.appendChild(input);
   return cell;
 }
@@ -123,8 +115,7 @@ export function initUI(root) {
   }
 
   let selectedIdx = null;
-  let notesMode = false;
-  let lockedIdx = null; // prevents leaving an invalid cell
+  let lockedIdx = null; // soft validation only
 
   function getCellByIndex(idx) {
     return boardEl.children[idx];
@@ -207,16 +198,11 @@ export function initUI(root) {
     const input = cell.querySelector('input');
     if (input.readOnly) return;
     const val = btn.dataset.value || '';
-    if (notesMode && input.value === '') {
-      // toggle note
-      toggleNote(cell, Number(btn.dataset.value));
-    } else {
-      input.value = val;
-      updateHasValue(cell);
-      pulse(cell);
-      recomputeValidity();
-      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
-    }
+    input.value = val;
+    updateHasValue(cell);
+    pulse(cell);
+    recomputeValidity();
+    cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
   });
 
   // Keyboard navigation and entry
@@ -247,27 +233,19 @@ export function initUI(root) {
     const input = cell.querySelector('input');
     if (input.readOnly) return;
     if (/^[1-9]$/.test(key)) {
-      if (notesMode && input.value === '' && !e.shiftKey) {
-        toggleNote(cell, Number(key));
-      } else {
-        input.value = key;
-        updateHasValue(cell);
-        pulse(cell);
-        recomputeValidity();
-        cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
-        // move right to next cell for faster entry
-        moveSelection(0, 1);
-      }
+      input.value = key;
+      updateHasValue(cell);
+      pulse(cell);
+      recomputeValidity();
+      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+      // move right to next cell for faster entry
+      moveSelection(0, 1);
       e.preventDefault();
     } else if (key === 'Backspace' || key === 'Delete' || key === '0' || key === ' ') {
-      if (notesMode && input.value === '') {
-        clearNotes(cell);
-      } else {
-        input.value = '';
-        updateHasValue(cell);
-        recomputeValidity();
-        cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
-      }
+      input.value = '';
+      updateHasValue(cell);
+      recomputeValidity();
+      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
       e.preventDefault();
     } else if (key === 'Home') {
       e.preventDefault();
@@ -283,10 +261,6 @@ export function initUI(root) {
     } else if (key === 'PageDown') {
       e.preventDefault();
       moveSelection(3, 0);
-    } else if (key.toLowerCase() === 'n') {
-      // quick toggle notes mode
-      notesMode = !notesMode;
-      root.dispatchEvent(new CustomEvent('notes-toggle', { detail: { on: notesMode } }));
     }
   }
 
@@ -309,17 +283,7 @@ export function initUI(root) {
     }
   }
 
-  function toggleNote(cell, n) {
-    if (!n) return;
-    const span = cell.querySelector(`.notes span[data-n="${n}"]`);
-    if (!span) return;
-    if (span.textContent) span.textContent = '';
-    else span.textContent = String(n);
-  }
-
-  function clearNotes(cell) {
-    cell.querySelectorAll('.notes span').forEach((s) => (s.textContent = ''));
-  }
+  // notes removed
 
   function pulse(cell) {
     cell.classList.remove('value-pulse');
@@ -332,9 +296,6 @@ export function initUI(root) {
     root,
     boardEl,
     selectCell,
-    setNotesMode(on) {
-      notesMode = !!on;
-    },
     hint() {
       // Try selected cell first
       const board = this.readBoard();
@@ -390,10 +351,7 @@ export function initUI(root) {
           const input = boardEl.children[idx].querySelector('input');
           input.value = board[r][c] ? String(board[r][c]) : '';
           updateHasValue(boardEl.children[idx]);
-          if (board[r][c])
-            boardEl.children[idx]
-              .querySelectorAll('.notes span')
-              .forEach((s) => (s.textContent = ''));
+          // nothing else
         }
       }
       // Reset any previous lock based on new values

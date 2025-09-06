@@ -316,23 +316,7 @@ main {
   font-size: clamp(12px, 1.8vmin, 15px);
 }
 
-/* Notes (pencil marks) mini-grid */
-.cell .notes {
-  position: absolute;
-  inset: 2px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 1px;
-  z-index: 1;
-}
-.cell .notes span {
-  display: grid;
-  place-items: center;
-  font-size: calc(var(--cell-size) * 0.26);
-  color: var(--muted);
-  opacity: 0.9;
-}
+/* Notes removed */
 .cell.value-pulse {
   animation: valuePulse 180ms ease;
 }
@@ -344,6 +328,4 @@ main {
     transform: scale(1);
   }
 }
-.cell.has-value .notes {
-  display: none;
-}
+/* Notes removed */

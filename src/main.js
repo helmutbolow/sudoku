@@ -23,14 +23,13 @@ onReady(() => {
   primePool('medium');
   primePool('hard');
   const select = document.getElementById('difficulty');
-  const notesBtn = document.getElementById('notes-toggle');
   const btnUndo = document.getElementById('undo');
   const btnRedo = document.getElementById('redo');
   const btnRestart = document.getElementById('restart');
   const btnClearAll = document.getElementById('clear-all');
   const btnCheck = document.getElementById('check');
   const LS_KEY = 'sudoku:difficulty';
-  const LS_NOTES = 'sudoku:notes';
+  // notes removed
 
   // Game state
   let originalPuzzle = null; // 9x9 numbers (0 empty)
@@ -87,33 +86,7 @@ onReady(() => {
     } catch {}
   });
 
-  // notes toggle
-  try {
-    const savedNotes = localStorage.getItem(LS_NOTES);
-    if (savedNotes) {
-      const on = savedNotes === '1';
-      api.setNotesMode(on);
-      notesBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    }
-  } catch {}
-  notesBtn.addEventListener('click', () => {
-    const on = notesBtn.getAttribute('aria-pressed') !== 'true';
-    notesBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    api.setNotesMode(on);
-    try {
-      localStorage.setItem(LS_NOTES, on ? '1' : '0');
-    } catch {}
-    api.setStatus(on ? 'Notes mode: ON — Shift+number to place a value' : 'Notes mode: OFF');
-  });
-  // Reflect keyboard toggle
-  root.addEventListener('notes-toggle', (e) => {
-    const on = !!e.detail?.on;
-    notesBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    try {
-      localStorage.setItem(LS_NOTES, on ? '1' : '0');
-    } catch {}
-    api.setStatus(on ? 'Notes mode: ON — Shift+number to place a value' : 'Notes mode: OFF');
-  });
+  // notes removed
 
   // remove legacy clear button if present
 
@@ -129,10 +102,9 @@ onReady(() => {
     if (genAbort) genAbort.abort();
   });
 
-  document.getElementById('new-puzzle').addEventListener('click', async () => {
+  async function loadNewByDifficulty(difficulty) {
     // clear any mistake highlights
     [...api.boardEl.children].forEach((el) => el.classList.remove('mistake'));
-    const difficulty = select.value || 'medium';
     const cached = getFromPool(difficulty);
     if (cached) {
       setNewPuzzle(cached.puzzle, cached.mask, cached.solution);
@@ -157,6 +129,11 @@ onReady(() => {
       genAbort = null;
       updateActionButtons();
     }
+  }
+
+  document.getElementById('new-puzzle').addEventListener('click', async () => {
+    const difficulty = select.value || 'medium';
+    await loadNewByDifficulty(difficulty);
   });
 
   document.getElementById('hint').addEventListener('click', () => {
@@ -263,16 +240,11 @@ onReady(() => {
     }
   });
 
-  // Load an initial sample
-  fillSample(api);
-  // Initialize game state for sample
-  try {
-    originalPuzzle = api.readBoard();
-    prefillMask = Array.from({ length: 9 }, (_, r) =>
-      Array.from({ length: 9 }, (_, c) => originalPuzzle[r][c] !== 0)
-    );
-    solutionGrid = solve(originalPuzzle);
-    history.push(cloneBoard(originalPuzzle));
-    updateActionButtons();
-  } catch {}
+  // Load initial puzzle for selected difficulty
+  (async () => {
+    try {
+      const difficulty = select.value || 'medium';
+      await loadNewByDifficulty(difficulty);
+    } catch {}
+  })();
 });
