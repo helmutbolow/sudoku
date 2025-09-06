@@ -31,6 +31,19 @@
 
     <main>
       <div id="app" class="app"></div>
+      <div
+        id="gen-overlay"
+        class="overlay hidden"
+        aria-hidden="true"
+        role="dialog"
+        aria-label="Generating puzzle"
+      >
+        <div class="overlay-card">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="overlay-text">Generating puzzle…</div>
+          <button id="gen-cancel" class="ghost">Cancel</button>
+        </div>
+      </div>
     </main>
 
     <footer class="site-footer">

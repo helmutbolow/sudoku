@@ -36,7 +36,7 @@ function validateCell(cell) {
   cell.classList.remove('invalid');
   const input = cell.querySelector('input');
   const val = input.value;
-  if (val === '') return;
+  if (val === '') return true;
   const r = Number(cell.dataset.row);
   const c = Number(cell.dataset.col);
   const grid = cell.parentElement;
@@ -56,7 +56,11 @@ function validateCell(cell) {
       if (other !== cell && other.querySelector('input').value === val) dupInBlock = true;
     }
   }
-  if (dupInRow || dupInCol || dupInBlock) cell.classList.add('invalid');
+  if (dupInRow || dupInCol || dupInBlock) {
+    cell.classList.add('invalid');
+    return false;
+  }
+  return true;
 }
 
 function computeCandidates(board, r, c) {
@@ -116,6 +120,7 @@ export function initUI(root) {
 
   let selectedIdx = null;
   let notesMode = false;
+  let lockedIdx = null; // prevents leaving an invalid cell
 
   function getCellByIndex(idx) {
     return boardEl.children[idx];
@@ -146,6 +151,14 @@ export function initUI(root) {
   }
 
   function selectCell(idx) {
+    if (lockedIdx != null && idx !== lockedIdx) {
+      // keep focus on locked invalid cell
+      const locked = getCellByIndex(lockedIdx);
+      locked.classList.add('selected');
+      locked.querySelector('input').focus();
+      setStatus('Fix or clear the conflicting cell first.');
+      return;
+    }
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
     selectedIdx = idx;
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.add('selected');
@@ -181,7 +194,7 @@ export function initUI(root) {
     } else {
       input.value = val;
       updateHasValue(cell);
-      validateCell(cell);
+      recomputeValidity();
       cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
     }
   });
@@ -219,10 +232,10 @@ export function initUI(root) {
       } else {
         input.value = key;
         updateHasValue(cell);
-        validateCell(cell);
+        recomputeValidity();
         cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
         // move right to next cell for faster entry
-        moveSelection(0, 1);
+        if (lockedIdx == null) moveSelection(0, 1);
       }
       e.preventDefault();
     } else if (key === 'Backspace' || key === 'Delete' || key === '0' || key === ' ') {
@@ -231,24 +244,30 @@ export function initUI(root) {
       } else {
         input.value = '';
         updateHasValue(cell);
-        validateCell(cell);
+        recomputeValidity();
         cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
       }
       e.preventDefault();
     } else if (key === 'Home') {
       e.preventDefault();
-      if (selectedIdx == null) selectCell(0);
-      else selectCell(Math.floor(selectedIdx / 9) * 9 + 0);
+      if (lockedIdx == null) {
+        if (selectedIdx == null) selectCell(0);
+        else selectCell(Math.floor(selectedIdx / 9) * 9 + 0);
+      } else selectCell(lockedIdx);
     } else if (key === 'End') {
       e.preventDefault();
-      if (selectedIdx == null) selectCell(8);
-      else selectCell(Math.floor(selectedIdx / 9) * 9 + 8);
+      if (lockedIdx == null) {
+        if (selectedIdx == null) selectCell(8);
+        else selectCell(Math.floor(selectedIdx / 9) * 9 + 8);
+      } else selectCell(lockedIdx);
     } else if (key === 'PageUp') {
       e.preventDefault();
-      moveSelection(-3, 0);
+      if (lockedIdx == null) moveSelection(-3, 0);
+      else selectCell(lockedIdx);
     } else if (key === 'PageDown') {
       e.preventDefault();
-      moveSelection(3, 0);
+      if (lockedIdx == null) moveSelection(3, 0);
+      else selectCell(lockedIdx);
     } else if (key.toLowerCase() === 'n') {
       // quick toggle notes mode
       notesMode = !notesMode;
@@ -263,6 +282,22 @@ export function initUI(root) {
   function updateHasValue(cell) {
     const has = cell.querySelector('input').value !== '';
     cell.classList.toggle('has-value', has);
+  }
+
+  function recomputeValidity() {
+    // Re-evaluate all cells and lock on first invalid
+    lockedIdx = null;
+    for (let idx = 0; idx < 81; idx++) {
+      const cell = boardEl.children[idx];
+      const ok = validateCell(cell);
+      if (!ok && lockedIdx == null) lockedIdx = idx;
+    }
+    if (lockedIdx != null) {
+      selectCell(lockedIdx);
+      setStatus('Fix or clear the conflicting cell first.');
+    } else {
+      setStatus('Ready');
+    }
   }
 
   function toggleNote(cell, n) {

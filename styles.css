@@ -134,6 +134,54 @@ main {
     box-shadow 200ms ease;
 }
 
+/* Generation overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+.overlay.hidden {
+  display: none;
+}
+.overlay-card {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  padding: 16px 18px;
+  border-radius: 14px;
+  min-width: 260px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.overlay .spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--primary);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.overlay .overlay-text {
+  opacity: 0.9;
+}
+.overlay .ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid #3a3f58;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
 .numpad {
   margin-top: 12px;
   display: grid;

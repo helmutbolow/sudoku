@@ -1,6 +1,7 @@
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
 import { generatePuzzle } from './generator.js';
+import { primePool, getFromPool, generateOneAsync } from './pool.js';
 import { solve } from './solver.js';
 
 function onReady(fn) {
@@ -17,6 +18,10 @@ onReady(() => {
 
   const root = document.getElementById('app');
   const api = initUI(root);
+  // warm pool in background
+  primePool('easy');
+  primePool('medium');
+  primePool('hard');
   const select = document.getElementById('difficulty');
   const notesBtn = document.getElementById('notes-toggle');
   const LS_KEY = 'sudoku:difficulty';
@@ -62,12 +67,46 @@ onReady(() => {
     clearBoard(api);
   });
 
-  document.getElementById('new-puzzle').addEventListener('click', () => {
+  let genAbort = null;
+  const overlay = document.getElementById('gen-overlay');
+  const btnCancel = document.getElementById('gen-cancel');
+  function showOverlay(show) {
+    overlay.classList.toggle('hidden', !show);
+    overlay.setAttribute('aria-hidden', show ? 'false' : 'true');
+  }
+
+  btnCancel.addEventListener('click', () => {
+    if (genAbort) genAbort.abort();
+  });
+
+  document.getElementById('new-puzzle').addEventListener('click', async () => {
     clearBoard(api);
-    const { puzzle, mask } = generatePuzzle(select.value || 'medium');
-    api.writeBoard(puzzle);
-    api.markPrefill(mask);
-    api.setStatus(`Random puzzle loaded (${select.value})`);
+    const difficulty = select.value || 'medium';
+    const cached = getFromPool(difficulty);
+    if (cached) {
+      api.writeBoard(cached.puzzle);
+      api.markPrefill(cached.mask);
+      api.setStatus(`Random puzzle loaded (${difficulty})`);
+      return;
+    }
+    // Generate async with cancel
+    const controller = new AbortController();
+    genAbort = controller;
+    showOverlay(true);
+    api.setStatus('Generating…');
+    try {
+      const next = await generateOneAsync(difficulty, controller.signal);
+      api.writeBoard(next.puzzle);
+      api.markPrefill(next.mask);
+      api.setStatus(`Random puzzle loaded (${difficulty})`);
+      // top up pool
+      primePool(difficulty);
+    } catch (e) {
+      api.setStatus('Generation canceled');
+    } finally {
+      showOverlay(false);
+      genAbort = null;
+    }
   });
 
   document.getElementById('hint').addEventListener('click', () => {
