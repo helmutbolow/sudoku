@@ -115,6 +115,36 @@ main {
   border-radius: 12px;
 }
 
+.numpad {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(44px, auto));
+  gap: 8px;
+}
+.numpad button {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  padding: 8px 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.numpad button:hover {
+  background: var(--panel-2);
+}
+.numpad button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.numpad button.muted {
+  color: var(--muted);
+}
+
+.cell.selected {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
 .board {
   display: grid;
   grid-template-columns: repeat(9, var(--cell-size));

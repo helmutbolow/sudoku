@@ -14,6 +14,7 @@ function createCell(r, c) {
     const v = input.value.replace(/\D/g, '');
     input.value = v.slice(0, 1);
     validateCell(cell);
+    cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
   });
   input.addEventListener('focus', () => cell.classList.add('focus'));
   input.addEventListener('blur', () => cell.classList.remove('focus'));
@@ -35,7 +36,35 @@ function validateCell(cell) {
   const colCells = [...grid.children].filter((el) => Number(el.dataset.col) === c);
   const dupInRow = rowCells.some((el) => el !== cell && el.querySelector('input').value === val);
   const dupInCol = colCells.some((el) => el !== cell && el.querySelector('input').value === val);
-  if (dupInRow || dupInCol) cell.classList.add('invalid');
+  // 3x3 block duplicates
+  const br = Math.floor(r / 3) * 3;
+  const bc = Math.floor(c / 3) * 3;
+  let dupInBlock = false;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      const idx = (br + i) * 9 + (bc + j);
+      const other = grid.children[idx];
+      if (other !== cell && other.querySelector('input').value === val) dupInBlock = true;
+    }
+  }
+  if (dupInRow || dupInCol || dupInBlock) cell.classList.add('invalid');
+}
+
+function computeCandidates(board, r, c) {
+  if (board[r][c] !== EMPTY) return new Set();
+  const cand = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  for (let i = 0; i < 9; i++) {
+    cand.delete(board[r][i]);
+    cand.delete(board[i][c]);
+  }
+  const br = Math.floor(r / 3) * 3;
+  const bc = Math.floor(c / 3) * 3;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      cand.delete(board[br + i][bc + j]);
+    }
+  }
+  return cand;
 }
 
 export function initUI(root) {
@@ -51,14 +80,95 @@ export function initUI(root) {
 
   root.appendChild(boardEl);
 
+  // Number picker panel
+  const pad = document.createElement('div');
+  pad.className = 'numpad';
+  const buttons = [];
+  for (let n = 1; n <= 9; n++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = String(n);
+    b.dataset.value = String(n);
+    pad.appendChild(b);
+    buttons.push(b);
+  }
+  const clearBtn = document.createElement('button');
+  clearBtn.type = 'button';
+  clearBtn.textContent = 'Clear';
+  clearBtn.className = 'muted';
+  clearBtn.dataset.value = '';
+  pad.appendChild(clearBtn);
+  root.appendChild(pad);
+
   const status = document.createElement('div');
   status.className = 'status';
   status.textContent = 'Ready';
   root.appendChild(status);
 
+  let selectedIdx = null;
+
+  function getCellByIndex(idx) {
+    return boardEl.children[idx];
+  }
+
+  function updatePad() {
+    // Default: enable all
+    buttons.forEach((b) => b.removeAttribute('disabled'));
+    clearBtn.removeAttribute('disabled');
+    if (selectedIdx == null) return;
+    const cell = getCellByIndex(selectedIdx);
+    const input = cell.querySelector('input');
+    if (input.readOnly) {
+      // Prefill: disable pad
+      buttons.forEach((b) => b.setAttribute('disabled', ''));
+      clearBtn.setAttribute('disabled', '');
+      return;
+    }
+    const r = Number(cell.dataset.row);
+    const c = Number(cell.dataset.col);
+    const board = api.readBoard();
+    const cand = computeCandidates(board, r, c);
+    buttons.forEach((b) => {
+      const n = Number(b.dataset.value);
+      if (!cand.has(n)) b.setAttribute('disabled', '');
+      else b.removeAttribute('disabled');
+    });
+  }
+
+  function selectCell(idx) {
+    if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
+    selectedIdx = idx;
+    if (selectedIdx != null) getCellByIndex(selectedIdx).classList.add('selected');
+    updatePad();
+  }
+
+  // Click to select
+  for (let idx = 0; idx < boardEl.children.length; idx++) {
+    const cell = boardEl.children[idx];
+    cell.addEventListener('click', () => selectCell(idx));
+  }
+
+  // Update pad when any cell changes
+  boardEl.addEventListener('cell-change', updatePad);
+
+  // Handle pad clicks
+  pad.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (selectedIdx == null) return;
+    const cell = getCellByIndex(selectedIdx);
+    const input = cell.querySelector('input');
+    if (input.readOnly) return;
+    const val = btn.dataset.value || '';
+    input.value = val;
+    validateCell(cell);
+    cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+  });
+
   return {
     root,
     boardEl,
+    selectCell,
     setStatus: (msg) => (status.textContent = msg),
     readBoard() {
       const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
