@@ -256,7 +256,7 @@ export function initUI(root) {
         recomputeValidity();
         cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
         // move right to next cell for faster entry
-        if (lockedIdx == null) moveSelection(0, 1);
+        moveSelection(0, 1);
       }
       e.preventDefault();
     } else if (key === 'Backspace' || key === 'Delete' || key === '0' || key === ' ') {
@@ -271,24 +271,18 @@ export function initUI(root) {
       e.preventDefault();
     } else if (key === 'Home') {
       e.preventDefault();
-      if (lockedIdx == null) {
-        if (selectedIdx == null) selectCell(0);
-        else selectCell(Math.floor(selectedIdx / 9) * 9 + 0);
-      } else selectCell(lockedIdx);
+      if (selectedIdx == null) selectCell(0);
+      else selectCell(Math.floor(selectedIdx / 9) * 9 + 0);
     } else if (key === 'End') {
       e.preventDefault();
-      if (lockedIdx == null) {
-        if (selectedIdx == null) selectCell(8);
-        else selectCell(Math.floor(selectedIdx / 9) * 9 + 8);
-      } else selectCell(lockedIdx);
+      if (selectedIdx == null) selectCell(8);
+      else selectCell(Math.floor(selectedIdx / 9) * 9 + 8);
     } else if (key === 'PageUp') {
       e.preventDefault();
-      if (lockedIdx == null) moveSelection(-3, 0);
-      else selectCell(lockedIdx);
+      moveSelection(-3, 0);
     } else if (key === 'PageDown') {
       e.preventDefault();
-      if (lockedIdx == null) moveSelection(3, 0);
-      else selectCell(lockedIdx);
+      moveSelection(3, 0);
     } else if (key.toLowerCase() === 'n') {
       // quick toggle notes mode
       notesMode = !notesMode;
@@ -306,30 +300,12 @@ export function initUI(root) {
   }
 
   function recomputeValidity() {
-    // Re-evaluate all cells and lock on the first INVALID, EDITABLE cell if any
-    const invalidEditable = [];
-    const invalidAny = [];
-    for (let idx = 0; idx < 81; idx++) {
-      const cell = boardEl.children[idx];
-      const ok = validateCell(cell);
-      if (!ok) {
-        const readOnly = cell.querySelector('input').readOnly;
-        if (!readOnly) invalidEditable.push(idx);
-        invalidAny.push(idx);
-      }
-    }
-    const nextLock = invalidEditable.length
-      ? invalidEditable[0]
-      : invalidAny.length
-        ? invalidAny[0]
-        : null;
-    lockedIdx = nextLock;
-    if (lockedIdx != null) {
-      // Force focus to an editable invalid cell when possible
-      selectCell(lockedIdx);
-      setStatus('Fix or clear the conflicting cell first.');
-    } else {
-      setStatus('Ready');
+    // Soft validation: highlight invalid cells, do not lock movement
+    lockedIdx = null;
+    for (let idx = 0; idx < 81; idx++) validateCell(boardEl.children[idx]);
+    if (selectedIdx != null) {
+      const ok = validateCell(getCellByIndex(selectedIdx));
+      setStatus(ok ? 'Ready' : 'This entry conflicts. Fix or clear it.');
     }
   }
 
