@@ -145,7 +145,52 @@ onReady(() => {
   });
 
   document.getElementById('hint').addEventListener('click', () => {
-    api.hint();
+    if (!solutionGrid) return;
+    let filled = false;
+    const selInput = api.boardEl.querySelector('.cell.selected input');
+    if (selInput) {
+      const cell = selInput.parentElement;
+      const r = Number(cell.dataset.row),
+        c = Number(cell.dataset.col);
+      if (!selInput.readOnly && !selInput.value) {
+        selInput.value = String(solutionGrid[r][c]);
+        api.boardEl.dispatchEvent(
+          new CustomEvent('cell-change', {
+            bubbles: true,
+            detail: { idx: r * 9 + c, oldVal: '', newVal: selInput.value },
+          })
+        );
+        filled = true;
+      }
+    }
+    if (!filled) {
+      outer: for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++) {
+          const idx = r * 9 + c;
+          const cell = api.boardEl.children[idx];
+          const input = cell.querySelector('input');
+          if (!input.readOnly && !input.value) {
+            input.value = String(solutionGrid[r][c]);
+            api.boardEl.dispatchEvent(
+              new CustomEvent('cell-change', {
+                bubbles: true,
+                detail: { idx, oldVal: '', newVal: input.value },
+              })
+            );
+            filled = true;
+            break outer;
+          }
+        }
+    }
+    // count as soft error
+    errorCount++;
+    const max = ERROR_LIMIT[currentDifficulty] || 3;
+    if (errorCount >= max) {
+      api.setStatus(`Game over — errors: ${errorCount}/${max}`);
+      if (api.setEnabled) api.setEnabled(false);
+    } else {
+      api.setStatus(`Errors: ${errorCount}/${max}`);
+    }
   });
 
   document.getElementById('solve-board').addEventListener('click', () => {
@@ -160,25 +205,27 @@ onReady(() => {
     pushHistoryFromCurrent();
   });
 
-  // Undo/Redo/Restart/Check handlers
+  // Undo/Restart handlers (Redo removed)
   if (btnUndo)
     btnUndo.addEventListener('click', () => {
-      if (history.length > 1) {
-        const current = history.pop();
-        future.push(current);
-        applySnapshot(history[history.length - 1]);
-        api.setStatus('Undid move');
-        updateActionButtons();
-      }
-    });
-  if (btnRedo)
-    btnRedo.addEventListener('click', () => {
-      if (future.length) {
-        const next = future.pop();
-        history.push(next);
-        applySnapshot(next);
-        api.setStatus('Redid move');
-        updateActionButtons();
+      // Clear only the last placed entry; do not refill erased cells
+      if (!placements.length) return;
+      while (placements.length) {
+        const idx = placements.pop();
+        const cell = api.boardEl.children[idx];
+        const input = cell.querySelector('input');
+        if (input && !input.readOnly && input.value) {
+          const old = input.value;
+          input.value = '';
+          api.boardEl.dispatchEvent(
+            new CustomEvent('cell-change', {
+              bubbles: true,
+              detail: { idx, oldVal: old, newVal: '' },
+            })
+          );
+          api.setStatus('Undid last entry');
+          break;
+        }
       }
     });
   if (btnRestart)
@@ -187,30 +234,7 @@ onReady(() => {
       setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
       api.setStatus('Puzzle restarted');
     });
-  if (btnCheck)
-    btnCheck.addEventListener('click', () => {
-      if (!solutionGrid) return;
-      const board = api.readBoard();
-      let wrong = 0;
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-          const idx = r * 9 + c;
-          const cell = api.boardEl.children[idx];
-          const input = cell.querySelector('input');
-          if (input.readOnly) {
-            cell.classList.remove('mistake');
-            continue;
-          }
-          if (board[r][c] !== 0 && board[r][c] !== solutionGrid[r][c]) {
-            cell.classList.add('mistake');
-            wrong++;
-          } else {
-            cell.classList.remove('mistake');
-          }
-        }
-      }
-      api.setStatus(wrong ? `Mistakes: ${wrong}` : 'No mistakes so far!');
-    });
+  // Check removed
 
   // Snapshot on user edit
   api.boardEl.addEventListener('cell-change', () => {
@@ -237,9 +261,6 @@ onReady(() => {
     const k = e.key.toLowerCase();
     if (k === 'u') {
       btnUndo?.click();
-      e.preventDefault();
-    } else if (k === 'r') {
-      btnRedo?.click();
       e.preventDefault();
     } else if (k === 'x') {
       btnRestart?.click();

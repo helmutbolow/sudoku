@@ -17,13 +17,24 @@ function createCell(r, c) {
       // Strict mode: reject if not matching solution
       if (!strictAccept(cell, Number(input.value))) {
         input.value = '';
-        cell.dispatchEvent(new CustomEvent('strict-error', { bubbles: true }));
+        const r = Number(cell.dataset.row),
+          c = Number(cell.dataset.col);
+        cell.dispatchEvent(
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c } })
+        );
       } else {
         pulse(cell);
       }
     }
     recomputeValidity();
-    cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+    const r = Number(cell.dataset.row),
+      c = Number(cell.dataset.col);
+    cell.dispatchEvent(
+      new CustomEvent('cell-change', {
+        bubbles: true,
+        detail: { idx: r * 9 + c, newVal: input.value },
+      })
+    );
   });
   input.addEventListener('focus', () => cell.classList.add('focus'));
   input.addEventListener('blur', () => cell.classList.remove('focus'));
@@ -209,15 +220,27 @@ export function initUI(root) {
     if (val) {
       if (!strictAccept(cell, Number(val))) {
         // reject and count as strict error
-        cell.dispatchEvent(new CustomEvent('strict-error', { bubbles: true }));
+        const r = Number(cell.dataset.row),
+          c = Number(cell.dataset.col);
+        cell.dispatchEvent(
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c } })
+        );
         return;
       }
     }
+    const oldVal = input.value;
     input.value = val;
     updateHasValue(cell);
     if (val) pulse(cell);
     recomputeValidity();
-    cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+    const r = Number(cell.dataset.row),
+      c = Number(cell.dataset.col);
+    cell.dispatchEvent(
+      new CustomEvent('cell-change', {
+        bubbles: true,
+        detail: { idx: r * 9 + c, oldVal, newVal: val },
+      })
+    );
   });
 
   // Keyboard navigation and entry
@@ -251,22 +274,42 @@ export function initUI(root) {
       const digit = Number(key);
       if (!strictAccept(cell, digit)) {
         // reject and notify
-        cell.dispatchEvent(new CustomEvent('strict-error', { bubbles: true }));
+        const r = Number(cell.dataset.row),
+          c = Number(cell.dataset.col);
+        cell.dispatchEvent(
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c } })
+        );
       } else {
+        const oldVal = input.value;
         input.value = key;
         updateHasValue(cell);
         pulse(cell);
         recomputeValidity();
-        cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+        const r = Number(cell.dataset.row),
+          c = Number(cell.dataset.col);
+        cell.dispatchEvent(
+          new CustomEvent('cell-change', {
+            bubbles: true,
+            detail: { idx: r * 9 + c, oldVal, newVal: key },
+          })
+        );
         // move right to next cell for faster entry
         moveSelection(0, 1);
       }
       e.preventDefault();
     } else if (key === 'Backspace' || key === 'Delete' || key === '0' || key === ' ') {
+      const oldVal = input.value;
       input.value = '';
       updateHasValue(cell);
       recomputeValidity();
-      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+      const r = Number(cell.dataset.row),
+        c = Number(cell.dataset.col);
+      cell.dispatchEvent(
+        new CustomEvent('cell-change', {
+          bubbles: true,
+          detail: { idx: r * 9 + c, oldVal, newVal: '' },
+        })
+      );
       e.preventDefault();
     } else if (key === 'Home') {
       e.preventDefault();
