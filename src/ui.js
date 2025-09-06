@@ -117,6 +117,9 @@ export function initUI(root) {
   status.className = 'status';
   status.textContent = 'Ready';
   root.appendChild(status);
+  function setStatus(msg) {
+    status.textContent = msg;
+  }
 
   let selectedIdx = null;
   let notesMode = false;
@@ -124,6 +127,18 @@ export function initUI(root) {
 
   function getCellByIndex(idx) {
     return boardEl.children[idx];
+  }
+
+  function buildBoard() {
+    const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const idx = r * 9 + c;
+        const v = boardEl.children[idx].querySelector('input').value;
+        board[r][c] = v ? Number(v) : EMPTY;
+      }
+    }
+    return board;
   }
 
   function updatePad() {
@@ -141,7 +156,7 @@ export function initUI(root) {
     }
     const r = Number(cell.dataset.row);
     const c = Number(cell.dataset.col);
-    const board = api.readBoard();
+    const board = buildBoard();
     const cand = computeCandidates(board, r, c);
     buttons.forEach((b) => {
       const n = Number(b.dataset.value);
@@ -367,7 +382,7 @@ export function initUI(root) {
       }
       this.setStatus('No single-candidate cells found.');
     },
-    setStatus: (msg) => (status.textContent = msg),
+    setStatus,
     readBoard() {
       const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
       for (let r = 0; r < 9; r++) {
@@ -392,6 +407,8 @@ export function initUI(root) {
               .forEach((s) => (s.textContent = ''));
         }
       }
+      // Reset any previous lock based on new values
+      recomputeValidity();
     },
     markPrefill(prefillMask) {
       for (let r = 0; r < 9; r++) {
