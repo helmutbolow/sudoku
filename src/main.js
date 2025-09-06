@@ -244,14 +244,31 @@ onReady(() => {
   });
 
   // Strict error counting
-  api.boardEl.addEventListener('strict-error', () => {
+  const lastWrong = new Map(); // idx -> digit last tried
+  api.boardEl.addEventListener('strict-error', (e) => {
+    const d = e.detail || {};
+    const idx = typeof d.idx === 'number' ? d.idx : -1;
+    const digit = typeof d.digit === 'number' ? d.digit : null;
+    const r = idx >= 0 ? Math.floor(idx / 9) + 1 : null;
+    const c = idx >= 0 ? (idx % 9) + 1 : null;
+    const prev = lastWrong.get(idx);
+    // Avoid double-counting same wrong digit on same cell
+    if (digit !== null && prev === digit) {
+      api.setStatus(
+        `Still wrong: ${digit} at R${r}C${c} — Errors: ${errorCount}/${ERROR_LIMIT[currentDifficulty]}`
+      );
+      return;
+    }
+    if (digit !== null) lastWrong.set(idx, digit);
     errorCount++;
     const max = ERROR_LIMIT[currentDifficulty] || 3;
     if (errorCount >= max) {
       api.setStatus(`Game over — errors: ${errorCount}/${max}`);
       if (api.setEnabled) api.setEnabled(false);
     } else {
-      api.setStatus(`Errors: ${errorCount}/${max}`);
+      if (r && c && digit !== null)
+        api.setStatus(`Wrong: ${digit} at R${r}C${c} — Errors: ${errorCount}/${max}`);
+      else api.setStatus(`Errors: ${errorCount}/${max}`);
     }
   });
 

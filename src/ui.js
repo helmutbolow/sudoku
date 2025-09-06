@@ -15,12 +15,14 @@ function createCell(r, c) {
     input.value = v.slice(0, 1);
     if (input.value) {
       // Strict mode: reject if not matching solution
-      if (!strictAccept(cell, Number(input.value))) {
+      const digit = Number(input.value);
+      if (!strictAccept(cell, digit)) {
         input.value = '';
+        flashError(cell);
         const r = Number(cell.dataset.row),
           c = Number(cell.dataset.col);
         cell.dispatchEvent(
-          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c } })
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
         );
       } else {
         pulse(cell);
@@ -218,12 +220,14 @@ export function initUI(root) {
     if (input.readOnly) return;
     const val = btn.dataset.value || '';
     if (val) {
-      if (!strictAccept(cell, Number(val))) {
-        // reject and count as strict error
+      const digit = Number(val);
+      if (!strictAccept(cell, digit)) {
+        // reject and count as strict error (only once per same digit)
+        flashError(cell);
         const r = Number(cell.dataset.row),
           c = Number(cell.dataset.col);
         cell.dispatchEvent(
-          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c } })
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
         );
         return;
       }
@@ -274,10 +278,11 @@ export function initUI(root) {
       const digit = Number(key);
       if (!strictAccept(cell, digit)) {
         // reject and notify
+        flashError(cell);
         const r = Number(cell.dataset.row),
           c = Number(cell.dataset.col);
         cell.dispatchEvent(
-          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c } })
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
         );
       } else {
         const oldVal = input.value;
@@ -377,6 +382,12 @@ export function initUI(root) {
     // force reflow to restart animation
     void cell.offsetWidth;
     cell.classList.add('value-pulse');
+  }
+
+  function flashError(cell) {
+    cell.classList.remove('mistake-flash');
+    void cell.offsetWidth;
+    cell.classList.add('mistake-flash');
   }
 
   return {
