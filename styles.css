@@ -10,7 +10,7 @@
   --panel-2: #151826;
   --text: #e8f0fe;
   --muted: #b5bfd3;
-  --primary: #6ea8fe;
+  --primary: #0a84ff; /* Apple accent blue */
   --accent: #ffb86b;
   --danger: #ff6b6b;
   --grid: #2b2f43; /* thin lines */
@@ -52,6 +52,8 @@ body {
     'Segoe UI Emoji';
   color: var(--text);
   background: radial-gradient(1200px 600px at 10% -20%, #0f1320, transparent), var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .site-header,
@@ -80,12 +82,20 @@ body {
   color: var(--text);
   border: 1px solid #23263b;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    transform 80ms ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.25);
 }
 .actions button:hover,
 .actions select:hover {
   background: var(--panel-2);
+  transform: translateY(-0.5px);
 }
 .actions select {
   appearance: none;
@@ -114,9 +124,14 @@ main {
   place-items: start center;
 }
 .app {
-  padding: 16px;
-  background: #0e111a88;
-  border-radius: 12px;
+  padding: 20px;
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: saturate(160%) blur(18px);
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .numpad {
@@ -130,11 +145,18 @@ main {
   color: var(--text);
   border: 1px solid #23263b;
   padding: 8px 0;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  transition:
+    background 120ms ease,
+    transform 80ms ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .numpad button:hover {
   background: var(--panel-2);
+  transform: translateY(-0.5px);
 }
 .numpad button[disabled] {
   opacity: 0.45;
@@ -155,6 +177,9 @@ main {
   gap: 0;
   border: var(--border-outer) solid var(--grid-strong);
   background: var(--panel);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .cell {

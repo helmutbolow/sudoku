@@ -284,6 +284,41 @@ export function initUI(root) {
     setNotesMode(on) {
       notesMode = !!on;
     },
+    hint() {
+      // Try selected cell first
+      const board = this.readBoard();
+      const tryFill = (idx) => {
+        const cell = boardEl.children[idx];
+        const input = cell.querySelector('input');
+        if (input.readOnly) return false;
+        const r = Number(cell.dataset.row);
+        const c = Number(cell.dataset.col);
+        const cand = Array.from(computeCandidates(board, r, c));
+        if (cand.length === 1) {
+          input.value = String(cand[0]);
+          updateHasValue(cell);
+          validateCell(cell);
+          cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+          this.setStatus(`Hint: filled ${cand[0]} at R${r + 1}C${c + 1}`);
+          return true;
+        } else if (cand.length > 1 && idx === selectedIdx) {
+          this.setStatus(`R${r + 1}C${c + 1}: ${cand.length} candidates — ${cand.join(', ')}`);
+          return false;
+        }
+        return false;
+      };
+
+      if (selectedIdx != null && tryFill(selectedIdx)) return;
+
+      // Otherwise scan board for a single-candidate cell
+      for (let idx = 0; idx < 81; idx++) {
+        if (tryFill(idx)) {
+          selectCell(idx);
+          return;
+        }
+      }
+      this.setStatus('No single-candidate cells found.');
+    },
     setStatus: (msg) => (status.textContent = msg),
     readBoard() {
       const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));

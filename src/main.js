@@ -70,6 +70,10 @@ onReady(() => {
     api.setStatus(`Random puzzle loaded (${select.value})`);
   });
 
+  document.getElementById('hint').addEventListener('click', () => {
+    api.hint();
+  });
+
   document.getElementById('solve-board').addEventListener('click', () => {
     const board = api.readBoard();
     const solved = solve(board);
