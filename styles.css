@@ -91,6 +91,10 @@ body {
   appearance: none;
   -webkit-appearance: none;
 }
+.actions button[aria-pressed='true'] {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
 
 /* Screen-reader only label */
 .sr-only {
@@ -196,6 +200,7 @@ main {
   background: transparent;
   border: none;
   outline: none;
+  z-index: 2;
 }
 
 .cell input[readonly] {
@@ -212,4 +217,25 @@ main {
 .status {
   margin-top: 12px;
   color: var(--muted);
+}
+
+/* Notes (pencil marks) mini-grid */
+.cell .notes {
+  position: absolute;
+  inset: 2px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 1px;
+  z-index: 1;
+}
+.cell .notes span {
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  color: var(--muted);
+  opacity: 0.9;
+}
+.cell.has-value .notes {
+  display: none;
 }

@@ -18,7 +18,9 @@ onReady(() => {
   const root = document.getElementById('app');
   const api = initUI(root);
   const select = document.getElementById('difficulty');
+  const notesBtn = document.getElementById('notes-toggle');
   const LS_KEY = 'sudoku:difficulty';
+  const LS_NOTES = 'sudoku:notes';
   // restore last selection
   try {
     const saved = localStorage.getItem(LS_KEY);
@@ -27,6 +29,32 @@ onReady(() => {
   select.addEventListener('change', () => {
     try {
       localStorage.setItem(LS_KEY, select.value);
+    } catch {}
+  });
+
+  // notes toggle
+  try {
+    const savedNotes = localStorage.getItem(LS_NOTES);
+    if (savedNotes) {
+      const on = savedNotes === '1';
+      api.setNotesMode(on);
+      notesBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  } catch {}
+  notesBtn.addEventListener('click', () => {
+    const on = notesBtn.getAttribute('aria-pressed') !== 'true';
+    notesBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    api.setNotesMode(on);
+    try {
+      localStorage.setItem(LS_NOTES, on ? '1' : '0');
+    } catch {}
+  });
+  // Reflect keyboard toggle
+  root.addEventListener('notes-toggle', (e) => {
+    const on = !!e.detail?.on;
+    notesBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    try {
+      localStorage.setItem(LS_NOTES, on ? '1' : '0');
     } catch {}
   });
 

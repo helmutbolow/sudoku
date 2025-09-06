@@ -19,6 +19,15 @@ function createCell(r, c) {
   input.addEventListener('focus', () => cell.classList.add('focus'));
   input.addEventListener('blur', () => cell.classList.remove('focus'));
 
+  const notes = document.createElement('div');
+  notes.className = 'notes';
+  for (let i = 1; i <= 9; i++) {
+    const s = document.createElement('span');
+    s.dataset.n = String(i);
+    notes.appendChild(s);
+  }
+
+  cell.appendChild(notes);
   cell.appendChild(input);
   return cell;
 }
@@ -106,6 +115,7 @@ export function initUI(root) {
   root.appendChild(status);
 
   let selectedIdx = null;
+  let notesMode = false;
 
   function getCellByIndex(idx) {
     return boardEl.children[idx];
@@ -165,9 +175,15 @@ export function initUI(root) {
     const input = cell.querySelector('input');
     if (input.readOnly) return;
     const val = btn.dataset.value || '';
-    input.value = val;
-    validateCell(cell);
-    cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+    if (notesMode && input.value === '') {
+      // toggle note
+      toggleNote(cell, Number(btn.dataset.value));
+    } else {
+      input.value = val;
+      updateHasValue(cell);
+      validateCell(cell);
+      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+    }
   });
 
   // Keyboard navigation and entry
@@ -198,17 +214,45 @@ export function initUI(root) {
     const input = cell.querySelector('input');
     if (input.readOnly) return;
     if (/^[1-9]$/.test(key)) {
-      input.value = key;
-      validateCell(cell);
-      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
-      // move right to next cell for faster entry
-      moveSelection(0, 1);
+      if (notesMode && input.value === '') {
+        toggleNote(cell, Number(key));
+      } else {
+        input.value = key;
+        updateHasValue(cell);
+        validateCell(cell);
+        cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+        // move right to next cell for faster entry
+        moveSelection(0, 1);
+      }
       e.preventDefault();
     } else if (key === 'Backspace' || key === 'Delete' || key === '0' || key === ' ') {
-      input.value = '';
-      validateCell(cell);
-      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+      if (notesMode && input.value === '') {
+        clearNotes(cell);
+      } else {
+        input.value = '';
+        updateHasValue(cell);
+        validateCell(cell);
+        cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+      }
       e.preventDefault();
+    } else if (key === 'Home') {
+      e.preventDefault();
+      if (selectedIdx == null) selectCell(0);
+      else selectCell(Math.floor(selectedIdx / 9) * 9 + 0);
+    } else if (key === 'End') {
+      e.preventDefault();
+      if (selectedIdx == null) selectCell(8);
+      else selectCell(Math.floor(selectedIdx / 9) * 9 + 8);
+    } else if (key === 'PageUp') {
+      e.preventDefault();
+      moveSelection(-3, 0);
+    } else if (key === 'PageDown') {
+      e.preventDefault();
+      moveSelection(3, 0);
+    } else if (key.toLowerCase() === 'n') {
+      // quick toggle notes mode
+      notesMode = !notesMode;
+      root.dispatchEvent(new CustomEvent('notes-toggle', { detail: { on: notesMode } }));
     }
   }
 
@@ -216,10 +260,30 @@ export function initUI(root) {
   root.addEventListener('keydown', handleKeydown);
   root.tabIndex = 0;
 
+  function updateHasValue(cell) {
+    const has = cell.querySelector('input').value !== '';
+    cell.classList.toggle('has-value', has);
+  }
+
+  function toggleNote(cell, n) {
+    if (!n) return;
+    const span = cell.querySelector(`.notes span[data-n="${n}"]`);
+    if (!span) return;
+    if (span.textContent) span.textContent = '';
+    else span.textContent = String(n);
+  }
+
+  function clearNotes(cell) {
+    cell.querySelectorAll('.notes span').forEach((s) => (s.textContent = ''));
+  }
+
   return {
     root,
     boardEl,
     selectCell,
+    setNotesMode(on) {
+      notesMode = !!on;
+    },
     setStatus: (msg) => (status.textContent = msg),
     readBoard() {
       const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
@@ -238,6 +302,11 @@ export function initUI(root) {
           const idx = r * 9 + c;
           const input = boardEl.children[idx].querySelector('input');
           input.value = board[r][c] ? String(board[r][c]) : '';
+          updateHasValue(boardEl.children[idx]);
+          if (board[r][c])
+            boardEl.children[idx]
+              .querySelectorAll('.notes span')
+              .forEach((s) => (s.textContent = ''));
         }
       }
     },
