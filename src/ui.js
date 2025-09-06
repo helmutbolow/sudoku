@@ -139,6 +139,11 @@ export function initUI(root) {
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
     selectedIdx = idx;
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.add('selected');
+    // Focus the input for typing support
+    if (selectedIdx != null) {
+      const inp = getCellByIndex(selectedIdx).querySelector('input');
+      inp.focus();
+    }
     updatePad();
   }
 
@@ -164,6 +169,52 @@ export function initUI(root) {
     validateCell(cell);
     cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
   });
+
+  // Keyboard navigation and entry
+  function moveSelection(dr, dc) {
+    if (selectedIdx == null) {
+      selectCell(0);
+      return;
+    }
+    let r = Number(getCellByIndex(selectedIdx).dataset.row);
+    let c = Number(getCellByIndex(selectedIdx).dataset.col);
+    r = Math.min(8, Math.max(0, r + dr));
+    c = Math.min(8, Math.max(0, c + dc));
+    selectCell(r * 9 + c);
+  }
+
+  function handleKeydown(e) {
+    const key = e.key;
+    if (key.startsWith('Arrow')) {
+      e.preventDefault();
+      if (key === 'ArrowUp') moveSelection(-1, 0);
+      else if (key === 'ArrowDown') moveSelection(1, 0);
+      else if (key === 'ArrowLeft') moveSelection(0, -1);
+      else if (key === 'ArrowRight') moveSelection(0, 1);
+      return;
+    }
+    if (selectedIdx == null) return;
+    const cell = getCellByIndex(selectedIdx);
+    const input = cell.querySelector('input');
+    if (input.readOnly) return;
+    if (/^[1-9]$/.test(key)) {
+      input.value = key;
+      validateCell(cell);
+      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+      // move right to next cell for faster entry
+      moveSelection(0, 1);
+      e.preventDefault();
+    } else if (key === 'Backspace' || key === 'Delete' || key === '0' || key === ' ') {
+      input.value = '';
+      validateCell(cell);
+      cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
+      e.preventDefault();
+    }
+  }
+
+  // Attach key handler when focus is within the app
+  root.addEventListener('keydown', handleKeydown);
+  root.tabIndex = 0;
 
   return {
     root,
