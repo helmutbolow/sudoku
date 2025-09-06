@@ -103,6 +103,7 @@ onReady(() => {
     try {
       localStorage.setItem(LS_NOTES, on ? '1' : '0');
     } catch {}
+    api.setStatus(on ? 'Notes mode: ON — Shift+number to place a value' : 'Notes mode: OFF');
   });
   // Reflect keyboard toggle
   root.addEventListener('notes-toggle', (e) => {
@@ -111,6 +112,7 @@ onReady(() => {
     try {
       localStorage.setItem(LS_NOTES, on ? '1' : '0');
     } catch {}
+    api.setStatus(on ? 'Notes mode: ON — Shift+number to place a value' : 'Notes mode: OFF');
   });
 
   // remove legacy clear button if present

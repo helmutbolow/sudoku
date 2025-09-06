@@ -247,7 +247,7 @@ export function initUI(root) {
     const input = cell.querySelector('input');
     if (input.readOnly) return;
     if (/^[1-9]$/.test(key)) {
-      if (notesMode && input.value === '') {
+      if (notesMode && input.value === '' && !e.shiftKey) {
         toggleNote(cell, Number(key));
       } else {
         input.value = key;
