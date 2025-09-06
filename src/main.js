@@ -28,6 +28,8 @@ onReady(() => {
   const btnRestart = document.getElementById('restart');
   const btnCheck = document.getElementById('check');
   const errorBadge = document.getElementById('error-badge');
+  const hintBadge = document.getElementById('hint-badge');
+  const clockBadge = document.getElementById('clock-badge');
   const over = document.getElementById('over-overlay');
   const overText = document.getElementById('over-text');
   const overRestart = document.getElementById('over-restart');
@@ -41,15 +43,46 @@ onReady(() => {
   let solutionGrid = null; // 9x9 numbers
   const history = []; // snapshots of boards
   const future = [];
+  const placements = []; // strict undo stack
   let currentDifficulty = 'medium';
   let errorCount = 0;
   const ERROR_LIMIT = { easy: 3, medium: 5, hard: 9 };
+  let hintCount = 0;
+  let timerId = null;
+  let startTime = 0;
   function updateErrorsUI() {
     if (!errorBadge) return;
     const max = ERROR_LIMIT[currentDifficulty] || 3;
     const remaining = Math.max(0, max - errorCount);
     errorBadge.textContent = `Attempts: ${remaining}/${max}`;
     errorBadge.classList.toggle('danger', remaining <= 2);
+  }
+  function updateHintsUI() {
+    if (!hintBadge) return;
+    const max = ERROR_LIMIT[currentDifficulty] || 3;
+    const remaining = Math.max(0, max - hintCount);
+    hintBadge.textContent = `Hints: ${remaining}/${max}`;
+    hintBadge.classList.toggle('danger', remaining <= 1);
+    const btnHint = document.getElementById('hint');
+    if (btnHint) btnHint.disabled = remaining <= 0;
+  }
+  function fmtClock(ms) {
+    const total = Math.floor(ms / 1000);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+  function startClock() {
+    if (timerId) clearInterval(timerId);
+    startTime = Date.now();
+    if (clockBadge) clockBadge.textContent = '00:00';
+    timerId = setInterval(() => {
+      if (clockBadge) clockBadge.textContent = fmtClock(Date.now() - startTime);
+    }, 1000);
+  }
+  function stopClock() {
+    if (timerId) clearInterval(timerId);
+    timerId = null;
   }
   function showGameOver() {
     if (!over) return;
@@ -61,6 +94,12 @@ onReady(() => {
     if (!over) return;
     over.classList.add('hidden');
     over.setAttribute('aria-hidden', 'true');
+  }
+  function showSolved() {
+    if (!over) return;
+    if (overText) overText.textContent = `Solved!`;
+    over.classList.remove('hidden');
+    over.setAttribute('aria-hidden', 'false');
   }
   if (overRestart) overRestart.addEventListener('click', () => btnRestart?.click());
   if (overNew)
@@ -81,9 +120,10 @@ onReady(() => {
     if (btnUndo) btnUndo.disabled = history.length <= 1;
     if (btnRedo) btnRedo.disabled = future.length === 0;
     if (btnRestart) btnRestart.disabled = !originalPuzzle;
-    if (btnCheck) btnCheck.disabled = !solutionGrid;
-    // Update status with error counter if solution known
+    if (btnCheck) btnCheck.disabled = true;
     if (solutionGrid) updateErrorsUI();
+    // Always refresh hints badge
+    if (typeof updateHintsUI === 'function') updateHintsUI();
   }
   function applySnapshot(b) {
     // write board and re-apply mask
@@ -100,11 +140,33 @@ onReady(() => {
     history.length = 0;
     history.push(cloneBoard(originalPuzzle));
     future.length = 0;
-    // Reset errors based on difficulty
+    // Reset counters based on difficulty
     errorCount = 0;
+    hintCount = 0;
     updateActionButtons();
     updateErrorsUI();
     hideGameOver();
+    startClock();
+  }
+
+  function checkSolved() {
+    if (!solutionGrid) return false;
+    const b = api.readBoard();
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (b[r][c] !== solutionGrid[r][c]) return false;
+      }
+    }
+    // All cells match solution
+    stopClock();
+    if (api.setEnabled) api.setEnabled(false);
+    const elapsed = typeof startTime === 'number' && startTime ? Date.now() - startTime : 0;
+    const total = Math.floor(elapsed / 1000);
+    const mm = String(Math.floor(total / 60)).padStart(2, '0');
+    const ss = String(total % 60).padStart(2, '0');
+    api.setStatus(`Solved! Time ${mm}:${ss}. Errors ${errorCount}. Hints ${hintCount}.`);
+    showSolved();
+    return true;
   }
   function pushHistoryFromCurrent() {
     const current = api.readBoard();
@@ -178,6 +240,11 @@ onReady(() => {
 
   document.getElementById('hint').addEventListener('click', () => {
     if (!solutionGrid) return;
+    const maxHints = ERROR_LIMIT[currentDifficulty] || 3;
+    if (hintCount >= maxHints) {
+      updateHintsUI();
+      return;
+    }
     let filled = false;
     const selInput = api.boardEl.querySelector('.cell.selected input');
     if (selInput) {
@@ -214,15 +281,10 @@ onReady(() => {
           }
         }
     }
-    // count as soft error
-    errorCount++;
-    const max = ERROR_LIMIT[currentDifficulty] || 3;
-    if (errorCount >= max) {
-      api.setStatus(`Game over — errors: ${errorCount}/${max}`);
-      if (api.setEnabled) api.setEnabled(false);
-    } else {
-      api.setStatus(`Errors: ${errorCount}/${max}`);
-    }
+    // consume one hint independently
+    hintCount = Math.min(maxHints, hintCount + 1);
+    updateHintsUI();
+    checkSolved();
   });
 
   document.getElementById('solve-board').addEventListener('click', () => {
@@ -273,6 +335,8 @@ onReady(() => {
     // clear mistake highlights on edit
     [...api.boardEl.children].forEach((el) => el.classList.remove('mistake'));
     pushHistoryFromCurrent();
+    // detect solved
+    checkSolved();
   });
 
   // Strict error counting
@@ -298,6 +362,7 @@ onReady(() => {
       api.setStatus(`Game over — errors: ${errorCount}/${max}`);
       if (api.setEnabled) api.setEnabled(false);
       updateErrorsUI();
+      stopClock();
       showGameOver();
     } else {
       if (r && c && digit !== null) api.setStatus(`Wrong: ${digit} at R${r}C${c}`);
