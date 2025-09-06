@@ -15,6 +15,12 @@
     <header class="site-header">
       <h1>Sudoku</h1>
       <div class="actions">
+        <label for="difficulty" class="sr-only">Difficulty</label>
+        <select id="difficulty" aria-label="Difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
         <button id="new-puzzle">New</button>
         <button id="clear-board">Clear</button>
         <button id="solve-board">Solve</button>
