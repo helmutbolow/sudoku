@@ -134,7 +134,7 @@ export function initUI(root) {
   }
 
   function updatePad() {
-    // Default: enable all
+    // Default: enable all numbers; only disable globally exhausted numbers
     buttons.forEach((b) => b.removeAttribute('disabled'));
     clearBtn.removeAttribute('disabled');
     if (selectedIdx == null) return;
@@ -146,14 +146,14 @@ export function initUI(root) {
       clearBtn.setAttribute('disabled', '');
       return;
     }
-    const r = Number(cell.dataset.row);
-    const c = Number(cell.dataset.col);
-    const board = buildBoard();
-    const cand = computeCandidates(board, r, c);
+    const counts = Array(10).fill(0);
+    for (let idx = 0; idx < 81; idx++) {
+      const v = boardEl.children[idx].querySelector('input').value;
+      if (v) counts[Number(v)]++;
+    }
     buttons.forEach((b) => {
       const n = Number(b.dataset.value);
-      if (!cand.has(n)) b.setAttribute('disabled', '');
-      else b.removeAttribute('disabled');
+      if (counts[n] >= 9) b.setAttribute('disabled', '');
     });
   }
 
@@ -276,7 +276,21 @@ export function initUI(root) {
   function recomputeValidity() {
     // Soft validation: highlight invalid cells, do not lock movement
     lockedIdx = null;
-    for (let idx = 0; idx < 81; idx++) validateCell(boardEl.children[idx]);
+    for (let idx = 0; idx < 81; idx++) {
+      const cell = boardEl.children[idx];
+      validateCell(cell);
+      // solution-based mistake flag
+      if (typeof recomputeValidity.solution !== 'undefined' && recomputeValidity.solution) {
+        const input = cell.querySelector('input');
+        const r = Number(cell.dataset.row);
+        const c = Number(cell.dataset.col);
+        if (!input.readOnly && input.value) {
+          if (Number(input.value) !== recomputeValidity.solution[r][c])
+            cell.classList.add('mistake');
+          else cell.classList.remove('mistake');
+        } else cell.classList.remove('mistake');
+      }
+    }
     if (selectedIdx != null) {
       const ok = validateCell(getCellByIndex(selectedIdx));
       setStatus(ok ? 'Ready' : 'This entry conflicts. Fix or clear it.');
@@ -296,6 +310,10 @@ export function initUI(root) {
     root,
     boardEl,
     selectCell,
+    setSolution(sol) {
+      recomputeValidity.solution = sol;
+      recomputeValidity();
+    },
     hint() {
       // Try selected cell first
       const board = this.readBoard();
