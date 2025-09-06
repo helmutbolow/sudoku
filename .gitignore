@@ -1,0 +1,13 @@
+# General
+.DS_Store
+*.log
+
+# Node (if you later add Vite/React)
+node_modules/
+dist/
+.npm/
+
+# macOS
+.Spotlight-V100
+.Trashes
+
