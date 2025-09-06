@@ -1,0 +1,26 @@
+# Normalize line endings and mark binaries
+
+# Auto-detect text files and normalize to LF in repo
+* text=auto
+
+# Ensure LF endings for source/text files
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.json text eol=lf
+*.css  text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.sh   text eol=lf
+*.svg  text eol=lf
+
+# Binary assets (no line-ending normalization)
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
