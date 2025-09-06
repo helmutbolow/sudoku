@@ -27,6 +27,7 @@ onReady(() => {
   const btnUndo = document.getElementById('undo');
   const btnRedo = document.getElementById('redo');
   const btnRestart = document.getElementById('restart');
+  const btnClearAll = document.getElementById('clear-all');
   const btnCheck = document.getElementById('check');
   const LS_KEY = 'sudoku:difficulty';
   const LS_NOTES = 'sudoku:notes';
@@ -49,6 +50,7 @@ onReady(() => {
     if (btnUndo) btnUndo.disabled = history.length <= 1;
     if (btnRedo) btnRedo.disabled = future.length === 0;
     if (btnRestart) btnRestart.disabled = !originalPuzzle;
+    if (btnClearAll) btnClearAll.disabled = !originalPuzzle;
     if (btnCheck) btnCheck.disabled = !solutionGrid;
   }
   function applySnapshot(b) {
@@ -197,6 +199,19 @@ onReady(() => {
       if (!originalPuzzle) return;
       setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
       api.setStatus('Puzzle restarted');
+    });
+  if (btnClearAll)
+    btnClearAll.addEventListener('click', () => {
+      if (!originalPuzzle) return;
+      const b = api.readBoard();
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (!prefillMask[r][c]) b[r][c] = 0;
+        }
+      }
+      applySnapshot(b);
+      api.setStatus('Cleared all editable cells');
+      pushHistoryFromCurrent();
     });
   if (btnCheck)
     btnCheck.addEventListener('click', () => {
