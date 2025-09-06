@@ -1,0 +1,18 @@
+frontend:
+  - 'src/**'
+  - 'index.html'
+  - 'styles.css'
+
+docs:
+  - 'README.md'
+  - 'CONTRIBUTING.md'
+  - 'SECURITY.md'
+  - '.github/ISSUE_TEMPLATE/**'
+  - '.github/pull_request_template.md'
+
+ci:
+  - '.github/workflows/**'
+
+dependencies:
+  - 'package.json'
+  - 'package-lock.json'
