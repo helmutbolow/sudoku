@@ -12,6 +12,8 @@
   --muted: #b5bfd3;
   --primary: #0a84ff; /* Apple accent blue */
   --accent: #0a84ff;
+  --success: #30d158; /* Apple green */
+  --warning: #ff9f0a;
   --danger: #ff6b6b;
   --grid: #2b2f43; /* thin lines */
   --grid-strong: #3e4468; /* thick lines */
@@ -51,7 +53,9 @@ body {
     'Apple Color Emoji',
     'Segoe UI Emoji';
   color: var(--text);
-  background: radial-gradient(1200px 600px at 10% -20%, #0f1320, transparent), var(--bg);
+  background:
+    radial-gradient(1200px 600px at 10% -20%, #162039, transparent),
+    radial-gradient(900px 500px at 90% -10%, rgba(10, 132, 255, 0.08), transparent), var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
@@ -95,6 +99,10 @@ body {
     0 1px 0 rgba(255, 255, 255, 0.06) inset,
     0 1px 2px rgba(0, 0, 0, 0.25);
   font-size: clamp(12px, 1.8vmin, 16px);
+}
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .actions button:hover,
 .actions select:hover {
@@ -286,6 +294,10 @@ main {
 }
 .cell.invalid input {
   color: var(--danger);
+  font-weight: 700;
+}
+.cell.mistake input {
+  color: var(--warning);
   font-weight: 700;
 }
 .cell.prefill input {
