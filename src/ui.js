@@ -152,11 +152,14 @@ export function initUI(root) {
 
   function selectCell(idx) {
     if (lockedIdx != null && idx !== lockedIdx) {
-      // keep focus on locked invalid cell
+      // Force selection to the locked invalid cell
+      if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
+      selectedIdx = lockedIdx;
       const locked = getCellByIndex(lockedIdx);
       locked.classList.add('selected');
       locked.querySelector('input').focus();
       setStatus('Fix or clear the conflicting cell first.');
+      updatePad();
       return;
     }
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
@@ -194,6 +197,7 @@ export function initUI(root) {
     } else {
       input.value = val;
       updateHasValue(cell);
+      pulse(cell);
       recomputeValidity();
       cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
     }
@@ -232,6 +236,7 @@ export function initUI(root) {
       } else {
         input.value = key;
         updateHasValue(cell);
+        pulse(cell);
         recomputeValidity();
         cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
         // move right to next cell for faster entry
@@ -312,6 +317,13 @@ export function initUI(root) {
     cell.querySelectorAll('.notes span').forEach((s) => (s.textContent = ''));
   }
 
+  function pulse(cell) {
+    cell.classList.remove('value-pulse');
+    // force reflow to restart animation
+    void cell.offsetWidth;
+    cell.classList.add('value-pulse');
+  }
+
   return {
     root,
     boardEl,
@@ -332,6 +344,7 @@ export function initUI(root) {
         if (cand.length === 1) {
           input.value = String(cand[0]);
           updateHasValue(cell);
+          pulse(cell);
           validateCell(cell);
           cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
           this.setStatus(`Hint: filled ${cand[0]} at R${r + 1}C${c + 1}`);

@@ -316,6 +316,17 @@ main {
   color: var(--muted);
   opacity: 0.9;
 }
+.cell.value-pulse {
+  animation: valuePulse 180ms ease;
+}
+@keyframes valuePulse {
+  0% {
+    transform: scale(0.94);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .cell.has-value .notes {
   display: none;
 }
