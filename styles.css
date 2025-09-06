@@ -2,7 +2,7 @@
   --cell-size: 42px;
   --border-thin: 1px;
   --border-strong: 4px; /* 3x3 separators */
-  --border-outer: 5px;  /* outer board border */
+  --border-outer: 5px; /* outer board border */
 
   /* Night defaults */
   --bg: #0b0c10;
@@ -13,7 +13,7 @@
   --primary: #6ea8fe;
   --accent: #ffb86b;
   --danger: #ff6b6b;
-  --grid: #2b2f43;        /* thin lines */
+  --grid: #2b2f43; /* thin lines */
   --grid-strong: #3e4468; /* thick lines */
 }
 
@@ -112,8 +112,12 @@ main {
   place-items: center;
 }
 
-.cell:nth-child(3n) { border-right: var(--border-strong) solid var(--grid-strong); }
-.cell:nth-child(9n + 1) { border-left: var(--border-strong) solid var(--grid-strong); }
+.cell:nth-child(3n) {
+  border-right: var(--border-strong) solid var(--grid-strong);
+}
+.cell:nth-child(9n + 1) {
+  border-left: var(--border-strong) solid var(--grid-strong);
+}
 
 /* Horizontal 3x3 separators */
 .cell {

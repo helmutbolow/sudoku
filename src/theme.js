@@ -1,7 +1,7 @@
 // Sets theme based on local time (day/night) and updates meta color.
 
-const DAY_HOUR_START = 7;  // 07:00 local time
-const DAY_HOUR_END = 19;   // 19:59 is still day
+const DAY_HOUR_START = 7; // 07:00 local time
+const DAY_HOUR_END = 19; // 19:59 is still day
 
 function computeTheme() {
   const hour = new Date().getHours();
@@ -27,9 +27,10 @@ export function applyTheme(theme) {
 }
 
 export function initAutoTheme() {
-  function update() { applyTheme(computeTheme()); }
+  function update() {
+    applyTheme(computeTheme());
+  }
   update();
   // Re-evaluate periodically in case the hour flips while app is open
   setInterval(update, 5 * 60 * 1000); // every 5 minutes
 }
-

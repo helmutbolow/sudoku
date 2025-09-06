@@ -1,5 +1,6 @@
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
+import { generatePuzzle } from './generator.js';
 import { solve } from './solver.js';
 
 function onReady(fn) {
@@ -23,7 +24,10 @@ onReady(() => {
 
   document.getElementById('new-puzzle').addEventListener('click', () => {
     clearBoard(api);
-    fillSample(api);
+    const { puzzle, mask } = generatePuzzle('medium');
+    api.writeBoard(puzzle);
+    api.markPrefill(mask);
+    api.setStatus('Random puzzle loaded');
   });
 
   document.getElementById('solve-board').addEventListener('click', () => {
