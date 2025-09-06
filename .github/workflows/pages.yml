@@ -50,4 +50,4 @@ jobs:
             favicon.svg
             src/**
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 14

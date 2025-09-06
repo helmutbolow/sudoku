@@ -1,0 +1,60 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute metadata
+        id: meta
+        shell: bash
+        run: |
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "pr=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-pr-${{ steps.meta.outputs.pr }}-${{ steps.meta.outputs.short_sha }}
+          path: |
+            index.html
+            styles.css
+            favicon.svg
+            src/**
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Comment with preview link
+        uses: actions/github-script@v7
+        env:
+          ARTIFACT_NAME: site-pr-${{ steps.meta.outputs.pr }}-${{ steps.meta.outputs.short_sha }}
+        with:
+          script: |
+            const pr = context.payload.pull_request.number;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `Preview artifact is ready.`,
+              `- Run: ${runUrl}`,
+              `- Artifact: ${process.env.ARTIFACT_NAME}`,
+            ].join("\n");
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr,
+              body,
+            });
+

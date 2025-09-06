@@ -16,6 +16,13 @@ Because browsers block ES modules from `file://` URLs, serve the folder with a s
 
 You should see a Sudoku grid with buttons to load a sample, clear, and solve.
 
+## Private Repo Previews
+
+This repo is private. Every push and PR builds a downloadable preview artifact:
+
+- Push to `main`: see Actions → "Deploy static content to Pages" → latest run → download the `site` artifact.
+- Pull requests: the "PR Preview" workflow uploads an artifact and comments on the PR with a link to the run.
+
 ## Contributing
 
 See `CONTRIBUTING.md` for guidelines and coding style.
