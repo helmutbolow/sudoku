@@ -1,7 +1,8 @@
 name: Deploy static content to Pages
 
 on:
-  # Temporarily manual-only to avoid failures/noise on private repo
+  push:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -15,6 +16,8 @@ concurrency:
 
 jobs:
   deploy:
+    # Skip on private repos to avoid failing runs/emails; enable automatically when public
+    if: ${{ !github.event.repository.private }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
