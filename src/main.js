@@ -36,6 +36,9 @@ onReady(() => {
   let solutionGrid = null; // 9x9 numbers
   const history = []; // snapshots of boards
   const future = [];
+  let currentDifficulty = 'medium';
+  let errorCount = 0;
+  const ERROR_LIMIT = { easy: 3, medium: 5, hard: 9 };
 
   function cloneBoard(b) {
     return b.map((row) => row.slice());
@@ -49,6 +52,8 @@ onReady(() => {
     if (btnRedo) btnRedo.disabled = future.length === 0;
     if (btnRestart) btnRestart.disabled = !originalPuzzle;
     if (btnCheck) btnCheck.disabled = !solutionGrid;
+    // Update status with error counter if solution known
+    if (solutionGrid) api.setStatus(`Errors: ${errorCount}/${ERROR_LIMIT[currentDifficulty]}`);
   }
   function applySnapshot(b) {
     // write board and re-apply mask
@@ -65,6 +70,8 @@ onReady(() => {
     history.length = 0;
     history.push(cloneBoard(originalPuzzle));
     future.length = 0;
+    // Reset errors based on difficulty
+    errorCount = 0;
     updateActionButtons();
   }
   function pushHistoryFromCurrent() {
@@ -103,6 +110,7 @@ onReady(() => {
   });
 
   async function loadNewByDifficulty(difficulty) {
+    currentDifficulty = difficulty;
     // clear any mistake highlights
     [...api.boardEl.children].forEach((el) => el.classList.remove('mistake'));
     const cached = getFromPool(difficulty);
@@ -209,6 +217,18 @@ onReady(() => {
     // clear mistake highlights on edit
     [...api.boardEl.children].forEach((el) => el.classList.remove('mistake'));
     pushHistoryFromCurrent();
+  });
+
+  // Strict error counting
+  api.boardEl.addEventListener('strict-error', () => {
+    errorCount++;
+    const max = ERROR_LIMIT[currentDifficulty] || 3;
+    if (errorCount >= max) {
+      api.setStatus(`Game over — errors: ${errorCount}/${max}`);
+      if (api.setEnabled) api.setEnabled(false);
+    } else {
+      api.setStatus(`Errors: ${errorCount}/${max}`);
+    }
   });
 
   // Power-user keys
