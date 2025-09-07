@@ -162,16 +162,30 @@ onReady(() => {
       return [];
     }
   }
+  function computeScore(ms, errors, hints, difficulty) {
+    const base = { easy: 1000, medium: 2000, hard: 3000 }[difficulty] || 1500;
+    const timePenalty = Math.floor(ms / 1000); // 1 point per second
+    const errPenalty = errors * 50;
+    const hintPenalty = hints * 80;
+    const raw = Math.max(0, base - timePenalty - errPenalty - hintPenalty);
+    // Normalize IQ around 100 with a spread; purely cosmetic
+    const iq = Math.max(60, Math.min(160, 60 + Math.floor(raw / 20)));
+    return { score: raw, iq };
+  }
+
   function saveBestTime(d, ms, errors, hints) {
     try {
       const arr = loadBestTimes(d);
-      arr.push({ ms, errors, hints, ts: Date.now() });
+      const { score, iq } = computeScore(ms, errors, hints, d);
+      arr.push({ ms, errors, hints, score, iq, ts: Date.now() });
       arr.sort((a, b) => a.ms - b.ms || a.errors - b.errors || a.hints - b.hints);
       localStorage.setItem(lbKey(d), JSON.stringify(arr.slice(0, 10)));
     } catch {}
   }
 
-  function checkSolved() {
+  let ignoreNextRecord = false; // set true when Solve button used
+
+  function checkSolved(saveRecord = true) {
     if (!solutionGrid) return false;
     const b = api.readBoard();
     for (let r = 0; r < 9; r++) {
@@ -183,16 +197,27 @@ onReady(() => {
     stopClock();
     if (api.setEnabled) api.setEnabled(false);
     const elapsed = startTime ? Date.now() - startTime : 0;
-    api.setStatus(`Solved! Time ${fmtClock(elapsed)}. Errors ${errorCount}. Hints ${hintCount}.`);
-    // store record and show top list
-    saveBestTime(currentDifficulty, elapsed, errorCount, hintCount);
+    const { score, iq } = computeScore(elapsed, errorCount, hintCount, currentDifficulty);
+    api.setStatus(
+      `Solved! Time ${fmtClock(elapsed)}. Errors ${errorCount}. Hints ${hintCount}. Score ${score}, IQ ${iq}.`
+    );
+    if (!ignoreNextRecord && saveRecord) {
+      // store record and show top list
+      saveBestTime(currentDifficulty, elapsed, errorCount, hintCount);
+    } else {
+      // reset the flag; do not save this auto-solve time
+      ignoreNextRecord = false;
+    }
     const best = loadBestTimes(currentDifficulty);
     if (overText) {
       const top = best
         .slice(0, 5)
-        .map((r, i) => `${i + 1}. ${fmtClock(r.ms)} (E${r.errors}, H${r.hints})`)
+        .map(
+          (r, i) =>
+            `${i + 1}. ${fmtClock(r.ms)} (E${r.errors}, H${r.hints}, S${r.score ?? '-'}, IQ${r.iq ?? '-'})`
+        )
         .join('<br/>');
-      overText.innerHTML = `Solved!<br/>Time ${fmtClock(elapsed)} — Errors ${errorCount}, Hints ${hintCount}<br/><br/>Best ${currentDifficulty}:<br/>${top}`;
+      overText.innerHTML = `Solved!<br/>Time ${fmtClock(elapsed)} — Errors ${errorCount}, Hints ${hintCount}, Score ${score}, IQ ${iq}<br/><br/>Best ${currentDifficulty}:<br/>${top}`;
     }
     showSolved();
     return true;
@@ -325,7 +350,8 @@ onReady(() => {
     }
     setBoard(api, solved);
     solutionGrid = solved;
-    checkSolved();
+    ignoreNextRecord = true; // disregard best time for auto-solve
+    checkSolved(false);
   });
 
   // Undo/Restart handlers (Redo removed)
@@ -365,7 +391,7 @@ onReady(() => {
     [...api.boardEl.children].forEach((el) => el.classList.remove('mistake'));
     pushHistoryFromCurrent();
     // detect solved
-    checkSolved();
+    checkSolved(true);
   });
 
   // Strict error counting
