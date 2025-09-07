@@ -149,6 +149,28 @@ onReady(() => {
     startClock();
   }
 
+  function lbKey(d) {
+    return `sudoku:best:${d}`;
+  }
+  function loadBestTimes(d) {
+    try {
+      const raw = localStorage.getItem(lbKey(d));
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  }
+  function saveBestTime(d, ms, errors, hints) {
+    try {
+      const arr = loadBestTimes(d);
+      arr.push({ ms, errors, hints, ts: Date.now() });
+      arr.sort((a, b) => a.ms - b.ms || a.errors - b.errors || a.hints - b.hints);
+      localStorage.setItem(lbKey(d), JSON.stringify(arr.slice(0, 10)));
+    } catch {}
+  }
+
   function checkSolved() {
     if (!solutionGrid) return false;
     const b = api.readBoard();
@@ -160,11 +182,18 @@ onReady(() => {
     // All cells match solution
     stopClock();
     if (api.setEnabled) api.setEnabled(false);
-    const elapsed = typeof startTime === 'number' && startTime ? Date.now() - startTime : 0;
-    const total = Math.floor(elapsed / 1000);
-    const mm = String(Math.floor(total / 60)).padStart(2, '0');
-    const ss = String(total % 60).padStart(2, '0');
-    api.setStatus(`Solved! Time ${mm}:${ss}. Errors ${errorCount}. Hints ${hintCount}.`);
+    const elapsed = startTime ? Date.now() - startTime : 0;
+    api.setStatus(`Solved! Time ${fmtClock(elapsed)}. Errors ${errorCount}. Hints ${hintCount}.`);
+    // store record and show top list
+    saveBestTime(currentDifficulty, elapsed, errorCount, hintCount);
+    const best = loadBestTimes(currentDifficulty);
+    if (overText) {
+      const top = best
+        .slice(0, 5)
+        .map((r, i) => `${i + 1}. ${fmtClock(r.ms)} (E${r.errors}, H${r.hints})`)
+        .join('<br/>');
+      overText.innerHTML = `Solved!<br/>Time ${fmtClock(elapsed)} — Errors ${errorCount}, Hints ${hintCount}<br/><br/>Best ${currentDifficulty}:<br/>${top}`;
+    }
     showSolved();
     return true;
   }
