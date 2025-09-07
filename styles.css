@@ -332,7 +332,7 @@ main {
   }
 }
 .cell.prefill input {
-  color: var(--primary);
+  color: var(--text);
   font-weight: 600;
 }
 

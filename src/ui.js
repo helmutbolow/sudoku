@@ -14,19 +14,20 @@ function createCell(r, c) {
     const v = input.value.replace(/\D/g, '');
     input.value = v.slice(0, 1);
     if (input.value) {
-      // Strict mode: reject wrong, lock correct
+      // Strict mode per requirement: keep wrong editable in red, lock correct
       const digit = Number(input.value);
       const r = Number(cell.dataset.row),
         c = Number(cell.dataset.col);
       if (!strictAccept(cell, digit)) {
-        input.value = '';
-        updateHasValue(cell);
+        input.readOnly = false;
+        cell.classList.add('mistake');
         flashError(cell);
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
         );
       } else {
         input.readOnly = true;
+        cell.classList.remove('mistake');
         cell.classList.add('prefill');
         pulse(cell);
       }
@@ -228,15 +229,27 @@ export function initUI(root) {
     if (val) {
       const digit = Number(val);
       if (!strictAccept(cell, digit)) {
-        // reject wrong (do not insert)
+        // keep wrong value in red, editable
+        input.value = val;
+        input.readOnly = false;
+        cell.classList.add('mistake');
+        updateHasValue(cell);
         flashError(cell);
+        recomputeValidity();
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
+        );
+        cell.dispatchEvent(
+          new CustomEvent('cell-change', {
+            bubbles: true,
+            detail: { idx: r * 9 + c, oldVal, newVal: val },
+          })
         );
         return;
       } else {
         input.value = val;
         input.readOnly = true;
+        cell.classList.remove('mistake');
         cell.classList.add('prefill');
         updateHasValue(cell);
         pulse(cell);
@@ -294,14 +307,26 @@ export function initUI(root) {
         c = Number(cell.dataset.col);
       const oldVal = input.value;
       if (!strictAccept(cell, digit)) {
-        // reject wrong (do not insert)
+        // keep wrong digit visible (red), editable
+        input.value = key;
+        input.readOnly = false;
+        cell.classList.add('mistake');
+        updateHasValue(cell);
         flashError(cell);
+        recomputeValidity();
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
+        );
+        cell.dispatchEvent(
+          new CustomEvent('cell-change', {
+            bubbles: true,
+            detail: { idx: r * 9 + c, oldVal, newVal: key },
+          })
         );
       } else {
         input.value = key;
         input.readOnly = true;
+        cell.classList.remove('mistake');
         cell.classList.add('prefill');
         updateHasValue(cell);
         pulse(cell);
