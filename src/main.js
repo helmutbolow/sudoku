@@ -25,9 +25,11 @@ onReady(() => {
   const diffGroup = document.getElementById('difficulty-group');
   const LS_KEY = 'sudoku:difficulty';
   function setDiffUI(d) {
-    diffGroup
-      ?.querySelectorAll('button')
-      .forEach((b) => b.classList.toggle('active', b.dataset.diff === d));
+    diffGroup?.querySelectorAll('button').forEach((b) => {
+      const isActive = b.dataset.diff === d;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
     try {
       localStorage.setItem(LS_KEY, d);
     } catch {}
