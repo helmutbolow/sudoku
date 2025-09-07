@@ -410,8 +410,8 @@ onReady(() => {
 
   // Snapshot on user edit
   api.boardEl.addEventListener('cell-change', () => {
-    // clear mistake highlights on edit
-    [...api.boardEl.children].forEach((el) => el.classList.remove('mistake'));
+    // Re-evaluate board to keep strict mistake highlights in sync
+    if (solutionGrid) api.setSolution(solutionGrid);
     pushHistoryFromCurrent();
     // detect solved
     checkSolved(true);
