@@ -20,14 +20,14 @@ function createCell(r, c) {
         c = Number(cell.dataset.col);
       if (!strictAccept(cell, digit)) {
         input.readOnly = false;
-        cell.classList.add(/*'mistake'*/'invalid');
+        cell.classList.add('mistake');
         flashError(cell);
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
         );
       } else {
         input.readOnly = true;
-        cell.classList.remove(/*'mistake'*/'invalid');
+        cell.classList.remove('mistake');
         cell.classList.add('prefill');
         pulse(cell);
       }
@@ -237,7 +237,7 @@ export function initUI(root) {
         // keep wrong value in red, editable
         input.value = val;
         input.readOnly = false;
-        cell.classList.add(/*'mistake'*/'invalid');
+        cell.classList.add('mistake');
         updateHasValue(cell);
         flashError(cell);
         recomputeValidity();
@@ -254,7 +254,7 @@ export function initUI(root) {
       } else {
         input.value = val;
         input.readOnly = true;
-        cell.classList.remove(/*'mistake'*/'invalid');
+        cell.classList.remove('mistake');
         cell.classList.add('prefill');
         updateHasValue(cell);
         pulse(cell);
@@ -315,7 +315,7 @@ export function initUI(root) {
         // keep wrong digit visible (red), editable
         input.value = key;
         input.readOnly = false;
-        cell.classList.add(/*'mistake'*/'invalid');
+        cell.classList.add('mistake');
         updateHasValue(cell);
         flashError(cell);
         recomputeValidity();
