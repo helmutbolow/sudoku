@@ -14,11 +14,13 @@ function createCell(r, c) {
     const v = input.value.replace(/\D/g, '');
     input.value = v.slice(0, 1);
     if (input.value) {
-      // Strict mode: keep wrong digit visible, lock on correct
+      // Strict mode: reject wrong, lock correct
       const digit = Number(input.value);
       const r = Number(cell.dataset.row),
         c = Number(cell.dataset.col);
       if (!strictAccept(cell, digit)) {
+        input.value = '';
+        updateHasValue(cell);
         flashError(cell);
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
@@ -226,19 +228,10 @@ export function initUI(root) {
     if (val) {
       const digit = Number(val);
       if (!strictAccept(cell, digit)) {
-        // keep wrong visible
-        input.value = val;
-        updateHasValue(cell);
+        // reject wrong (do not insert)
         flashError(cell);
-        recomputeValidity();
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
-        );
-        cell.dispatchEvent(
-          new CustomEvent('cell-change', {
-            bubbles: true,
-            detail: { idx: r * 9 + c, oldVal, newVal: val },
-          })
         );
         return;
       } else {
@@ -301,19 +294,10 @@ export function initUI(root) {
         c = Number(cell.dataset.col);
       const oldVal = input.value;
       if (!strictAccept(cell, digit)) {
-        // keep wrong digit visible in red
-        input.value = key;
-        updateHasValue(cell);
+        // reject wrong (do not insert)
         flashError(cell);
-        recomputeValidity();
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
-        );
-        cell.dispatchEvent(
-          new CustomEvent('cell-change', {
-            bubbles: true,
-            detail: { idx: r * 9 + c, oldVal, newVal: key },
-          })
         );
       } else {
         input.value = key;
