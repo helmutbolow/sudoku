@@ -324,8 +324,8 @@ onReady(() => {
       return;
     }
     setBoard(api, solved);
-    api.setStatus('Solved!');
-    pushHistoryFromCurrent();
+    solutionGrid = solved;
+    checkSolved();
   });
 
   // Undo/Restart handlers (Redo removed)

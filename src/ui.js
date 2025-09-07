@@ -378,16 +378,25 @@ export function initUI(root) {
     for (let idx = 0; idx < 81; idx++) {
       const cell = boardEl.children[idx];
       validateCell(cell);
-      // solution-based mistake flag
+      // solution-based locking and mistake flag
       if (typeof recomputeValidity.solution !== 'undefined' && recomputeValidity.solution) {
         const input = cell.querySelector('input');
         const r = Number(cell.dataset.row);
         const c = Number(cell.dataset.col);
-        if (!input.readOnly && input.value) {
-          if (Number(input.value) !== recomputeValidity.solution[r][c])
+        if (input.value) {
+          const v = Number(input.value);
+          if (v === recomputeValidity.solution[r][c]) {
+            // lock correct entries
+            if (!input.readOnly) input.readOnly = true;
+            cell.classList.add('prefill');
+            cell.classList.remove('mistake');
+          } else {
+            // keep wrong marked
             cell.classList.add('mistake');
-          else cell.classList.remove('mistake');
-        } else cell.classList.remove('mistake');
+          }
+        } else {
+          cell.classList.remove('mistake');
+        }
       }
     }
     if (selectedIdx != null) {
@@ -418,14 +427,10 @@ export function initUI(root) {
     cell.classList.remove('mistake-flash');
     const input = cell.querySelector('input');
     if (input) {
-      // briefly show the wrong digit in red before clearing
+      // emphasize wrong digit (do not clear)
       input.classList.remove('wrong-pop');
       void input.offsetWidth;
       input.classList.add('wrong-pop');
-      const shown = input.value;
-      setTimeout(() => {
-        if (input.value === shown) input.value = '';
-      }, 420);
     }
     void cell.offsetWidth;
     cell.classList.add('mistake-flash');
