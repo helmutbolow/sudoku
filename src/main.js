@@ -97,7 +97,7 @@ onReady(() => {
   }
   function showSolved() {
     if (!over) return;
-    if (overText) overText.textContent = `Solved!`;
+    // Do not overwrite overText here; content is prepared by checkSolved()
     over.classList.remove('hidden');
     over.setAttribute('aria-hidden', 'false');
   }
