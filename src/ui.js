@@ -528,7 +528,9 @@ export function initUI(root) {
         for (let c = 0; c < 9; c++) {
           const idx = r * 9 + c;
           const cell = boardEl.children[idx];
-          cell.classList.toggle('prefill', !!prefillMask[r][c]);
+          const isGiven = !!prefillMask[r][c];
+          cell.classList.toggle('prefill', isGiven);
+          cell.classList.toggle('given', isGiven);
           cell.querySelector('input').readOnly = !!prefillMask[r][c];
         }
       }

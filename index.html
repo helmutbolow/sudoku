@@ -15,12 +15,11 @@
     <header class="site-header">
       <h1>Sudoku</h1>
       <div class="actions">
-        <label for="difficulty" class="sr-only">Difficulty</label>
-        <select id="difficulty" aria-label="Difficulty">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
-        </select>
+        <div id="difficulty-group" class="segmented" role="group" aria-label="Difficulty">
+          <button type="button" data-diff="easy">Easy</button>
+          <button type="button" data-diff="medium" class="active">Medium</button>
+          <button type="button" data-diff="hard">Hard</button>
+        </div>
         <button id="new-puzzle">New</button>
         <button id="undo" title="Undo last entry (u)">Undo</button>
         <button id="restart" title="Restart puzzle (x)">Restart</button>

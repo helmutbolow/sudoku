@@ -22,7 +22,20 @@ onReady(() => {
   primePool('easy');
   primePool('medium');
   primePool('hard');
-  const select = document.getElementById('difficulty');
+  const diffGroup = document.getElementById('difficulty-group');
+  const LS_KEY = 'sudoku:difficulty';
+  function setDiffUI(d) {
+    diffGroup
+      ?.querySelectorAll('button')
+      .forEach((b) => b.classList.toggle('active', b.dataset.diff === d));
+    try {
+      localStorage.setItem(LS_KEY, d);
+    } catch {}
+  }
+  function getDiffUI() {
+    const active = diffGroup?.querySelector('button.active');
+    return active?.dataset.diff || 'medium';
+  }
   const btnUndo = document.getElementById('undo');
   const btnRedo = document.getElementById('redo');
   const btnRestart = document.getElementById('restart');
@@ -34,7 +47,6 @@ onReady(() => {
   const overText = document.getElementById('over-text');
   const overRestart = document.getElementById('over-restart');
   const overNew = document.getElementById('over-new');
-  const LS_KEY = 'sudoku:difficulty';
   // notes removed
 
   // Game state
@@ -104,7 +116,7 @@ onReady(() => {
   if (overRestart) overRestart.addEventListener('click', () => btnRestart?.click());
   if (overNew)
     overNew.addEventListener('click', async () => {
-      const difficulty = select.value || currentDifficulty || 'medium';
+      const difficulty = getDiffUI() || currentDifficulty || 'medium';
       await loadNewByDifficulty(difficulty);
       hideGameOver();
     });
@@ -230,15 +242,15 @@ onReady(() => {
       updateActionButtons();
     }
   }
-  // restore last selection
+  // restore last selection and wire segmented control
   try {
     const saved = localStorage.getItem(LS_KEY);
-    if (saved) select.value = saved;
+    if (saved) setDiffUI(saved);
   } catch {}
-  select.addEventListener('change', () => {
-    try {
-      localStorage.setItem(LS_KEY, select.value);
-    } catch {}
+  diffGroup?.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-diff]');
+    if (!btn) return;
+    setDiffUI(btn.dataset.diff);
   });
 
   // notes removed
@@ -288,7 +300,7 @@ onReady(() => {
   }
 
   document.getElementById('new-puzzle').addEventListener('click', async () => {
-    const difficulty = select.value || 'medium';
+    const difficulty = getDiffUI();
     await loadNewByDifficulty(difficulty);
   });
 
@@ -441,7 +453,9 @@ onReady(() => {
   // Load initial puzzle for selected difficulty
   (async () => {
     try {
-      const difficulty = select.value || 'medium';
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) setDiffUI(saved);
+      const difficulty = getDiffUI() || 'medium';
       await loadNewByDifficulty(difficulty);
     } catch {}
   })();

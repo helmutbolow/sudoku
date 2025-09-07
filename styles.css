@@ -127,6 +127,28 @@ body {
   appearance: none;
   -webkit-appearance: none;
 }
+.segmented {
+  display: inline-grid;
+  grid-auto-flow: column;
+  background: var(--panel);
+  border: 1px solid #23263b;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.segmented button {
+  border: none;
+  background: transparent;
+  padding: 10px 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+.segmented button.active {
+  background: var(--panel-2);
+  color: var(--text);
+}
+.segmented button + button {
+  border-left: 1px solid #23263b;
+}
 .actions button[aria-pressed='true'] {
   outline: 2px solid var(--primary);
   outline-offset: -2px;
@@ -333,6 +355,10 @@ main {
 }
 .cell.prefill input {
   color: var(--text);
+  font-weight: 600;
+}
+.cell.given input {
+  color: var(--primary);
   font-weight: 600;
 }
 
