@@ -203,6 +203,8 @@ export function initUI(root) {
       inp.focus();
     }
     updatePad();
+    // add row/col + same-number highlights
+    if (typeof updateHighlights === 'function') updateHighlights();
   }
 
   // Click to select
@@ -212,7 +214,10 @@ export function initUI(root) {
   }
 
   // Update pad when any cell changes
-  boardEl.addEventListener('cell-change', updatePad);
+  boardEl.addEventListener('cell-change', () => {
+    updatePad();
+    if (typeof updateHighlights === 'function') updateHighlights();
+  });
 
   // Handle pad clicks
   pad.addEventListener('click', (e) => {
@@ -382,35 +387,69 @@ export function initUI(root) {
   }
 
   function recomputeValidity() {
-    // Soft validation: highlight invalid cells, do not lock movement
+    // Soft validation + strict coloring
     lockedIdx = null;
     for (let idx = 0; idx < 81; idx++) {
       const cell = boardEl.children[idx];
       validateCell(cell);
-      // solution-based locking and mistake flag
-      if (typeof recomputeValidity.solution !== 'undefined' && recomputeValidity.solution) {
-        const input = cell.querySelector('input');
-        const r = Number(cell.dataset.row);
-        const c = Number(cell.dataset.col);
-        if (input.value) {
-          const v = Number(input.value);
-          if (v === recomputeValidity.solution[r][c]) {
-            // lock correct entries
-            if (!input.readOnly) input.readOnly = true;
-            cell.classList.add('prefill');
-            cell.classList.remove('mistake');
-          } else {
-            // keep wrong marked
-            cell.classList.add('mistake');
-          }
-        } else {
-          cell.classList.remove('mistake');
-        }
+      if (typeof recomputeValidity.solution === 'undefined' || !recomputeValidity.solution)
+        continue;
+      const input = cell.querySelector('input');
+      const r = Number(cell.dataset.row);
+      const c = Number(cell.dataset.col);
+      const sol = recomputeValidity.solution[r][c];
+      const isGiven = cell.classList.contains('given');
+      if (isGiven) {
+        input.readOnly = true;
+        cell.classList.add('prefill');
+        cell.classList.remove('mistake');
+        continue;
+      }
+      if (!input.value) {
+        cell.classList.remove('mistake');
+        cell.classList.remove('prefill');
+        input.readOnly = false;
+        continue;
+      }
+      const v = Number(input.value);
+      if (v === sol) {
+        input.readOnly = true;
+        cell.classList.add('prefill');
+        cell.classList.remove('mistake');
+      } else {
+        input.readOnly = false;
+        cell.classList.add('mistake');
+        cell.classList.remove('prefill');
       }
     }
     if (selectedIdx != null) {
       const ok = validateCell(getCellByIndex(selectedIdx));
       setStatus(ok ? 'Ready' : 'This entry conflicts. Fix or clear it.');
+    }
+  }
+
+  // Highlights for row/column and same numbers
+  function clearHighlights() {
+    for (let i = 0; i < 81; i++) {
+      const cell = boardEl.children[i];
+      cell.classList.remove('hl-rc');
+      cell.classList.remove('hl-same');
+    }
+  }
+  function updateHighlights() {
+    clearHighlights();
+    if (selectedIdx == null) return;
+    const sel = getCellByIndex(selectedIdx);
+    const selRow = Number(sel.dataset.row);
+    const selCol = Number(sel.dataset.col);
+    const selVal = sel.querySelector('input').value;
+    for (let i = 0; i < 81; i++) {
+      const cell = boardEl.children[i];
+      const r = Number(cell.dataset.row);
+      const c = Number(cell.dataset.col);
+      if (r === selRow || c === selCol) cell.classList.add('hl-rc');
+      const v = cell.querySelector('input').value;
+      if (selVal && v && v === selVal) cell.classList.add('hl-same');
     }
   }
 

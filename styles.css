@@ -441,3 +441,9 @@ main {
   }
 }
 /* Notes removed */
+.cell.hl-rc {
+  background: color-mix(in oklab, var(--panel-2) 85%, transparent);
+}
+.cell.hl-same {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}

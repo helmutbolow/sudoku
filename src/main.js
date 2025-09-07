@@ -362,10 +362,19 @@ onReady(() => {
       api.setStatus('No solution found or invalid puzzle.');
       return;
     }
+    // Fill the board and lock everything, but DO NOT record time/score/IQ or show overlay
     setBoard(api, solved);
     solutionGrid = solved;
-    ignoreNextRecord = true; // disregard best time for auto-solve
-    checkSolved(false);
+    // lock all cells
+    for (let i = 0; i < 81; i++) {
+      const cell = api.boardEl.children[i];
+      const input = cell.querySelector('input');
+      input.readOnly = true;
+      cell.classList.remove('mistake');
+      cell.classList.add('prefill');
+    }
+    stopClock();
+    api.setStatus('Solved (auto).');
   });
 
   // Undo/Restart handlers (Redo removed)
