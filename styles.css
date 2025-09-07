@@ -1,5 +1,7 @@
 :root {
   --cell-size: clamp(44px, 6.4vmin, 84px);
+  --board-size: calc(9 * var(--cell-size));
+  --pad: clamp(16px, 2.4vmin, 24px);
   --border-thin: 1px;
   --border-strong: 4px; /* 3x3 separators */
   --border-outer: 5px; /* outer board border */
@@ -63,14 +65,13 @@ body {
 
 .site-header,
 .site-footer {
-  max-width: 720px;
+  width: calc(var(--board-size) + 2 * var(--pad));
   margin: 16px auto;
-  padding: 0 12px;
+  padding: 0 var(--pad);
 }
 .site-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  display: grid;
+  row-gap: 10px;
 }
 .site-header h1 {
   margin: 0;
@@ -79,8 +80,8 @@ body {
   letter-spacing: 0.2px;
 }
 .actions {
-  margin-left: auto;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 8px;
 }
 .actions button,
@@ -149,7 +150,7 @@ main {
   place-items: start center;
 }
 .app {
-  padding: clamp(16px, 2.4vmin, 24px);
+  padding: var(--pad);
   background: color-mix(in oklab, var(--panel) 92%, transparent);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -157,6 +158,7 @@ main {
   transition:
     background 200ms ease,
     box-shadow 200ms ease;
+  width: calc(var(--board-size) + 2 * var(--pad));
 }
 
 /* Generation overlay */
