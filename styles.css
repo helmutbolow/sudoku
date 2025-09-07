@@ -312,7 +312,7 @@ main {
   font-weight: 700;
 }
 .cell.mistake input {
-  color: var(--warning);
+  color: var(--danger);
   font-weight: 800;
 }
 .cell.mistake {

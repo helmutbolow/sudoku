@@ -14,17 +14,18 @@ function createCell(r, c) {
     const v = input.value.replace(/\D/g, '');
     input.value = v.slice(0, 1);
     if (input.value) {
-      // Strict mode: reject if not matching solution
+      // Strict mode: keep wrong digit visible, lock on correct
       const digit = Number(input.value);
+      const r = Number(cell.dataset.row),
+        c = Number(cell.dataset.col);
       if (!strictAccept(cell, digit)) {
-        input.value = '';
         flashError(cell);
-        const r = Number(cell.dataset.row),
-          c = Number(cell.dataset.col);
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
         );
       } else {
+        input.readOnly = true;
+        cell.classList.add('prefill');
         pulse(cell);
       }
     }
@@ -219,30 +220,50 @@ export function initUI(root) {
     const input = cell.querySelector('input');
     if (input.readOnly) return;
     const val = btn.dataset.value || '';
+    const r = Number(cell.dataset.row),
+      c = Number(cell.dataset.col);
+    const oldVal = input.value;
     if (val) {
       const digit = Number(val);
       if (!strictAccept(cell, digit)) {
-        // reject and count as strict error (only once per same digit)
+        // keep wrong visible
+        input.value = val;
+        updateHasValue(cell);
         flashError(cell);
-        const r = Number(cell.dataset.row),
-          c = Number(cell.dataset.col);
+        recomputeValidity();
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
+        );
+        cell.dispatchEvent(
+          new CustomEvent('cell-change', {
+            bubbles: true,
+            detail: { idx: r * 9 + c, oldVal, newVal: val },
+          })
+        );
+        return;
+      } else {
+        input.value = val;
+        input.readOnly = true;
+        cell.classList.add('prefill');
+        updateHasValue(cell);
+        pulse(cell);
+        recomputeValidity();
+        cell.dispatchEvent(
+          new CustomEvent('cell-change', {
+            bubbles: true,
+            detail: { idx: r * 9 + c, oldVal, newVal: val },
+          })
         );
         return;
       }
     }
-    const oldVal = input.value;
-    input.value = val;
+    input.value = '';
     updateHasValue(cell);
-    if (val) pulse(cell);
     recomputeValidity();
-    const r = Number(cell.dataset.row),
-      c = Number(cell.dataset.col);
     cell.dispatchEvent(
       new CustomEvent('cell-change', {
         bubbles: true,
-        detail: { idx: r * 9 + c, oldVal, newVal: val },
+        detail: { idx: r * 9 + c, oldVal, newVal: '' },
       })
     );
   });
@@ -276,22 +297,31 @@ export function initUI(root) {
     if (input.readOnly) return;
     if (/^[1-9]$/.test(key)) {
       const digit = Number(key);
+      const r = Number(cell.dataset.row),
+        c = Number(cell.dataset.col);
+      const oldVal = input.value;
       if (!strictAccept(cell, digit)) {
-        // reject and notify
+        // keep wrong digit visible in red
+        input.value = key;
+        updateHasValue(cell);
         flashError(cell);
-        const r = Number(cell.dataset.row),
-          c = Number(cell.dataset.col);
+        recomputeValidity();
         cell.dispatchEvent(
           new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
         );
+        cell.dispatchEvent(
+          new CustomEvent('cell-change', {
+            bubbles: true,
+            detail: { idx: r * 9 + c, oldVal, newVal: key },
+          })
+        );
       } else {
-        const oldVal = input.value;
         input.value = key;
+        input.readOnly = true;
+        cell.classList.add('prefill');
         updateHasValue(cell);
         pulse(cell);
         recomputeValidity();
-        const r = Number(cell.dataset.row),
-          c = Number(cell.dataset.col);
         cell.dispatchEvent(
           new CustomEvent('cell-change', {
             bubbles: true,
