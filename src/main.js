@@ -176,6 +176,7 @@ onReady(() => {
       return [];
     }
   }
+  /*
   function computeScore(ms, errors, hints, difficulty) {
     const base = { easy: 1000, medium: 2000, hard: 3000 }[difficulty] || 1500;
     const timePenalty = Math.floor(ms / 1000); // 1 point per second
@@ -185,8 +186,31 @@ onReady(() => {
     // Normalize IQ around 100 with a spread; purely cosmetic
     const iq = Math.max(60, Math.min(160, 60 + Math.floor(raw / 20)));
     return { score: raw, iq };
-  }
+  }*/
 
+  function computeScore(ms, errors, hints, difficulty) {
+    // Expected finish times (seconds) by difficulty
+    const EXPECTED_SECS = { easy: 10 * 60, medium: 18 * 60, hard: 28 * 60 };
+    const errPenaltySec = 30; // each error ~30s
+    const hintPenaltySec = 45; // each hint ~45s
+
+    const t = Math.max(1, Math.floor(ms / 1000)); // guard
+    const expected = EXPECTED_SECS[difficulty] ?? EXPECTED_SECS.medium;
+
+    // Convert mistakes/hints into time-equivalent penalties
+    const effective = t + errors * errPenaltySec + hints * hintPenaltySec;
+
+    // Normalized performance: >1 means faster/better than baseline
+    const ratio = expected / effective;
+
+    // Score: scale around 1000 at baseline, higher if faster
+    const score = Math.max(0, Math.round(1000 * ratio));
+
+    // IQ: clamp 60–160, centered at 100; log keeps scaling sane
+    const iq = Math.max(60, Math.min(160, Math.round(100 + 20 * Math.log2(ratio))));
+
+    return { score, iq };
+  }
   function saveBestTime(d, ms, errors, hints) {
     try {
       const arr = loadBestTimes(d);
