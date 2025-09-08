@@ -426,10 +426,10 @@ onReady(() => {
     const r = idx >= 0 ? Math.floor(idx / 9) + 1 : null;
     const c = idx >= 0 ? (idx % 9) + 1 : null;
     // Visually enforce mistake state in case the UI path didn't mark it
-    if (idx >= 0) {
-      const cell = api.boardEl.children[idx];
-      cell?.classList?.add('mistake');
-    }
+    //if (idx >= 0) {
+    //  const cell = api.boardEl.children[idx];
+    //  cell?.classList?.add('mistake');
+    //}
     const prev = lastWrong.get(idx);
     // Avoid double-counting same wrong digit on same cell
     if (digit !== null && prev === digit) {
