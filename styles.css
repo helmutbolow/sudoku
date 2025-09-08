@@ -9,8 +9,6 @@
   --text: #e8f0fe;
   --muted: #b5bfd3;
   --primary: #0a84ff;
-  --success: #30d158;
-  --warning: #ff9f0a;
   --danger: #ff6b6b;
   --grid: #2b2f43;
   --grid-strong: #3e4468;
@@ -43,23 +41,134 @@ body {
   touch-action: manipulation;
 }
 
-/* Header/App width capped to viewport */
-.site-header,
-.site-footer,
-.app {
+/* Header */
+.site-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
   width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
   margin: 12px auto;
   padding: 0 var(--pad);
 }
-.site-header {
-  display: grid;
-  row-gap: 8px;
-}
 .site-header h1 {
   margin: 0;
   font-size: clamp(22px, 3.4vmin, 32px);
+  font-weight: 800;
+}
+
+/* Burger */
+.nav-toggle {
+  display: none;
+}
+.burger {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.burger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+}
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s;
+}
+.menu {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  height: 100dvh;
+  width: min(88vw, 300px);
+  background: var(--panel);
+  border-left: 1px solid #23263b;
+  box-shadow: -16px 0 32px rgba(0, 0, 0, 0.35);
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  transition: right 0.25s ease;
+}
+.menu-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.menu-head span {
+  opacity: 0.85;
+  font-weight: 700;
+}
+.menu-close {
+  cursor: pointer;
+  opacity: 0.7;
+}
+.menu-primary {
+  background: var(--primary);
+  color: white;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.menu-hint {
+  opacity: 0.6;
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+
+.nav-toggle:checked ~ .burger {
+  opacity: 0.9;
+}
+.nav-toggle:checked ~ .menu {
+  right: 0;
+}
+.nav-toggle:checked ~ .backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Segmented in the menu */
+.segmented {
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: stretch;
+  width: 100%;
+  background: color-mix(in oklab, var(--panel) 94%, transparent);
+  border: 1px solid #2a2f47;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.segmented button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 12px 16px;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--muted);
   font-weight: 700;
   letter-spacing: 0.2px;
+  cursor: pointer;
+}
+.segmented button + button {
+  border-left: 1px solid #2a2f47;
+}
+.segmented button.active,
+.segmented button[aria-pressed='true'] {
+  background: color-mix(in oklab, var(--panel-2) 92%, transparent);
+  color: var(--text);
 }
 
 /* App card */
@@ -68,6 +177,7 @@ main {
   place-items: start center;
 }
 .app {
+  width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
   padding: var(--pad);
   background: color-mix(in oklab, var(--panel) 92%, transparent);
   border-radius: 16px;
@@ -75,154 +185,39 @@ main {
   backdrop-filter: saturate(160%) blur(18px);
 }
 
-/* Actions */
-.actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-  overflow-x: auto;
+/* Topbar (tiny controls + clock) */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 10px;
 }
-.actions::-webkit-scrollbar {
-  display: none;
+.top-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-
-.actions button,
-.actions select {
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid #23263b;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition:
-    background 0.12s ease,
-    border-color 0.12s ease,
-    transform 0.08s ease;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 1px 2px rgba(0, 0, 0, 0.25);
-  font-size: clamp(12px, 1.8vmin, 16px);
-}
-.actions button:hover,
-.actions select:hover {
-  background: var(--panel-2);
-  transform: translateY(-0.5px);
-}
-.actions button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.actions select {
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-/* Segmented difficulty */
-.segmented {
-  display: inline-flex;
-  align-items: stretch;
-  background: color-mix(in oklab, var(--panel) 94%, transparent);
-  border: 1px solid #2a2f47;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  min-width: 260px;
-}
-.segmented button {
-  appearance: none;
-  border: 0;
+.tiny {
   background: transparent;
-  padding: 10px 16px;
-  min-width: 86px;
-  color: var(--muted);
-  font-weight: 700;
-  letter-spacing: 0.2px;
+  color: var(--text);
+  border: 1px solid #2a2f47;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
   cursor: pointer;
-  transition:
-    background 0.12s ease,
-    color 0.12s ease,
-    box-shadow 0.12s ease;
 }
-.segmented button + button {
-  border-left: 1px solid #2a2f47;
+.tiny:disabled {
+  opacity: 0.5;
 }
-.segmented button:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-}
-.segmented button.active,
-.segmented button[aria-pressed='true'] {
-  background: color-mix(in oklab, var(--panel-2) 92%, transparent);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-/* Make “New” its own row by default (mobile-first) */
-#difficulty-group,
-#new-puzzle,
-#solve-board {
-  grid-column: 1 / -1;
-}
-
-/* Badges */
-.badge {
+.chip {
   padding: 6px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid #2a2f47;
   color: var(--text);
   font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   white-space: nowrap;
-}
-.badge.danger {
-  background: rgba(255, 0, 0, 0.08);
-  border-color: rgba(255, 0, 0, 0.35);
-}
-
-/* Desktop layout (stable, no clipping) */
-@media (min-width: 900px) {
-  .actions {
-    overflow: visible;
-    grid-template-columns: repeat(7, minmax(120px, 1fr));
-    column-gap: 12px;
-    row-gap: 10px;
-    margin-bottom: 10px;
-  }
-  /* Row 1 */
-  #difficulty-group {
-    grid-column: 1 / 3;
-  }
-  #new-puzzle {
-    grid-column: 3 / 4;
-  }
-  #undo {
-    grid-column: 4 / 5;
-  }
-  #restart {
-    grid-column: 5 / 6;
-  }
-  #hint {
-    grid-column: 6 / 7;
-  }
-  /* Row 2 */
-  #solve-board {
-    grid-column: 1 / 5;
-  }
-  #error-badge {
-    grid-column: 5 / 6;
-  }
-  #hint-badge {
-    grid-column: 6 / 7;
-  }
-  #clock-badge {
-    grid-column: 7 / 8;
-  }
 }
 
 /* Board */
@@ -243,14 +238,12 @@ main {
   place-items: center;
   position: relative;
 }
-/* vertical strong borders */
 .cell:nth-child(3n) {
   border-right: 4px solid var(--grid-strong);
 }
 .cell:nth-child(9n + 1) {
   border-left: 4px solid var(--grid-strong);
 }
-/* horizontal strong borders */
 .cell::after {
   content: '';
   position: absolute;
@@ -265,7 +258,6 @@ main {
 .cell[data-row='8']::after {
   border-bottom: 4px solid var(--grid-strong);
 }
-/* selections & highlights */
 .cell.selected {
   outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
   outline-offset: -3px;
@@ -277,7 +269,7 @@ main {
   box-shadow: inset 0 0 0 2px var(--primary);
 }
 
-/* Inputs (iOS-safe, no sliced digits) */
+/* Cell input (iOS-safe) */
 .cell input {
   display: block;
   width: 100%;
@@ -299,10 +291,10 @@ main {
   text-rendering: optimizeLegibility;
   text-shadow: 0 0 0 currentColor;
   -webkit-text-stroke: 0.2px transparent;
-  backface-visibility: visible;
-  transform: none;
   caret-color: transparent;
   pointer-events: auto;
+  backface-visibility: visible;
+  transform: none;
 }
 .cell input[readonly] {
   color: var(--muted);
@@ -320,30 +312,28 @@ main {
   font-weight: 800;
 }
 .cell.mistake {
-  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--warning) 80%, transparent);
-}
-.cell.mistake-flash {
-  animation: mistakeFlash 0.26s ease;
-}
-@keyframes mistakeFlash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
-  }
+  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--danger) 35%, transparent);
 }
 
-/* Status */
+/* Status line (optional) */
 .status {
-  margin-top: 12px;
+  margin: 10px 0 6px;
   color: var(--muted);
-  font-size: clamp(12px, 1.8vmin, 15px);
+  font-size: 13px;
+}
+
+/* Bottom chips above numpad */
+.bottom-chips {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 /* Numpad */
 .numpad {
-  margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
@@ -361,7 +351,7 @@ main {
   border: 1px solid #23263b;
   border-radius: 10px;
   padding: 10px 0;
-  font-size: 16px; /* 16px: avoids iOS zoom */
+  font-size: 16px;
   cursor: pointer;
   touch-action: manipulation;
   transition:
@@ -383,7 +373,7 @@ main {
   color: var(--muted);
 }
 
-/* Overlay */
+/* Overlay (unchanged) */
 .overlay {
   position: fixed;
   inset: 0;
@@ -428,35 +418,7 @@ main {
   border-radius: 8px;
 }
 
-/* Mobile/desktop spacing budgets (single source of truth) */
+/* Layout budget so sticky pad doesn’t cover board */
 .app {
   padding-bottom: calc(110px + env(safe-area-inset-bottom));
-} /* enough space so sticky pad never covers the board */
-.main,
-.content,
-.board-wrap {
-  max-height: calc(100dvh - 220px);
-  overflow: auto;
-}
-
-/* iOS-only: never 3D-transform text */
-@supports (-webkit-touch-callout: none) {
-  .app,
-  .board,
-  .cell input {
-    transform: none !important;
-    backface-visibility: visible !important;
-  }
-}
-
-/* Touch devices: (optional) route taps to cell if you still see keyboard popups
-   NOTE: your JS already avoids focusing inputs on coarse pointers. Keep inputs clickable. */
-/* @media (hover:none) and (pointer:coarse){ .cell input{pointer-events:none} } */
-
-/* General mobile niceties */
-button {
-  font-size: 16px;
-} /* iOS: avoid zoom on buttons */
-* {
-  -webkit-tap-highlight-color: transparent;
 }

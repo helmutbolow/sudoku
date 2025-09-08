@@ -11,41 +11,65 @@
     <!-- Header -->
     <header class="site-header">
       <h1>Sudoku</h1>
+
+      <!-- Burger (pure CSS toggle) -->
+      <input id="nav-toggle" class="nav-toggle" type="checkbox" aria-hidden="true" />
+      <label for="nav-toggle" class="burger" aria-label="Menu" title="Menu">
+        <span></span><span></span><span></span>
+      </label>
+
+      <!-- Slide-over menu: Difficulty + New -->
+      <aside class="menu">
+        <div class="menu-head">
+          <span>Game</span>
+          <label for="nav-toggle" class="menu-close" aria-label="Close">✕</label>
+        </div>
+
+        <div id="difficulty-group" class="segmented" role="group" aria-label="Difficulty">
+          <button id="easy" type="button" aria-pressed="false">Easy</button>
+          <button id="medium" type="button" aria-pressed="true">Medium</button>
+          <button id="hard" type="button" aria-pressed="false">Hard</button>
+        </div>
+
+        <button id="new-puzzle" type="button" class="menu-primary">New game</button>
+
+        <p class="menu-hint">
+          Use the top bar for quick controls. This menu is only for difficulty and starting a new
+          game.
+        </p>
+      </aside>
+
+      <!-- Backdrop for the slide-over -->
+      <label for="nav-toggle" class="backdrop" aria-hidden="true"></label>
     </header>
 
     <!-- App Shell -->
     <main>
       <section class="app">
-        <!-- Row 1: Difficulty (segmented) -->
-        <div class="actions" aria-label="Controls">
-          <div id="difficulty-group" class="segmented" role="group" aria-label="Difficulty">
-            <button id="easy" type="button" aria-pressed="false">Easy</button>
-            <button id="medium" type="button" aria-pressed="true">Medium</button>
-            <button id="hard" type="button" aria-pressed="false">Hard</button>
+        <!-- Top bar: tiny controls + clock -->
+        <div class="topbar" aria-label="Quick controls">
+          <div class="top-actions">
+            <button id="undo" type="button" class="tiny">Undo</button>
+            <button id="restart" type="button" class="tiny">Restart</button>
+            <button id="hint" type="button" class="tiny">Hint</button>
           </div>
-
-          <!-- Row 2: Primary actions -->
-          <button id="new-puzzle" type="button">New</button>
-          <button id="undo" type="button">Undo</button>
-          <button id="restart" type="button">Restart</button>
-          <button id="hint" type="button">Hint</button>
-          <button id="solve-board" type="button">Solve</button>
-
-          <!-- Row 3: Badges (status counters) -->
-          <div id="error-badge" class="badge" title="Errors">Errors: 0/0</div>
-          <div id="hint-badge" class="badge" title="Hints">Hints: 0</div>
-          <div id="clock-badge" class="badge" title="Time">00:00</div>
+          <div id="clock-badge" class="chip" title="Time">00:00</div>
         </div>
 
         <!-- Board -->
         <div id="board" class="board" aria-label="Sudoku board" role="grid"></div>
 
-        <!-- Status -->
+        <!-- Optional status line (kept for your JS updates) -->
         <div id="status" class="status" aria-live="polite">Ready</div>
+
+        <!-- Bottom chips: Errors + Hints, just above numpad -->
+        <div class="bottom-chips">
+          <div id="error-badge" class="chip" title="Errors">Errors: 0/0</div>
+          <div id="hint-badge" class="chip" title="Hints">Hints: 0</div>
+        </div>
 
         <!-- Numpad -->
         <div id="pad" class="numpad" aria-label="Numpad">
-          <!-- Your JS already wires these by data-value -->
           <button type="button" data-value="1">1</button>
           <button type="button" data-value="2">2</button>
           <button type="button" data-value="3">3</button>
@@ -60,7 +84,7 @@
       </section>
     </main>
 
-    <!-- Overlay (used by your JS for loading/solved/game-over) -->
+    <!-- Overlay used by your JS -->
     <div id="overlay" class="overlay hidden" aria-hidden="true">
       <div class="overlay-card">
         <div class="spinner" aria-hidden="true"></div>
@@ -69,6 +93,7 @@
       </div>
     </div>
 
+    <!-- Your existing logic -->
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
