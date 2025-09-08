@@ -638,3 +638,17 @@ body {
   position: relative;
   z-index: 1;
 }
+
+/* Reserve scrollbar space and a small inset so the board doesn't butt up against the page scrollbar */
+.board,
+.app {
+  /* keep layout stable when the browser shows a vertical scrollbar */
+  scrollbar-gutter: stable both-edges;
+}
+
+/* On larger viewports provide a tiny right inset so the board never touches the scrollbar */
+@media (min-width: 800px) {
+  .app {
+    padding-right: calc(var(--pad) + 8px);
+  }
+}
