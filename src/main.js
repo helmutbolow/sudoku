@@ -422,16 +422,34 @@ onReady(() => {
       }
     });
     */
+    /*
+     btnUndo.addEventListener('click', () => {
+       // Need at least the original snapshot + one change
+       if (history.length <= 1) return;
+ 
+       // Discard current snapshot and restore the previous one
+       history.pop();
+       applySnapshot(history[history.length - 1]);
+ 
+       // Recompute strict state so lock/mistake styling is correct
+       if (solutionGrid && api.setSolution) api.setSolution(solutionGrid);
+ 
+       api.setStatus('Undid last move');
+       updateActionButtons();
+     });*/
+
     btnUndo.addEventListener('click', () => {
-      // Need at least the original snapshot + one change
       if (history.length <= 1) return;
 
-      // Discard current snapshot and restore the previous one
+      // step back to previous snapshot
       history.pop();
       applySnapshot(history[history.length - 1]);
 
-      // Recompute strict state so lock/mistake styling is correct
+      // re-apply strict state
       if (solutionGrid && api.setSolution) api.setSolution(solutionGrid);
+
+      // force UI to recompute pad + highlights (clears stale same-number highlights)
+      api.boardEl.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
 
       api.setStatus('Undid last move');
       updateActionButtons();
