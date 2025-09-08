@@ -68,7 +68,7 @@ onReady(() => {
     if (!errorBadge) return;
     const max = ERROR_LIMIT[currentDifficulty] || 3;
     const remaining = Math.max(0, max - errorCount);
-    errorBadge.textContent = `Attempts: ${remaining}/${max}`;
+    errorBadge.textContent = `Errors: ${remaining}/${max}`;
     errorBadge.classList.toggle('danger', remaining <= 2);
   }
   function updateHintsUI() {
@@ -102,7 +102,7 @@ onReady(() => {
     if (!over) return;
     over.classList.remove('hidden');
     over.setAttribute('aria-hidden', 'false');
-    if (overText) overText.textContent = `Game over — attempts exhausted`;
+    if (overText) overText.textContent = `Game over — errors exhausted`;
   }
   function hideGameOver() {
     if (!over) return;
