@@ -1,413 +1,117 @@
 :root {
-  --cell-size: clamp(32px, 9.5vw, 84px);
+  --cell-size: clamp(32px, 9vw, 84px);
   --board-size: calc(9 * var(--cell-size));
-  --pad: clamp(16px, 2.4vmin, 24px);
-  --border-thin: 1px;
-  --border-strong: 4px; /* 3x3 separators */
-  --border-outer: 5px; /* outer board border */
+  --pad: clamp(12px, 2vmin, 24px);
 
-  /* Night defaults */
   --bg: #0b0c10;
   --panel: #111319;
   --panel-2: #151826;
   --text: #e8f0fe;
   --muted: #b5bfd3;
-  --primary: #0a84ff; /* Apple accent blue */
-  --accent: #0a84ff;
-  --success: #30d158; /* Apple green */
-  --warning: #ff9f0a;
-  --danger: #ff6b6b;
-  --grid: #2b2f43; /* thin lines */
-  --grid-strong: #3e4468; /* thick lines */
-}
-
-:root[data-theme='day'] {
-  --bg: #f7f8fb;
-  --panel: #ffffff;
-  --panel-2: #eef2ff;
-  --text: #0b1533;
-  --muted: #4b5568;
   --primary: #0a84ff;
-  --accent: #0a84ff;
-  --danger: #d32f2f;
-  --grid: #ced3e0;
-  --grid-strong: #6b7280;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
+  --danger: #ff6b6b;
+  --grid: #2b2f43;
+  --grid-strong: #3e4468;
 }
 
 body {
   margin: 0;
-  font:
-    14px/1.4 system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Ubuntu,
-    Cantarell,
-    Noto Sans,
-    Arial,
-    'Apple Color Emoji',
-    'Segoe UI Emoji';
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--bg);
   color: var(--text);
-  background:
-    radial-gradient(1200px 600px at 10% -20%, #162039, transparent),
-    radial-gradient(900px 500px at 90% -10%, rgba(10, 132, 255, 0.08), transparent), var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
 }
 
-/* Header/App width capped to viewport */
 .site-header,
 .site-footer,
 .app {
   width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
-  margin: 16px auto;
+  margin: 8px auto;
   padding: 0 var(--pad);
 }
 
-/* Header */
-.site-header {
-  display: grid;
-  row-gap: 10px;
-}
-.site-header h1 {
-  margin: 0;
-  font-size: clamp(22px, 3.4vmin, 32px);
-  font-weight: 700;
-  letter-spacing: 0.2px;
+.app {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: var(--pad);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Actions row */
 .actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  grid-auto-rows: auto;
-  gap: 12px;
-  overflow-x: auto;
-  justify-items: stretch;
-  align-items: stretch;
-}
-.actions .segmented {
-  grid-column: 1 / -1;
-  justify-self: start;
-}
-
-/* Main action buttons fill their cells */
-#new-puzzle,
-#undo,
-#restart,
-#hint,
-#solve-board {
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
   width: 100%;
+  margin-bottom: 8px;
 }
 
-/* Badges */
-#error-badge {
-  grid-column: 1 / 2;
-}
-#hint-badge {
-  grid-column: 2 / 3;
-}
-#clock-badge {
-  grid-column: 3 / 4;
-}
-.actions .badge {
-  justify-self: stretch;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Action controls look */
 .actions button,
 .actions select {
-  background: var(--panel);
+  background: var(--panel-2);
   color: var(--text);
-  border: 1px solid #23263b;
-  padding: 10px 14px;
-  border-radius: 10px;
+  border: 1px solid #2a2f47;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
   cursor: pointer;
-  transition:
-    background 120ms ease,
-    border-color 120ms ease,
-    transform 80ms ease;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 1px 2px rgba(0, 0, 0, 0.25);
-  font-size: clamp(12px, 1.8vmin, 16px);
 }
 .actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.actions button:hover,
-.actions select:hover {
-  background: var(--panel-2);
-  transform: translateY(-0.5px);
-}
 
-.badge {
-  margin-left: 8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid #2a2f47;
-  color: var(--text);
-  font-size: 12px;
-}
-.badge.danger {
-  background: rgba(255, 0, 0, 0.08);
-  border-color: rgba(255, 0, 0, 0.35);
-}
-
-.actions select {
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-/* Segmented control */
-.segmented {
-  display: inline-flex;
-  align-items: stretch;
-  background: color-mix(in oklab, var(--panel) 94%, transparent);
-  border: 1px solid #2a2f47;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  min-width: 260px;
-}
-.segmented button {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  padding: 10px 16px;
-  min-width: 86px;
-  color: var(--muted);
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    color 120ms ease,
-    box-shadow 120ms ease;
-  outline: none;
-}
-.segmented button + button {
-  border-left: 1px solid #2a2f47;
-}
-.segmented button:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-}
-.segmented button.active,
-.segmented button[aria-pressed='true'] {
-  background: color-mix(in oklab, var(--panel-2) 92%, transparent);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-.segmented button:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--primary);
-}
-.actions button[aria-pressed='true'] {
-  outline: 2px solid var(--primary);
-  outline-offset: -2px;
-}
-
-/* Screen-reader only */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Layout */
-main {
-  display: grid;
-  place-items: start center;
-}
-.app {
-  padding: var(--pad);
-  background: color-mix(in oklab, var(--panel) 92%, transparent);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  backdrop-filter: saturate(160%) blur(18px);
-  transition:
-    background 200ms ease,
-    box-shadow 200ms ease;
-}
-
-/* Overlay */
-.overlay {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(2px);
-}
-.overlay.hidden {
-  display: none;
-}
-.overlay-card {
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid #23263b;
-  padding: 16px 18px;
-  border-radius: 14px;
-  min-width: 260px;
-  display: grid;
-  justify-items: center;
-  gap: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-}
-.overlay .spinner {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.15);
-  border-top-color: var(--primary);
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.overlay .overlay-text {
-  opacity: 0.9;
-}
-.overlay .ghost {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid #3a3f58;
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-
-/* Numpad */
-.numpad {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(clamp(44px, 6vmin, 72px), auto));
-  gap: 8px;
-  position: sticky;
-  bottom: 0;
-  padding: 8px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-}
-.numpad button {
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid #23263b;
-  padding: clamp(8px, 1.2vmin, 12px) 0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    transform 80ms ease;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: clamp(12px, 1.8vmin, 16px);
-  min-height: 44px;
-  min-width: 44px;
-  touch-action: manipulation;
-}
-.numpad button:hover {
-  background: var(--panel-2);
-  transform: translateY(-0.5px);
-}
-.numpad button[disabled] {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.numpad button.muted {
-  color: var(--muted);
-}
-
-/* Board */
 .board {
   display: grid;
   grid-template-columns: repeat(9, var(--cell-size));
-  gap: 0;
-  border: var(--border-outer) solid var(--grid-strong);
+  border: 4px solid var(--grid-strong);
   background: var(--panel);
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .cell {
   width: var(--cell-size);
   height: var(--cell-size);
-  border: var(--border-thin) solid var(--grid);
-  display: grid;
-  place-items: center;
+  border: 1px solid var(--grid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
 }
 
-/* Vertical strong borders */
 .cell:nth-child(3n) {
-  border-right: var(--border-strong) solid var(--grid-strong);
+  border-right: 3px solid var(--grid-strong);
 }
 .cell:nth-child(9n + 1) {
-  border-left: var(--border-strong) solid var(--grid-strong);
+  border-left: 3px solid var(--grid-strong);
+}
+.cell[data-row='2'],
+.cell[data-row='5'],
+.cell[data-row='8'] {
+  border-bottom: 3px solid var(--grid-strong);
 }
 
-/* Horizontal 3x3 separators via ::after */
-.cell::after {
-  content: '';
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  bottom: -1px;
-  height: 0;
-  border-bottom: var(--border-thin) solid var(--grid);
-}
-.cell[data-row='2']::after,
-.cell[data-row='5']::after,
-.cell[data-row='8']::after {
-  border-bottom: var(--border-strong) solid var(--grid-strong);
-}
-
-.cell.selected {
-  outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
-  outline-offset: -3px;
-}
-
-/* Inputs inside cells */
 .cell input {
-  width: calc(var(--cell-size) * 0.82);
-  height: calc(var(--cell-size) * 0.82);
-  text-align: center;
-  font-size: calc(var(--cell-size) * 0.7);
-  color: var(--text);
-  background: transparent;
+  width: 100%;
+  height: 100%;
   border: none;
   outline: none;
-  z-index: 2;
-  font-variant-numeric: tabular-nums;
-  text-rendering: optimizeLegibility;
+  background: transparent;
+  text-align: center;
+  font-size: calc(var(--cell-size) * 0.7);
+  font-weight: 500;
+  color: var(--text);
+  caret-color: transparent;
 
-  /* iOS rendering guards */
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   backface-visibility: hidden;
@@ -417,101 +121,54 @@ main {
 .cell input[readonly] {
   color: var(--muted);
 }
-.cell.invalid input {
-  color: var(--danger);
-  font-weight: 700;
-}
 .cell.mistake input {
   color: var(--danger) !important;
-  font-weight: 800;
-}
-.cell.mistake {
-  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--warning) 80%, transparent);
+  font-weight: 700;
 }
 
-.cell.mistake-flash {
-  animation: mistakeFlash 260ms ease;
-}
-@keyframes mistakeFlash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
-  }
+.cell.selected {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
 }
 
-.cell.prefill input {
-  color: var(--text);
-  font-weight: 600;
-}
-.cell.given input {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-/* Highlights */
-.cell.hl-rc {
-  background: color-mix(in oklab, var(--panel-2) 85%, transparent);
-}
-.cell.hl-same {
-  box-shadow: inset 0 0 0 2px var(--primary);
+.numpad {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  position: sticky;
+  bottom: 0;
+  padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  background: var(--panel);
 }
 
-/* Status text */
-.status {
-  margin-top: 14px;
-  color: var(--muted);
-  font-size: clamp(12px, 1.8vmin, 15px);
-}
-
-/* Mobile hardening */
-button {
+.numpad button {
+  min-height: 44px;
+  min-width: 44px;
+  background: var(--panel-2);
+  border: 1px solid #2a2f47;
+  border-radius: 8px;
   font-size: 16px;
-} /* avoid iOS zoom on buttons */
-
-html,
-body {
-  height: 100dvh;
-  min-height: 100dvh;
-  overflow: hidden;
+  color: var(--text);
+  touch-action: manipulation;
+}
+.numpad button:disabled {
+  opacity: 0.4;
+}
+.numpad button:hover {
+  background: var(--primary);
+  color: white;
 }
 
+.status {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* iOS safe areas + tap fixes */
 * {
   -webkit-tap-highlight-color: transparent;
-}
-.board,
-.numpad,
-button,
-input {
   user-select: none;
-}
-
-/* Disable backdrop-filter on iOS to avoid sliced glyphs */
-@supports (-webkit-touch-callout: none) {
-  .board,
-  .card,
-  .panel,
-  .container {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-}
-
-/* Keep top controls visible if you have such a container */
-.controls,
-.toolbar,
-.topbar,
-.hud {
-  position: sticky;
-  top: max(0px, env(safe-area-inset-top));
-  z-index: 10;
-}
-
-/* Middle content scroll area so pad stays visible */
-.main,
-.content,
-.board-wrap {
-  height: calc(100dvh - 160px); /* header+controls+numpad allowance */
-  overflow: auto;
 }
