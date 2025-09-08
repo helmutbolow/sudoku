@@ -87,11 +87,6 @@ body {
   justify-items: stretch;
   align-items: stretch;
 }
-/* Segmented difficulty switch occupies full row and stretches */
-.actions .segmented {
-  grid-column: 1 / -1;
-  justify-self: stretch;
-}
 /* Ensure main action buttons fill their grid cells */
 #new-puzzle,
 #undo,
@@ -117,7 +112,7 @@ body {
   align-items: center;
   justify-content: center;
 }
-/* Make difficulty switch occupy its own full row so it never overlaps */
+/* Segmented difficulty switch occupies its own full row */
 .actions .segmented {
   grid-column: 1 / -1;
   justify-self: start;
