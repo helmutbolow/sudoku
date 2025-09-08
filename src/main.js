@@ -57,7 +57,7 @@ onReady(() => {
   let solutionGrid = null; // 9x9 numbers
   const history = []; // snapshots of boards
   const future = [];
-  const placements = []; // strict undo stack
+  //const placements = []; // strict undo stack
   let currentDifficulty = 'medium';
   let errorCount = 0;
   const ERROR_LIMIT = { easy: 3, medium: 5, hard: 9 };
@@ -399,6 +399,7 @@ onReady(() => {
 
   // Undo/Restart handlers (Redo removed)
   if (btnUndo)
+    /*
     btnUndo.addEventListener('click', () => {
       // Clear only the last placed entry; do not refill erased cells
       if (!placements.length) return;
@@ -419,6 +420,21 @@ onReady(() => {
           break;
         }
       }
+    });
+    */
+    btnUndo.addEventListener('click', () => {
+      // Need at least the original snapshot + one change
+      if (history.length <= 1) return;
+
+      // Discard current snapshot and restore the previous one
+      history.pop();
+      applySnapshot(history[history.length - 1]);
+
+      // Recompute strict state so lock/mistake styling is correct
+      if (solutionGrid && api.setSolution) api.setSolution(solutionGrid);
+
+      api.setStatus('Undid last move');
+      updateActionButtons();
     });
   if (btnRestart)
     btnRestart.addEventListener('click', () => {
