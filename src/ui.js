@@ -1,6 +1,6 @@
 const EMPTY = 0;
 
-function createCell(r, c) {
+/*function createCell(r, c) {
   const cell = document.createElement('div');
   cell.className = 'cell';
   cell.dataset.row = String(r);
@@ -49,7 +49,47 @@ function createCell(r, c) {
   // No notes grid; only a single input per cell
   cell.appendChild(input);
   return cell;
+}*/
+
+function createCell(r, c) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.dataset.row = r;
+  cell.dataset.col = c;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.maxLength = 1;
+
+  // Prevent mobile keyboard:
+  input.readOnly = true; // prevents native keyboard
+  input.setAttribute('inputmode', 'none'); // extra hint for some browsers
+
+  // keep keyboard available for desktop if you want: (optional)
+  // if (!('ontouchstart' in window)) input.readOnly = false;
+
+  cell.appendChild(input);
+
+  // Handle pointer/tap to open custom numpad / select cell without focusing input
+  cell.addEventListener('pointerdown', (ev) => {
+    ev.preventDefault(); // IMPORTANT: stops native focus/keyboard
+    // call your existing selection helper — replace with your function name
+    // e.g. selectCell(cell) or uiSelectCell(cell)
+    if (typeof selectCell === 'function') selectCell(cell);
+  });
+
+  // keep keyboard-based entry working on desktop if needed:
+  cell.addEventListener('keydown', (ev) => {
+    // optional: handle keyboard digits for desktop users
+    if (/^[1-9]$/.test(ev.key)) {
+      // handle input via your existing API
+      if (typeof handleDigit === 'function') handleDigit(cell, ev.key);
+    }
+  });
+
+  return cell;
 }
+
 /*
 function validateCell(cell) {
   cell.classList.remove('invalid');
