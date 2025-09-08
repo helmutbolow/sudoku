@@ -32,7 +32,7 @@ onReady(() => {
     });
     try {
       localStorage.setItem(LS_KEY, d);
-    } catch {}
+    } catch { }
   }
   function getDiffUI() {
     const active = diffGroup?.querySelector('button.active');
@@ -194,7 +194,7 @@ onReady(() => {
       arr.push({ ms, errors, hints, score, iq, ts: Date.now() });
       arr.sort((a, b) => a.ms - b.ms || a.errors - b.errors || a.hints - b.hints);
       localStorage.setItem(lbKey(d), JSON.stringify(arr.slice(0, 10)));
-    } catch {}
+    } catch { }
   }
 
   let ignoreNextRecord = false; // set true when Solve button used
@@ -248,7 +248,7 @@ onReady(() => {
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) setDiffUI(saved);
-  } catch {}
+  } catch { }
   diffGroup?.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-diff]');
     if (!btn) return;
@@ -354,17 +354,37 @@ onReady(() => {
     updateHintsUI();
     checkSolved();
   });
+  /*
+    document.getElementById('solve-board').addEventListener('click', () => {
+      const board = api.readBoard();
+      const solved = solutionGrid || solve(board);
+      if (!solved) {
+        api.setStatus('No solution found or invalid puzzle.');
+        return;
+      }
+      // Fill the board and lock everything, but DO NOT record time/score/IQ or show overlay
+      setBoard(api, solved);
+      solutionGrid = solved;
+      // lock all cells
+      for (let i = 0; i < 81; i++) {
+        const cell = api.boardEl.children[i];
+        const input = cell.querySelector('input');
+        input.readOnly = true;
+        cell.classList.remove('mistake');
+        cell.classList.add('prefill');
+      }
+      stopClock();
+      api.setStatus('Solved (auto).');
+    });
+  */
 
   document.getElementById('solve-board').addEventListener('click', () => {
-    const board = api.readBoard();
-    const solved = solutionGrid || solve(board);
-    if (!solved) {
-      api.setStatus('No solution found or invalid puzzle.');
+    if (!solutionGrid) {
+      api.setStatus('No puzzle loaded.');
       return;
     }
     // Fill the board and lock everything, but DO NOT record time/score/IQ or show overlay
-    setBoard(api, solved);
-    solutionGrid = solved;
+    setBoard(api, solutionGrid);
     // lock all cells
     for (let i = 0; i < 81; i++) {
       const cell = api.boardEl.children[i];
@@ -473,6 +493,6 @@ onReady(() => {
       if (saved) setDiffUI(saved);
       const difficulty = getDiffUI() || 'medium';
       await loadNewByDifficulty(difficulty);
-    } catch {}
+    } catch { }
   })();
 });
