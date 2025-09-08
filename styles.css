@@ -1,5 +1,5 @@
 :root {
-  --cell-size: clamp(32px, 9.5vw, 84px) /*clamp(44px, 6.4vmin, 84px)*/;
+  --cell-size: clamp(32px, 9.5vw, 84px);
   --board-size: calc(9 * var(--cell-size));
   --pad: clamp(16px, 2.4vmin, 24px);
   --border-thin: 1px;
@@ -37,10 +37,12 @@
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   height: 100%;
 }
+
 body {
   margin: 0;
   font:
@@ -62,20 +64,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
 }
-/*
-.site-header,
-.site-footer {
-  width: calc(var(--board-size) + 2 * var(--pad));
-  margin: 16px auto;
-  padding: 0 var(--pad);
-}*/
 
+/* Header/App width capped to viewport */
 .site-header,
 .site-footer,
 .app {
   width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
+  margin: 16px auto;
+  padding: 0 var(--pad);
 }
 
+/* Header */
 .site-header {
   display: grid;
   row-gap: 10px;
@@ -86,22 +85,23 @@ body {
   font-weight: 700;
   letter-spacing: 0.2px;
 }
+
+/* Actions row */
 .actions {
   display: grid;
-  /*  grid-template-columns: repeat(5, minmax(120px, 1fr));*/
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   grid-auto-rows: auto;
   gap: 12px;
-  overflow-x: auto; /* safety on very narrow screens */
+  overflow-x: auto;
   justify-items: stretch;
   align-items: stretch;
 }
-/* Segmented difficulty switch occupies full row and stretches */
 .actions .segmented {
   grid-column: 1 / -1;
-  justify-self: stretch;
+  justify-self: start;
 }
-/* Ensure main action buttons fill their grid cells */
+
+/* Main action buttons fill their cells */
 #new-puzzle,
 #undo,
 #restart,
@@ -109,7 +109,8 @@ body {
 #solve-board {
   width: 100%;
 }
-/* Place the badges neatly in the row below */
+
+/* Badges */
 #error-badge {
   grid-column: 1 / 2;
 }
@@ -126,11 +127,8 @@ body {
   align-items: center;
   justify-content: center;
 }
-/* Make difficulty switch occupy its own full row so it never overlaps */
-.actions .segmented {
-  grid-column: 1 / -1;
-  justify-self: start;
-}
+
+/* Action controls look */
 .actions button,
 .actions select {
   background: var(--panel);
@@ -157,6 +155,7 @@ body {
   background: var(--panel-2);
   transform: translateY(-0.5px);
 }
+
 .badge {
   margin-left: 8px;
   padding: 6px 10px;
@@ -170,10 +169,13 @@ body {
   background: rgba(255, 0, 0, 0.08);
   border-color: rgba(255, 0, 0, 0.35);
 }
+
 .actions select {
   appearance: none;
   -webkit-appearance: none;
 }
+
+/* Segmented control */
 .segmented {
   display: inline-flex;
   align-items: stretch;
@@ -223,7 +225,7 @@ body {
   outline-offset: -2px;
 }
 
-/* Screen-reader only label */
+/* Screen-reader only */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -236,6 +238,7 @@ body {
   border: 0;
 }
 
+/* Layout */
 main {
   display: grid;
   place-items: start center;
@@ -249,10 +252,9 @@ main {
   transition:
     background 200ms ease,
     box-shadow 200ms ease;
-  /*width: calc(var(--board-size) + 2 * var(--pad));*/
 }
 
-/* Generation overlay */
+/* Overlay */
 .overlay {
   position: fixed;
   inset: 0;
@@ -300,11 +302,16 @@ main {
   border-radius: 8px;
 }
 
+/* Numpad */
 .numpad {
   margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(5, minmax(clamp(44px, 6vmin, 72px), auto));
   gap: 8px;
+  position: sticky;
+  bottom: 0;
+  padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
 }
 .numpad button {
   background: var(--panel);
@@ -320,6 +327,9 @@ main {
     0 1px 0 rgba(255, 255, 255, 0.06) inset,
     0 1px 2px rgba(0, 0, 0, 0.2);
   font-size: clamp(12px, 1.8vmin, 16px);
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
 }
 .numpad button:hover {
   background: var(--panel-2);
@@ -333,11 +343,7 @@ main {
   color: var(--muted);
 }
 
-.cell.selected {
-  outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
-  outline-offset: -3px;
-}
-
+/* Board */
 .board {
   display: grid;
   grid-template-columns: repeat(9, var(--cell-size));
@@ -355,8 +361,10 @@ main {
   border: var(--border-thin) solid var(--grid);
   display: grid;
   place-items: center;
+  position: relative;
 }
 
+/* Vertical strong borders */
 .cell:nth-child(3n) {
   border-right: var(--border-strong) solid var(--grid-strong);
 }
@@ -364,10 +372,7 @@ main {
   border-left: var(--border-strong) solid var(--grid-strong);
 }
 
-/* Horizontal 3x3 separators */
-.cell {
-  position: relative;
-}
+/* Horizontal 3x3 separators via ::after */
 .cell::after {
   content: '';
   position: absolute;
@@ -383,6 +388,12 @@ main {
   border-bottom: var(--border-strong) solid var(--grid-strong);
 }
 
+.cell.selected {
+  outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
+  outline-offset: -3px;
+}
+
+/* Inputs inside cells */
 .cell input {
   width: calc(var(--cell-size) * 0.82);
   height: calc(var(--cell-size) * 0.82);
@@ -395,6 +406,12 @@ main {
   z-index: 2;
   font-variant-numeric: tabular-nums;
   text-rendering: optimizeLegibility;
+
+  /* iOS rendering guards */
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .cell input[readonly] {
@@ -411,6 +428,7 @@ main {
 .cell.mistake {
   box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--warning) 80%, transparent);
 }
+
 .cell.mistake-flash {
   animation: mistakeFlash 260ms ease;
 }
@@ -422,6 +440,7 @@ main {
     box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
   }
 }
+
 .cell.prefill input {
   color: var(--text);
   font-weight: 600;
@@ -431,65 +450,33 @@ main {
   font-weight: 600;
 }
 
-.status {
-  margin-top: 14px;
-  color: var(--muted);
-  font-size: clamp(12px, 1.8vmin, 15px);
-}
-
-/* Notes removed */
-.cell.value-pulse {
-  animation: valuePulse 180ms ease;
-}
-@keyframes valuePulse {
-  0% {
-    transform: scale(0.94);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-/* Notes removed */
+/* Highlights */
 .cell.hl-rc {
   background: color-mix(in oklab, var(--panel-2) 85%, transparent);
 }
 .cell.hl-same {
   box-shadow: inset 0 0 0 2px var(--primary);
 }
-/* --- Mobile hardening --- */
 
-/* Prevent iOS zoom on focus (inputs/buttons >=16px) */
-/*input,
-button {
-  font-size: 16px;
-}*/
-/* Prevent iOS zoom on focus (buttons >=16px) */
-button {
-  font-size: 16px;
+/* Status text */
+.status {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: clamp(12px, 1.8vmin, 15px);
 }
 
-/* Use dynamic viewport height so iOS bars don’t hide content */
+/* Mobile hardening */
+button {
+  font-size: 16px;
+} /* avoid iOS zoom on buttons */
+
 html,
 body {
   height: 100dvh;
   min-height: 100dvh;
+  overflow: hidden;
 }
 
-/* Keep numpad visible and touchable */
-.numpad {
-  position: sticky; /* stays at bottom during scroll */
-  bottom: 0;
-  padding: 8px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom)); /* iOS notch */
-  gap: 8px;
-}
-.numpad button {
-  min-height: 44px; /* finger target */
-  min-width: 44px;
-  touch-action: manipulation; /* kill dbl-tap zoom / 300ms delay */
-}
-
-/* Reduce tap flash + accidental selection */
 * {
   -webkit-tap-highlight-color: transparent;
 }
@@ -500,31 +487,7 @@ input {
   user-select: none;
 }
 
-/* Force digits to render cleanly on iOS Safari
-
-input {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: 20px;
-  line-height: 1.2;
-  text-align: center;
-  color: #000;
-  -webkit-text-size-adjust: 100%; /* stop iOS from scaling text 
-}
-*/
-
-.cell input {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: calc(var(--cell-size) * 0.7);
-  line-height: 1.2;
-  text-align: center;
-  color: var(--text);
-  -webkit-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-/* If a blur/glass effect exists on ancestors, disable it on iOS to avoid glyph slicing */
+/* Disable backdrop-filter on iOS to avoid sliced glyphs */
 @supports (-webkit-touch-callout: none) {
   .board,
   .card,
@@ -535,7 +498,7 @@ input {
   }
 }
 
-/* Keep top controls visible */
+/* Keep top controls visible if you have such a container */
 .controls,
 .toolbar,
 .topbar,
@@ -545,19 +508,7 @@ input {
   z-index: 10;
 }
 
-/* Keep numpad visible (you already have something similar) */
-.numpad {
-  position: sticky;
-  bottom: 0;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-}
-
-/* Make the center area scroll, not the whole page */
-html,
-body {
-  height: 100dvh;
-  overflow: hidden;
-}
+/* Middle content scroll area so pad stays visible */
 .main,
 .content,
 .board-wrap {
