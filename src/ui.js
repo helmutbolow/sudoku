@@ -148,19 +148,19 @@ export function initUI(root) {
   function getCellByIndex(idx) {
     return boardEl.children[idx];
   }
-
-  function buildBoard() {
-    const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
-    for (let r = 0; r < 9; r++) {
-      for (let c = 0; c < 9; c++) {
-        const idx = r * 9 + c;
-        const v = boardEl.children[idx].querySelector('input').value;
-        board[r][c] = v ? Number(v) : EMPTY;
+  /*
+    function buildBoard() {
+      const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const idx = r * 9 + c;
+          const v = boardEl.children[idx].querySelector('input').value;
+          board[r][c] = v ? Number(v) : EMPTY;
+        }
       }
+      return board;
     }
-    return board;
-  }
-
+  */
   function updatePad() {
     // Default: enable all numbers; only disable globally exhausted numbers
     buttons.forEach((b) => b.removeAttribute('disabled'));
@@ -211,7 +211,7 @@ export function initUI(root) {
     }
     updatePad();
     // add row/col + same-number highlights
-    if (typeof updateHighlights === 'function') updateHighlights();
+    /*if (typeof updateHighlights === 'function') */updateHighlights();
   }
 
   // Click to select
@@ -223,7 +223,7 @@ export function initUI(root) {
   // Update pad when any cell changes
   boardEl.addEventListener('cell-change', () => {
     updatePad();
-    if (typeof updateHighlights === 'function') updateHighlights();
+    /*if (typeof updateHighlights === 'function') */updateHighlights();
   });
 
   // Handle pad clicks
