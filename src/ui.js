@@ -245,7 +245,7 @@ export function initUI(root) {
     }
     updatePad();
     // add row/col + same-number highlights
-    /*if (typeof updateHighlights === 'function') */updateHighlights();
+    /*if (typeof updateHighlights === 'function') */ updateHighlights();
   }
 
   // Click to select
@@ -257,7 +257,7 @@ export function initUI(root) {
   // Update pad when any cell changes
   boardEl.addEventListener('cell-change', () => {
     updatePad();
-    /*if (typeof updateHighlights === 'function') */updateHighlights();
+    /*if (typeof updateHighlights === 'function') */ updateHighlights();
   });
 
   // Handle pad clicks
