@@ -454,3 +454,15 @@ button {
   height: calc(100dvh - 160px);
   overflow: auto;
 }
+
+/* On touch devices, let taps hit the CELL, not the INPUT (prevents soft keyboard) */
+@media (hover: none) and (pointer: coarse) {
+  .cell input {
+    pointer-events: none;
+  } /* tap goes to .cell */
+}
+
+/* Ensure the last board row is never hidden behind the sticky numpad */
+.app {
+  padding-bottom: 140px;
+} /* reserve space for the pad */

@@ -56,15 +56,6 @@ function createCell(r, c) {
   input.addEventListener('focus', () => cell.classList.add('focus'));
   input.addEventListener('blur', () => cell.classList.remove('focus'));
 
-  input.addEventListener(
-    'touchstart',
-    (e) => {
-      // prevent iOS/Android from popping the keyboard
-      if (window.matchMedia('(pointer: coarse)').matches) e.preventDefault();
-    },
-    { passive: false }
-  );
-
   // No notes grid; only a single input per cell
   cell.appendChild(input);
   return cell;
