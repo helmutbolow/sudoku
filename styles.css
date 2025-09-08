@@ -9,108 +9,303 @@
   --text: #e8f0fe;
   --muted: #b5bfd3;
   --primary: #0a84ff;
+  --success: #30d158;
+  --warning: #ff9f0a;
   --danger: #ff6b6b;
   --grid: #2b2f43;
   --grid-strong: #3e4468;
 }
 
+:root[data-theme='day'] {
+  --bg: #f7f8fb;
+  --panel: #ffffff;
+  --panel-2: #eef2ff;
+  --text: #0b1533;
+  --muted: #4b5568;
+  --primary: #0a84ff;
+  --danger: #d32f2f;
+  --grid: #ced3e0;
+  --grid-strong: #6b7280;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100dvh;
+  min-height: 100dvh;
+}
 body {
   margin: 0;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font:
+    14px/1.4 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Ubuntu,
+    Cantarell,
+    Noto Sans,
+    Arial,
+    'Apple Color Emoji',
+    'Segoe UI Emoji';
   -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
 }
 
+/* Header/App container widths capped to viewport */
 .site-header,
 .site-footer,
 .app {
   width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
-  margin: 8px auto;
+  margin: 12px auto;
   padding: 0 var(--pad);
 }
 
-.app {
-  background: var(--panel);
-  border-radius: 12px;
-  padding: var(--pad);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.site-header {
+  display: grid;
+  row-gap: 10px;
+}
+.site-header h1 {
+  margin: 0;
+  font-size: clamp(22px, 3.4vmin, 32px);
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
+/* Actions (top controls) */
 .actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 8px;
-  width: 100%;
-  margin-bottom: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  overflow-x: auto;
+}
+.actions::-webkit-scrollbar {
+  display: none;
 }
 
 .actions button,
 .actions select {
-  background: var(--panel-2);
+  background: var(--panel);
   color: var(--text);
-  border: 1px solid #2a2f47;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 14px;
+  border: 1px solid #23263b;
+  padding: 10px 14px;
+  border-radius: 10px;
   cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    transform 0.08s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.25);
+  font-size: clamp(12px, 1.8vmin, 16px);
+}
+.actions button:hover,
+.actions select:hover {
+  background: var(--panel-2);
+  transform: translateY(-0.5px);
 }
 .actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.actions select {
+  appearance: none;
+  -webkit-appearance: none;
+}
 
+#new-puzzle,
+#undo,
+#restart,
+#hint,
+#solve-board {
+  width: 100%;
+}
+
+/* Badges */
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2a2f47;
+  color: var(--text);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.badge.danger {
+  background: rgba(255, 0, 0, 0.08);
+  border-color: rgba(255, 0, 0, 0.35);
+}
+
+/* Segmented */
+.segmented {
+  display: inline-flex;
+  align-items: stretch;
+  background: color-mix(in oklab, var(--panel) 94%, transparent);
+  border: 1px solid #2a2f47;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  min-width: 260px;
+}
+.segmented button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 10px 16px;
+  min-width: 86px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.segmented button + button {
+  border-left: 1px solid #2a2f47;
+}
+.segmented button:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+.segmented button.active,
+.segmented button[aria-pressed='true'] {
+  background: color-mix(in oklab, var(--panel-2) 92%, transparent);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* App card */
+main {
+  display: grid;
+  place-items: start center;
+}
+.app {
+  padding: var(--pad);
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: saturate(160%) blur(18px);
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+}
+.overlay.hidden {
+  display: none;
+}
+.overlay-card {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  padding: 16px 18px;
+  border-radius: 14px;
+  min-width: 260px;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.overlay .spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--primary);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Board */
 .board {
   display: grid;
   grid-template-columns: repeat(9, var(--cell-size));
-  border: 4px solid var(--grid-strong);
+  border: 5px solid var(--grid-strong);
   background: var(--panel);
-  border-radius: 6px;
+  border-radius: 10px;
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .cell {
   width: var(--cell-size);
   height: var(--cell-size);
   border: 1px solid var(--grid);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   position: relative;
 }
 
+/* vertical strong borders */
 .cell:nth-child(3n) {
-  border-right: 3px solid var(--grid-strong);
+  border-right: 4px solid var(--grid-strong);
 }
 .cell:nth-child(9n + 1) {
-  border-left: 3px solid var(--grid-strong);
-}
-.cell[data-row='2'],
-.cell[data-row='5'],
-.cell[data-row='8'] {
-  border-bottom: 3px solid var(--grid-strong);
+  border-left: 4px solid var(--grid-strong);
 }
 
+/* horizontal strong borders */
+.cell::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: 1px solid var(--grid);
+}
+.cell[data-row='2']::after,
+.cell[data-row='5']::after,
+.cell[data-row='8']::after {
+  border-bottom: 4px solid var(--grid-strong);
+}
+
+/* Selected + highlights */
+.cell.selected {
+  outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
+  outline-offset: -3px;
+}
+.cell.hl-rc {
+  background: color-mix(in oklab, var(--panel-2) 85%, transparent);
+}
+.cell.hl-same {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+/* Inputs */
 .cell input {
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
+  width: calc(var(--cell-size) * 0.82);
+  height: calc(var(--cell-size) * 0.82);
   text-align: center;
   font-size: calc(var(--cell-size) * 0.7);
-  font-weight: 500;
   color: var(--text);
+  background: transparent;
+  border: none;
+  outline: none;
+  z-index: 2;
+  font-variant-numeric: tabular-nums;
+  text-rendering: optimizeLegibility;
   caret-color: transparent;
+  pointer-events: auto;
 
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
@@ -121,54 +316,121 @@ body {
 .cell input[readonly] {
   color: var(--muted);
 }
+.cell.prefill input {
+  color: var(--text);
+  font-weight: 600;
+}
+.cell.given input {
+  color: var(--primary);
+  font-weight: 600;
+}
 .cell.mistake input {
   color: var(--danger) !important;
-  font-weight: 700;
+  font-weight: 800;
+}
+.cell.mistake {
+  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--warning) 80%, transparent);
+}
+.cell.mistake-flash {
+  animation: mistakeFlash 0.26s ease;
+}
+@keyframes mistakeFlash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
 }
 
-.cell.selected {
-  outline: 2px solid var(--primary);
-  outline-offset: -2px;
-}
-
+/* Numpad */
 .numpad {
-  margin-top: 8px;
+  margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(5, minmax(clamp(44px, 6vmin, 72px), 1fr));
+  gap: 8px;
   position: sticky;
   bottom: 0;
   padding: 8px;
   padding-bottom: max(8px, env(safe-area-inset-bottom));
   background: var(--panel);
 }
-
 .numpad button {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  padding: clamp(8px, 1.2vmin, 12px) 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    transform 0.08s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.2);
+  font-size: 16px; /* keep 16px to avoid iOS zoom */
   min-height: 44px;
   min-width: 44px;
-  background: var(--panel-2);
-  border: 1px solid #2a2f47;
-  border-radius: 8px;
-  font-size: 16px;
-  color: var(--text);
   touch-action: manipulation;
 }
-.numpad button:disabled {
-  opacity: 0.4;
-}
 .numpad button:hover {
-  background: var(--primary);
-  color: white;
+  background: var(--panel-2);
+  transform: translateY(-0.5px);
 }
-
-.status {
-  margin-top: 10px;
-  font-size: 14px;
+.numpad button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.numpad button.muted {
   color: var(--muted);
 }
 
-/* iOS safe areas + tap fixes */
+/* Status */
+.status {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: clamp(12px, 1.8vmin, 15px);
+}
+
+/* Mobile hardening */
+button {
+  font-size: 16px;
+} /* avoid iOS zoom on buttons */
 * {
   -webkit-tap-highlight-color: transparent;
+}
+.board,
+.numpad,
+button {
   user-select: none;
+}
+
+/* Disable backdrop-filter on iOS to avoid glyph slicing */
+@supports (-webkit-touch-callout: none) {
+  .app,
+  .board {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* Sticky topbars if present */
+.controls,
+.toolbar,
+.topbar,
+.hud {
+  position: sticky;
+  top: max(0px, env(safe-area-inset-top));
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Middle content scroll so numpad stays visible */
+.main,
+.content,
+.board-wrap {
+  height: calc(100dvh - 160px);
+  overflow: auto;
 }
