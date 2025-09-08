@@ -561,16 +561,48 @@ body {
 
 .board .cell input {
   box-sizing: border-box;
-  /* slightly larger inset and slightly smaller font to avoid clipping on narrow devices */
-  width: calc(var(--cell-size) - 12px);
-  height: calc(var(--cell-size) - 12px);
+  /* leave a small inset so thick borders / outline don't clip the glyphs */
+  width: calc(var(--cell-size) - 10px);
+  height: calc(var(--cell-size) - 10px);
   padding: 0;
   margin: 0;
-  line-height: calc(var(--cell-size) - 12px);
+  line-height: calc(var(--cell-size) - 10px);
   text-align: center;
   font-family: var(--ui-font);
   font-weight: 700;
-  font-size: calc((var(--cell-size) - 12px) * 0.6);
+  font-size: calc((var(--cell-size) - 10px) * 0.62);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  border: 0;
+  background: transparent;
+  caret-color: var(--primary);
+}
+
+/* Keep givens slightly smaller so they never clash with separators */
+.board .cell.prefill input,
+.board .cell.given input {
+  font-size: calc((var(--cell-size) - 10px) * 0.58);
+}
+
+/* Final overrides to ensure inputs fit cleanly inside cells on narrow viewports */
+.board .cell {
+  box-sizing: border-box; /* ensure borders are included in cell size */
+  padding: 0;
+  overflow: hidden;
+}
+
+.board .cell input {
+  box-sizing: border-box;
+  /* leave a small inset so thick borders / outline don't clip the glyphs */
+  width: calc(var(--cell-size) - 10px);
+  height: calc(var(--cell-size) - 10px);
+  padding: 0;
+  margin: 0;
+  line-height: calc(var(--cell-size) - 10px);
+  text-align: center;
+  font-family: var(--ui-font);
+  font-weight: 700;
+  font-size: calc((var(--cell-size) - 10px) * 0.62);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   border: 0;
