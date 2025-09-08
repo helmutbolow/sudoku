@@ -486,3 +486,13 @@ button,
 input {
   user-select: none;
 }
+
+/* Force digits to render cleanly on iOS Safari */
+input {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 20px;
+  line-height: 1.2;
+  text-align: center;
+  color: #000;
+  -webkit-text-size-adjust: 100%; /* stop iOS from scaling text */
+}
