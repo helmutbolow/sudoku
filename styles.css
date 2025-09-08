@@ -66,6 +66,8 @@ body {
 .site-header,
 .site-footer {
   width: calc(var(--board-size) + 2 * var(--pad));
+  max-width: 100vw;
+  overflow-x: hidden;
   margin: 16px auto;
   padding: 0 var(--pad);
 }
@@ -236,6 +238,8 @@ main {
     background 200ms ease,
     box-shadow 200ms ease;
   width: calc(var(--board-size) + 2 * var(--pad));
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* Generation overlay */
