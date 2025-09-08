@@ -540,3 +540,123 @@ button {
 .status {
   margin-top: 12px;
 }
+
+/* ---------- DESKTOP POLISH ---------- */
+@media (min-width: 900px) {
+  /* Make room so the rightmost button (Hint) never clips */
+  .actions {
+    overflow: visible;
+  }
+
+  /* Predictable 7-column layout:
+     [ E/M/H ][ New ][ Undo ][ Restart ][ Hint ]
+     [  Solve (wide)                         ]
+     [  Errors ][ Hints ][ Clock ]           */
+  .actions {
+    grid-template-columns: repeat(7, minmax(120px, 1fr));
+    column-gap: 12px;
+  }
+
+  #difficulty-group {
+    grid-column: 1 / 3;
+  } /* spans 2 cells (E/M/H) */
+  #new-puzzle {
+    grid-column: 3 / 4;
+  }
+  #undo {
+    grid-column: 4 / 5;
+  }
+  #restart {
+    grid-column: 5 / 6;
+  }
+  #hint {
+    grid-column: 6 / 7;
+  }
+
+  #solve-board {
+    grid-column: 1 / 5;
+  } /* wide button below */
+
+  #error-badge {
+    grid-column: 5 / 6;
+  }
+  #hint-badge {
+    grid-column: 6 / 7;
+  }
+  #clock-badge {
+    grid-column: 7 / 8;
+  }
+
+  /* Reduce excess space under the board on desktop */
+  .app {
+    padding-bottom: 96px;
+  }
+  .status {
+    margin-top: 8px;
+  }
+}
+
+/* ---------- MOBILE COMPACTION & CLEAN SWITCH ---------- */
+@media (max-width: 899px) {
+  /* Tighten vertical rhythm (less top space) */
+  .site-header {
+    margin-bottom: 6px;
+  }
+  .actions {
+    row-gap: 8px;
+    margin-bottom: 8px;
+  }
+  .actions button,
+  .actions select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  /* Difficulty switch = its own full-width row */
+  .segmented,
+  #difficulty-group {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  /* Keep “New” separated as its own row */
+  #new-puzzle {
+    grid-column: 1 / -1;
+  }
+
+  /* Badges in one compact row */
+  #error-badge,
+  #hint-badge,
+  #clock-badge {
+    grid-column: auto;
+    white-space: nowrap;
+    justify-self: stretch;
+  }
+}
+
+/* ---------- ALWAYS: VISIBILITY + SCROLL BUDGET ---------- */
+
+/* Reserve just enough space for the sticky numpad;
+   trims the big gap you saw below the board. */
+.app {
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+}
+
+/* Make the content area scroll so nothing is covered by the pad.
+   If your middle container has a different class, add it here. */
+.main,
+.content,
+.board-wrap {
+  max-height: calc(100dvh - 220px); /* header+actions+numpad budget */
+  overflow: auto;
+}
+
+/* Ensure the “New” button never crowds the switch even when wrapping */
+#new-puzzle {
+  grid-column: 1 / -1;
+}
+
+/* Safety: prevent accidental clipping of rightmost control on narrow viewports */
+.actions {
+  padding-right: 4px;
+}
