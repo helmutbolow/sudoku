@@ -6,11 +6,21 @@ function createCell(r, c) {
   cell.dataset.row = String(r);
   cell.dataset.col = String(c);
 
+  /*
   const input = document.createElement('input');
   input.setAttribute('inputmode', 'numeric');
   input.setAttribute('maxlength', '1');
   input.setAttribute('aria-label', `Row ${r + 1} Col ${c + 1}`);
   input.readOnly = true; // strict-only: lock until setSolution() is called
+  */
+
+  const input = document.createElement('input');
+  input.setAttribute('inputmode', 'numeric');
+  input.setAttribute('pattern', '[0-9]*'); // add this
+  input.setAttribute('maxlength', '1');
+  input.setAttribute('aria-label', `Row ${r + 1} Col ${c + 1}`);
+  input.readOnly = true; // strict-only: lock until setSolution() is called
+
   input.addEventListener('input', (e) => {
     const v = input.value.replace(/\D/g, '');
     input.value = v.slice(0, 1);

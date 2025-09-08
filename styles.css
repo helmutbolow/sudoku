@@ -447,3 +447,42 @@ main {
 .cell.hl-same {
   box-shadow: inset 0 0 0 2px var(--primary);
 }
+/* --- Mobile hardening --- */
+
+/* Prevent iOS zoom on focus (inputs/buttons >=16px) */
+input,
+button {
+  font-size: 16px;
+}
+
+/* Use dynamic viewport height so iOS bars don’t hide content */
+html,
+body {
+  height: 100dvh;
+  min-height: 100dvh;
+}
+
+/* Keep numpad visible and touchable */
+.numpad {
+  position: sticky; /* stays at bottom during scroll */
+  bottom: 0;
+  padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom)); /* iOS notch */
+  gap: 8px;
+}
+.numpad button {
+  min-height: 44px; /* finger target */
+  min-width: 44px;
+  touch-action: manipulation; /* kill dbl-tap zoom / 300ms delay */
+}
+
+/* Reduce tap flash + accidental selection */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+.board,
+.numpad,
+button,
+input {
+  user-select: none;
+}
