@@ -65,7 +65,7 @@ body {
 
 .site-header,
 .site-footer {
-  width: calc(var(--board-size) + 2 * var(--pad));
+  width: min(100%, calc(var(--board-size) + 2 * var(--pad)));
   max-width: 100vw;
   overflow-x: hidden;
   margin: 16px auto;
@@ -237,7 +237,7 @@ main {
   transition:
     background 200ms ease,
     box-shadow 200ms ease;
-  width: calc(var(--board-size) + 2 * var(--pad));
+  width: min(100%, calc(var(--board-size) + 2 * var(--pad)));
   max-width: 100vw;
   overflow-x: hidden;
 }
@@ -445,4 +445,71 @@ main {
 }
 .cell.hl-same {
   box-shadow: inset 0 0 0 2px var(--primary);
+}
+/* Responsive tweaks for narrow viewports */
+@media (max-width: 640px) {
+  :root {
+    --pad: 10px;
+    --cell-size: clamp(24px, calc((100vw - (2 * var(--pad))) / 9), 64px);
+    --board-size: calc(9 * var(--cell-size));
+  }
+
+  .site-header,
+  .site-footer,
+  .app {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: var(--pad);
+    padding-right: var(--pad);
+  }
+
+  .site-header {
+    margin: 8px auto;
+    row-gap: 8px;
+  }
+
+  .site-header h1 {
+    font-size: clamp(16px, 5vmin, 20px);
+  }
+
+  .actions {
+    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+  }
+
+  .actions .segmented {
+    min-width: 180px;
+    grid-column: 1 / -1;
+  }
+
+  .numpad {
+    margin-top: 8px;
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    gap: 6px;
+  }
+
+  .numpad button {
+    padding: 8px 0;
+    font-size: clamp(12px, 2.2vmin, 14px);
+  }
+
+  .board {
+    border-radius: 8px;
+  }
+
+  .cell input {
+    width: calc(var(--cell-size) * 0.82);
+    height: calc(var(--cell-size) * 0.82);
+    font-size: calc(var(--cell-size) * 0.65);
+  }
+
+  .site-header,
+  .site-footer {
+    padding: 0 var(--pad);
+  }
+  body {
+    padding-top: 6px;
+    padding-bottom: 12px;
+  }
 }
