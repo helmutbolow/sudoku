@@ -161,27 +161,61 @@ export function initUI(root) {
       return board;
     }
   */
+  /*
+   function updatePad() {
+     // Default: enable all numbers; only disable globally exhausted numbers
+     buttons.forEach((b) => b.removeAttribute('disabled'));
+     clearBtn.removeAttribute('disabled');
+     if (selectedIdx == null) return;
+     const cell = getCellByIndex(selectedIdx);
+     const input = cell.querySelector('input');
+     if (input.readOnly) {
+       // Prefill: disable pad
+       buttons.forEach((b) => b.setAttribute('disabled', ''));
+       clearBtn.setAttribute('disabled', '');
+       return;
+     }
+     const counts = Array(10).fill(0);
+     for (let idx = 0; idx < 81; idx++) {
+       const v = boardEl.children[idx].querySelector('input').value;
+       if (v) counts[Number(v)]++;
+     }
+     buttons.forEach((b) => {
+       const n = Number(b.dataset.value);
+       if (counts[n] >= 9) b.setAttribute('disabled', '');
+     });
+   }
+     */
+
   function updatePad() {
-    // Default: enable all numbers; only disable globally exhausted numbers
-    buttons.forEach((b) => b.removeAttribute('disabled'));
-    clearBtn.removeAttribute('disabled');
+    // enable everything by default
+    buttons.forEach((b) => (b.disabled = false));
+    clearBtn.disabled = false;
+
     if (selectedIdx == null) return;
+
     const cell = getCellByIndex(selectedIdx);
     const input = cell.querySelector('input');
+
+    // If the selected cell is locked (given/correct), disable the pad
     if (input.readOnly) {
-      // Prefill: disable pad
-      buttons.forEach((b) => b.setAttribute('disabled', ''));
-      clearBtn.setAttribute('disabled', '');
+      buttons.forEach((b) => (b.disabled = true));
+      clearBtn.disabled = true;
       return;
     }
+
+    // Count digits currently on the board
     const counts = Array(10).fill(0);
     for (let idx = 0; idx < 81; idx++) {
       const v = boardEl.children[idx].querySelector('input').value;
       if (v) counts[Number(v)]++;
     }
+
+    // Disable numbers that already appear 9 times
     buttons.forEach((b) => {
-      const n = Number(b.dataset.value);
-      if (counts[n] >= 9) b.setAttribute('disabled', '');
+      const n = Number(b.dataset.value); // <-- correct attribute
+      if (!Number.isFinite(n)) return;
+      if (counts[n] >= 9) b.disabled = true;
     });
   }
 
