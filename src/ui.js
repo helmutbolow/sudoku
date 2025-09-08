@@ -50,7 +50,7 @@ function createCell(r, c) {
   cell.appendChild(input);
   return cell;
 }
-
+/*
 function validateCell(cell) {
   cell.classList.remove('invalid');
   const input = cell.querySelector('input');
@@ -81,7 +81,8 @@ function validateCell(cell) {
   }
   return true;
 }
-
+*/
+/*
 function computeCandidates(board, r, c) {
   if (board[r][c] !== EMPTY) return new Set();
   const cand = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -98,6 +99,7 @@ function computeCandidates(board, r, c) {
   }
   return cand;
 }
+  */
 
 export function initUI(root) {
   root.innerHTML = '';
@@ -191,7 +193,8 @@ export function initUI(root) {
       const locked = getCellByIndex(lockedIdx);
       locked.classList.add('selected');
       locked.querySelector('input').focus();
-      setStatus('Fix or clear the conflicting cell first.');
+      //setStatus('Fix or clear the conflicting cell first.');
+      setStatus('Fix or clear this cell first.');
       updatePad();
       return;
     }
@@ -386,32 +389,84 @@ export function initUI(root) {
     const has = cell.querySelector('input').value !== '';
     cell.classList.toggle('has-value', has);
   }
+  /*
+    function recomputeValidity() {
+      // Soft validation + strict coloring
+      lockedIdx = null;
+      for (let idx = 0; idx < 81; idx++) {
+        const cell = boardEl.children[idx];
+        //validateCell(cell);
+        if (typeof recomputeValidity.solution === 'undefined' || !recomputeValidity.solution)
+          continue;
+        const input = cell.querySelector('input');
+        const r = Number(cell.dataset.row);
+        const c = Number(cell.dataset.col);
+        const sol = recomputeValidity.solution[r][c];
+        const isGiven = cell.classList.contains('given');
+        if (isGiven) {
+          input.readOnly = true;
+          cell.classList.add('prefill');
+          cell.classList.remove('mistake');
+          continue;
+        }
+        if (!input.value) {
+          cell.classList.remove('mistake');
+          cell.classList.remove('prefill');
+          input.readOnly = false;
+          continue;
+        }
+        const v = Number(input.value);
+        if (v === sol) {
+          input.readOnly = true;
+          cell.classList.add('prefill');
+          cell.classList.remove('mistake');
+        } else {
+          input.readOnly = false;
+          cell.classList.add('mistake');
+          cell.classList.remove('prefill');
+        }
+      }
+      if (selectedIdx != null) {
+        //const ok = validateCell(getCellByIndex(selectedIdx));
+        //setStatus(ok ? 'Ready' : 'This entry conflicts. Fix or clear it.');
+      }
+    }
+  */
 
   function recomputeValidity() {
-    // Soft validation + strict coloring
-    lockedIdx = null;
+    // Strict-only normalization against solution (no row/col/box legality)
     for (let idx = 0; idx < 81; idx++) {
       const cell = boardEl.children[idx];
-      validateCell(cell);
-      if (typeof recomputeValidity.solution === 'undefined' || !recomputeValidity.solution)
-        continue;
       const input = cell.querySelector('input');
+
+      // No solution yet: keep everything locked and neutral
+      if (!recomputeValidity.solution) {
+        input.readOnly = true;
+        cell.classList.remove('mistake');
+        cell.classList.remove('prefill');
+        continue;
+      }
+
       const r = Number(cell.dataset.row);
       const c = Number(cell.dataset.col);
-      const sol = recomputeValidity.solution[r][c];
       const isGiven = cell.classList.contains('given');
+      const sol = recomputeValidity.solution[r][c];
+
       if (isGiven) {
         input.readOnly = true;
         cell.classList.add('prefill');
         cell.classList.remove('mistake');
         continue;
       }
-      if (!input.value) {
+
+      const hasVal = input.value !== '';
+      if (!hasVal) {
+        input.readOnly = false;
         cell.classList.remove('mistake');
         cell.classList.remove('prefill');
-        input.readOnly = false;
         continue;
       }
+
       const v = Number(input.value);
       if (v === sol) {
         input.readOnly = true;
@@ -423,12 +478,14 @@ export function initUI(root) {
         cell.classList.remove('prefill');
       }
     }
+
+    // Status: binary in strict mode
     if (selectedIdx != null) {
-      const ok = validateCell(getCellByIndex(selectedIdx));
-      setStatus(ok ? 'Ready' : 'This entry conflicts. Fix or clear it.');
+      const sel = getCellByIndex(selectedIdx);
+      const isMistake = sel.classList.contains('mistake');
+      setStatus(isMistake ? 'Wrong number. Try again.' : 'Ready');
     }
   }
-
   // Highlights for row/column and same numbers
   function clearHighlights() {
     for (let i = 0; i < 81; i++) {
@@ -502,6 +559,7 @@ export function initUI(root) {
       // Disable/enable numpad
       pad.querySelectorAll('button').forEach((b) => (b.disabled = !on));
     },
+    /*
     hint() {
       // Try selected cell first
       const board = this.readBoard();
@@ -516,7 +574,7 @@ export function initUI(root) {
           input.value = String(cand[0]);
           updateHasValue(cell);
           pulse(cell);
-          validateCell(cell);
+          //validateCell(cell);
           cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
           this.setStatus(`Hint: filled ${cand[0]} at R${r + 1}C${c + 1}`);
           return true;
@@ -537,6 +595,16 @@ export function initUI(root) {
         }
       }
       this.setStatus('No single-candidate cells found.');
+    },
+    */
+    // Strict-only: UI no longer computes candidates. Hints are driven by main.js via solutionGrid.
+    // Keep a safe stub so external callers won't crash.
+    hint() {
+      if (!recomputeValidity.solution) {
+        this.setStatus('No puzzle loaded.');
+        return;
+      }
+      this.setStatus('Hint handled by game logic.');
     },
     setStatus,
     readBoard() {

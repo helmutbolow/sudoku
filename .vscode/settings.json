@@ -4,5 +4,8 @@
   "files.eol": "\n",
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "chatgpt.openOnStartup": true
+  "chatgpt.openOnStartup": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }
