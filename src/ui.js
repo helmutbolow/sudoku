@@ -143,7 +143,7 @@ export function initUI(root) {
   }
 
   let selectedIdx = null;
-  let lockedIdx = null; // soft validation only
+  //let lockedIdx = null; // soft validation only
 
   function getCellByIndex(idx) {
     return boardEl.children[idx];
@@ -186,6 +186,7 @@ export function initUI(root) {
   }
 
   function selectCell(idx) {
+    /*
     if (lockedIdx != null && idx !== lockedIdx) {
       // Force selection to the locked invalid cell
       if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
@@ -198,6 +199,8 @@ export function initUI(root) {
       updatePad();
       return;
     }
+      */
+
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
     selectedIdx = idx;
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.add('selected');

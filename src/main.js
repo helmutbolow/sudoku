@@ -1,6 +1,6 @@
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
-import { generatePuzzle } from './generator.js';
+//import { generatePuzzle } from './generator.js';
 import { primePool, getFromPool, generateOneAsync } from './pool.js';
 import { solve } from './solver.js';
 
@@ -39,9 +39,9 @@ onReady(() => {
     return active?.dataset.diff || 'medium';
   }
   const btnUndo = document.getElementById('undo');
-  const btnRedo = document.getElementById('redo');
+  //const btnRedo = document.getElementById('redo');
   const btnRestart = document.getElementById('restart');
-  const btnCheck = document.getElementById('check');
+  //const btnCheck = document.getElementById('check');
   const errorBadge = document.getElementById('error-badge');
   const hintBadge = document.getElementById('hint-badge');
   const clockBadge = document.getElementById('clock-badge');
@@ -56,7 +56,7 @@ onReady(() => {
   let prefillMask = null; // 9x9 booleans
   let solutionGrid = null; // 9x9 numbers
   const history = []; // snapshots of boards
-  const future = [];
+  //const future = [];
   //const placements = []; // strict undo stack
   let currentDifficulty = 'medium';
   let errorCount = 0;
@@ -132,9 +132,9 @@ onReady(() => {
   }
   function updateActionButtons() {
     if (btnUndo) btnUndo.disabled = history.length <= 1;
-    if (btnRedo) btnRedo.disabled = future.length === 0;
+    //if (btnRedo) btnRedo.disabled = future.length === 0;
     if (btnRestart) btnRestart.disabled = !originalPuzzle;
-    if (btnCheck) btnCheck.disabled = true;
+    // if (btnCheck) btnCheck.disabled = true;
     if (solutionGrid) updateErrorsUI();
     // Always refresh hints badge
     if (typeof updateHintsUI === 'function') updateHintsUI();
@@ -153,7 +153,7 @@ onReady(() => {
     if (api.setSolution) api.setSolution(solutionGrid);
     history.length = 0;
     history.push(cloneBoard(originalPuzzle));
-    future.length = 0;
+    //future.length = 0;
     // Reset counters based on difficulty
     errorCount = 0;
     hintCount = 0;
@@ -197,7 +197,7 @@ onReady(() => {
     } catch { }
   }
 
-  let ignoreNextRecord = false; // set true when Solve button used
+  //let ignoreNextRecord = false; // set true when Solve button used
 
   function checkSolved(saveRecord = true) {
     if (!solutionGrid) return false;
@@ -215,13 +215,13 @@ onReady(() => {
     api.setStatus(
       `Solved! Time ${fmtClock(elapsed)}. Errors ${errorCount}. Hints ${hintCount}. Score ${score}, IQ ${iq}.`
     );
-    if (!ignoreNextRecord && saveRecord) {
+    if (/*!ignoreNextRecord && */saveRecord) {
       // store record and show top list
       saveBestTime(currentDifficulty, elapsed, errorCount, hintCount);
-    } else {
+    }/* else {
       // reset the flag; do not save this auto-solve time
       ignoreNextRecord = false;
-    }
+    }*/
     const best = loadBestTimes(currentDifficulty);
     if (overText) {
       const top = best
@@ -240,7 +240,7 @@ onReady(() => {
     const current = api.readBoard();
     if (!history.length || !boardsEqual(history[history.length - 1], current)) {
       history.push(cloneBoard(current));
-      future.length = 0;
+      //future.length = 0;
       updateActionButtons();
     }
   }
