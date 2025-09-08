@@ -1,5 +1,5 @@
 :root {
-  --cell-size: clamp(44px, 6.4vmin, 84px);
+  --cell-size: clamp(32px, 9.5vw, 84px) /*clamp(44px, 6.4vmin, 84px)*/;
   --board-size: calc(9 * var(--cell-size));
   --pad: clamp(16px, 2.4vmin, 24px);
   --border-thin: 1px;
@@ -62,13 +62,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
 }
-
+/*
 .site-header,
 .site-footer {
   width: calc(var(--board-size) + 2 * var(--pad));
   margin: 16px auto;
   padding: 0 var(--pad);
+}*/
+
+.site-header,
+.site-footer,
+.app {
+  width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
 }
+
 .site-header {
   display: grid;
   row-gap: 10px;
@@ -81,9 +88,11 @@ body {
 }
 .actions {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  /*  grid-template-columns: repeat(5, minmax(120px, 1fr));*/
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   grid-auto-rows: auto;
   gap: 12px;
+  overflow-x: auto; /* safety on very narrow screens */
   justify-items: stretch;
   align-items: stretch;
 }
@@ -240,7 +249,7 @@ main {
   transition:
     background 200ms ease,
     box-shadow 200ms ease;
-  width: calc(var(--board-size) + 2 * var(--pad));
+  /*width: calc(var(--board-size) + 2 * var(--pad));*/
 }
 
 /* Generation overlay */
@@ -450,7 +459,11 @@ main {
 /* --- Mobile hardening --- */
 
 /* Prevent iOS zoom on focus (inputs/buttons >=16px) */
-input,
+/*input,
+button {
+  font-size: 16px;
+}*/
+/* Prevent iOS zoom on focus (buttons >=16px) */
 button {
   font-size: 16px;
 }
@@ -487,15 +500,30 @@ input {
   user-select: none;
 }
 
-/* Force digits to render cleanly on iOS Safari */
+/* Force digits to render cleanly on iOS Safari
+
 input {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 20px;
   line-height: 1.2;
   text-align: center;
   color: #000;
-  -webkit-text-size-adjust: 100%; /* stop iOS from scaling text */
+  -webkit-text-size-adjust: 100%; /* stop iOS from scaling text 
 }
+*/
+
+/* Force digits to render cleanly on iOS Safari (cell inputs only) */
+.cell input {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
 /* iOS Safari: prevent sliced digits in inputs */
 .cell input {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
