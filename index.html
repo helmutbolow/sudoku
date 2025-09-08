@@ -14,33 +14,32 @@
 
     <main>
       <section class="app">
+        <!-- Root; initUI() will fill this -->
         <div id="app"></div>
-        <!-- IMPORTANT: Your JS populates this. Do not remove. -->
-        <div id="actions" class="actions"></div>
 
-        <!-- Board (your JS builds the 9×9 here) -->
-        <div id="board" class="board" aria-label="Sudoku board" role="grid"></div>
+        <!-- Controls expected by main.js -->
+        <div id="difficulty-group" class="segmented">
+          <button data-diff="easy">Easy</button>
+          <button data-diff="medium" class="active">Medium</button>
+          <button data-diff="hard">Hard</button>
+        </div>
 
-        <!-- Status line (your JS updates this) -->
-        <div id="status" class="status" aria-live="polite">Ready</div>
+        <div class="actions">
+          <button id="new-puzzle">New</button>
+          <button id="undo">Undo</button>
+          <button id="restart">Restart</button>
+          <button id="hint">Hint</button>
+          <button id="solve-board">Solve</button>
+        </div>
 
-        <!-- Numpad (wired by your JS via data-value / data-action) -->
-        <div id="pad" class="numpad" aria-label="Numpad">
-          <button type="button" data-value="1">1</button>
-          <button type="button" data-value="2">2</button>
-          <button type="button" data-value="3">3</button>
-          <button type="button" data-value="4">4</button>
-          <button type="button" data-value="5">5</button>
-          <button type="button" data-value="6">6</button>
-          <button type="button" data-value="7">7</button>
-          <button type="button" data-value="8">8</button>
-          <button type="button" data-value="9">9</button>
-          <button type="button" data-action="clear" class="muted">Clear</button>
+        <div class="badges">
+          <div id="error-badge" class="badge">Errors: 0/0</div>
+          <div id="hint-badge" class="badge">Hints: 0</div>
+          <div id="clock-badge" class="badge">00:00</div>
         </div>
       </section>
     </main>
 
-    <!-- Overlay used by your JS -->
     <div id="overlay" class="overlay hidden" aria-hidden="true">
       <div class="overlay-card">
         <div class="spinner" aria-hidden="true"></div>
@@ -49,7 +48,6 @@
       </div>
     </div>
 
-    <!-- Your existing logic; do not change path/type -->
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
