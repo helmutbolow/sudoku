@@ -330,8 +330,12 @@ main {
 
 .board {
   display: grid;
-  grid-template-columns: repeat(9, var(--cell-size));
+  /* compute columns from the final board width so rounding is consistent */
+  grid-template-columns: repeat(9, calc(var(--board-size) / 9));
   gap: 0;
+  width: var(--board-size);
+  max-width: 100%;
+  box-sizing: border-box;
   border: var(--border-outer) solid var(--grid-strong);
   background: var(--panel);
   border-radius: 10px;
@@ -340,11 +344,12 @@ main {
 }
 
 .cell {
-  width: var(--cell-size);
-  height: var(--cell-size);
+  width: calc(var(--board-size) / 9);
+  height: calc(var(--board-size) / 9);
   border: var(--border-thin) solid var(--grid);
   display: grid;
   place-items: center;
+  box-sizing: border-box;
 }
 
 .cell:nth-child(3n) {
@@ -355,9 +360,30 @@ main {
 }
 
 /* Horizontal 3x3 separators */
-.cell {
-  position: relative;
+.cell::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: var(--border-thin) solid var(--grid);
 }
+.cell[data-row='2']::after,
+.cell[data-row='5']::after,
+.cell[data-row='8']::after {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}
+
+
+.cell:nth-child(3n) {
+  border-right: var(--border-strong) solid var(--grid-strong);
+}
+.cell:nth-child(9n + 1) {
+  border-left: var(--border-strong) solid var(--grid-strong);
+}
+
+/* Horizontal 3x3 separators */
 .cell::after {
   content: '';
   position: absolute;
@@ -443,7 +469,7 @@ main {
       100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - (2 * var(--pad)) -
         (2 * var(--border-outer)) - 8px
     );
-    --cell-size: clamp(24px, calc(var(--available-width) / 9), 64px);
+    --cell-size: clamp(24px, calc(var(--available-width) / 9), 60px);
     --board-size: calc(9 * var(--cell-size));
   }
 
@@ -487,20 +513,6 @@ main {
     font-size: clamp(12px, 2.2vmin, 14px);
   }
 
-  .board {
-    border-radius: 8px;
-  }
-  /*
-*/
-  .site-header,
-  .site-footer {
-    padding: 0 var(--pad);
-  }
-  body {
-    padding-top: 6px;
-    padding-bottom: 12px;
-  }
-}
 
 /* Safe-area and input sizing fixes for small devices */
 :root {
@@ -520,9 +532,6 @@ body {
 .site-header,
 .site-footer,
 .app,
-.board {
-  max-width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 2 * var(--pad));
-}
 
 /* Precise cell/input sizing to avoid clipping 
 */
@@ -552,10 +561,6 @@ body {
     font-size: 13px;
   }
   /* tighten board border on very narrow screens */
-  .board {
-    border-radius: 8px;
-  }
-}
 
 /* Final overrides to ensure inputs fit cleanly inside cells on narrow viewports */
 .board .cell {
@@ -587,4 +592,21 @@ body {
 .board .cell.prefill input,
 .board .cell.given input {
   font-size: calc((var(--cell-size) - 10px) * 0.58);
+}
+/* Force board to never exceed available viewport (accounts for safe-area + padding) */
+.board {
+  width: min(
+    var(--board-size),
+    calc(
+      100vw
+      - env(safe-area-inset-left)
+      - env(safe-area-inset-right)
+      - (2 * var(--pad))
+      - 12px /* small safety buffer for rounding/borders */
+    )
+  );
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
 }
