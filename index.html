@@ -8,67 +8,22 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <!-- Header -->
     <header class="site-header">
       <h1>Sudoku</h1>
-
-      <!-- Burger (pure CSS toggle) -->
-      <input id="nav-toggle" class="nav-toggle" type="checkbox" aria-hidden="true" />
-      <label for="nav-toggle" class="burger" aria-label="Menu" title="Menu">
-        <span></span><span></span><span></span>
-      </label>
-
-      <!-- Slide-over menu: Difficulty + New -->
-      <aside class="menu">
-        <div class="menu-head">
-          <span>Game</span>
-          <label for="nav-toggle" class="menu-close" aria-label="Close">✕</label>
-        </div>
-
-        <div id="difficulty-group" class="segmented" role="group" aria-label="Difficulty">
-          <button id="easy" type="button" aria-pressed="false">Easy</button>
-          <button id="medium" type="button" aria-pressed="true">Medium</button>
-          <button id="hard" type="button" aria-pressed="false">Hard</button>
-        </div>
-
-        <button id="new-puzzle" type="button" class="menu-primary">New game</button>
-
-        <p class="menu-hint">
-          Use the top bar for quick controls. This menu is only for difficulty and starting a new
-          game.
-        </p>
-      </aside>
-
-      <!-- Backdrop for the slide-over -->
-      <label for="nav-toggle" class="backdrop" aria-hidden="true"></label>
     </header>
 
-    <!-- App Shell -->
     <main>
       <section class="app">
-        <!-- Top bar: tiny controls + clock -->
-        <div class="topbar" aria-label="Quick controls">
-          <div class="top-actions">
-            <button id="undo" type="button" class="tiny">Undo</button>
-            <button id="restart" type="button" class="tiny">Restart</button>
-            <button id="hint" type="button" class="tiny">Hint</button>
-          </div>
-          <div id="clock-badge" class="chip" title="Time">00:00</div>
-        </div>
+        <!-- IMPORTANT: Your JS populates this. Do not remove. -->
+        <div id="actions" class="actions"></div>
 
-        <!-- Board -->
+        <!-- Board (your JS builds the 9×9 here) -->
         <div id="board" class="board" aria-label="Sudoku board" role="grid"></div>
 
-        <!-- Optional status line (kept for your JS updates) -->
+        <!-- Status line (your JS updates this) -->
         <div id="status" class="status" aria-live="polite">Ready</div>
 
-        <!-- Bottom chips: Errors + Hints, just above numpad -->
-        <div class="bottom-chips">
-          <div id="error-badge" class="chip" title="Errors">Errors: 0/0</div>
-          <div id="hint-badge" class="chip" title="Hints">Hints: 0</div>
-        </div>
-
-        <!-- Numpad -->
+        <!-- Numpad (wired by your JS via data-value / data-action) -->
         <div id="pad" class="numpad" aria-label="Numpad">
           <button type="button" data-value="1">1</button>
           <button type="button" data-value="2">2</button>
@@ -93,7 +48,7 @@
       </div>
     </div>
 
-    <!-- Your existing logic -->
+    <!-- Your existing logic; do not change path/type -->
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

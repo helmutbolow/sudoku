@@ -41,11 +41,9 @@ body {
   touch-action: manipulation;
 }
 
-/* Header */
-.site-header {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
+/* Width cap so desktop/mobile both look sane */
+.site-header,
+.app {
   width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
   margin: 12px auto;
   padding: 0 var(--pad);
@@ -56,107 +54,62 @@ body {
   font-weight: 800;
 }
 
-/* Burger */
-.nav-toggle {
-  display: none;
-}
-.burger {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.burger span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--text);
-  border-radius: 2px;
-}
-.backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.2s;
-}
-.menu {
-  position: fixed;
-  top: 0;
-  right: -320px;
-  height: 100dvh;
-  width: min(88vw, 300px);
-  background: var(--panel);
-  border-left: 1px solid #23263b;
-  box-shadow: -16px 0 32px rgba(0, 0, 0, 0.35);
-  padding: 18px;
+/* Card */
+main {
   display: grid;
-  gap: 14px;
-  transition: right 0.25s ease;
+  place-items: start center;
 }
-.menu-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.app {
+  padding: var(--pad);
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: saturate(160%) blur(18px);
 }
-.menu-head span {
-  opacity: 0.85;
-  font-weight: 700;
+
+/* Actions container (your JS injects buttons here) */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
 }
-.menu-close {
-  cursor: pointer;
-  opacity: 0.7;
-}
-.menu-primary {
-  background: var(--primary);
-  color: white;
-  border: 0;
+.actions button,
+.actions select {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  padding: 10px 12px;
   border-radius: 10px;
-  padding: 12px 14px;
-  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
 }
-.menu-hint {
-  opacity: 0.6;
+.actions .badge {
+  /* if your JS renders badges here */
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2a2f47;
+  color: var(--text);
   font-size: 12px;
-  margin: 6px 0 0;
+  white-space: nowrap;
 }
 
-.nav-toggle:checked ~ .burger {
-  opacity: 0.9;
-}
-.nav-toggle:checked ~ .menu {
-  right: 0;
-}
-.nav-toggle:checked ~ .backdrop {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Segmented in the menu */
+/* Segmented (if your JS renders difficulty as a segmented control) */
 .segmented {
   display: inline-flex;
   align-items: stretch;
-  justify-content: stretch;
-  width: 100%;
-  background: color-mix(in oklab, var(--panel) 94%, transparent);
-  border: 1px solid #2a2f47;
-  border-radius: 12px;
   overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid #2a2f47;
+  background: color-mix(in oklab, var(--panel) 94%, transparent);
 }
 .segmented button {
   appearance: none;
   border: 0;
   background: transparent;
-  padding: 12px 16px;
-  flex: 1 1 auto;
-  min-width: 0;
+  padding: 10px 14px;
+  min-width: 86px;
   color: var(--muted);
   font-weight: 700;
   letter-spacing: 0.2px;
@@ -169,55 +122,6 @@ body {
 .segmented button[aria-pressed='true'] {
   background: color-mix(in oklab, var(--panel-2) 92%, transparent);
   color: var(--text);
-}
-
-/* App card */
-main {
-  display: grid;
-  place-items: start center;
-}
-.app {
-  width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
-  padding: var(--pad);
-  background: color-mix(in oklab, var(--panel) 92%, transparent);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  backdrop-filter: saturate(160%) blur(18px);
-}
-
-/* Topbar (tiny controls + clock) */
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.top-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.tiny {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid #2a2f47;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.tiny:disabled {
-  opacity: 0.5;
-}
-.chip {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid #2a2f47;
-  color: var(--text);
-  font-size: 12px;
-  white-space: nowrap;
 }
 
 /* Board */
@@ -258,6 +162,7 @@ main {
 .cell[data-row='8']::after {
   border-bottom: 4px solid var(--grid-strong);
 }
+
 .cell.selected {
   outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
   outline-offset: -3px;
@@ -269,7 +174,7 @@ main {
   box-shadow: inset 0 0 0 2px var(--primary);
 }
 
-/* Cell input (iOS-safe) */
+/* Input (iOS-safe) */
 .cell input {
   display: block;
   width: 100%;
@@ -311,25 +216,12 @@ main {
   color: var(--danger) !important;
   font-weight: 800;
 }
-.cell.mistake {
-  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--danger) 35%, transparent);
-}
 
-/* Status line (optional) */
+/* Status */
 .status {
-  margin: 10px 0 6px;
+  margin: 10px 0 8px;
   color: var(--muted);
   font-size: 13px;
-}
-
-/* Bottom chips above numpad */
-.bottom-chips {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
 }
 
 /* Numpad */
@@ -418,7 +310,7 @@ main {
   border-radius: 8px;
 }
 
-/* Layout budget so sticky pad doesn’t cover board */
+/* Reserve space so sticky pad never covers the board */
 .app {
   padding-bottom: calc(110px + env(safe-area-inset-bottom));
 }
