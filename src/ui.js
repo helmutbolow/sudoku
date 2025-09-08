@@ -56,6 +56,15 @@ function createCell(r, c) {
   input.addEventListener('focus', () => cell.classList.add('focus'));
   input.addEventListener('blur', () => cell.classList.remove('focus'));
 
+  input.addEventListener(
+    'touchstart',
+    (e) => {
+      // prevent iOS/Android from popping the keyboard
+      if (window.matchMedia('(pointer: coarse)').matches) e.preventDefault();
+    },
+    { passive: false }
+  );
+
   // No notes grid; only a single input per cell
   cell.appendChild(input);
   return cell;
@@ -250,8 +259,11 @@ export function initUI(root) {
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.add('selected');
     // Focus the input for typing support
     if (selectedIdx != null) {
+      //const inp = getCellByIndex(selectedIdx).querySelector('input');
+      //inp.focus();
       const inp = getCellByIndex(selectedIdx).querySelector('input');
-      inp.focus();
+      const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+      if (!isCoarse) inp.focus(); // avoid soft keyboard on phones
     }
     updatePad();
     // add row/col + same-number highlights

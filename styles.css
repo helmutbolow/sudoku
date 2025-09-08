@@ -519,3 +519,33 @@ input {
     backdrop-filter: none !important;
   }
 }
+
+/* Keep top controls visible */
+.controls,
+.toolbar,
+.topbar,
+.hud {
+  position: sticky;
+  top: max(0px, env(safe-area-inset-top));
+  z-index: 10;
+}
+
+/* Keep numpad visible (you already have something similar) */
+.numpad {
+  position: sticky;
+  bottom: 0;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+/* Make the center area scroll, not the whole page */
+html,
+body {
+  height: 100dvh;
+  overflow: hidden;
+}
+.main,
+.content,
+.board-wrap {
+  height: calc(100dvh - 160px); /* header+controls+numpad allowance */
+  overflow: auto;
+}
