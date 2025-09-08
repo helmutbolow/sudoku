@@ -2,75 +2,73 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
-    />
     <title>Sudoku</title>
-    <meta name="description" content="Minimal Sudoku web app with a simple solver." />
-    <meta name="theme-color" content="#0b0c10" />
-    <meta property="og:title" content="Sudoku" />
-    <meta property="og:description" content="Minimal Sudoku web app with a simple solver." />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=3" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <!-- Header -->
     <header class="site-header">
       <h1>Sudoku</h1>
-      <div class="actions">
-        <div id="difficulty-group" class="segmented" role="group" aria-label="Difficulty">
-          <button type="button" data-diff="easy">Easy</button>
-          <button type="button" data-diff="medium" class="active">Medium</button>
-          <button type="button" data-diff="hard">Hard</button>
-        </div>
-        <button id="new-puzzle">New</button>
-        <button id="undo" title="Undo last entry (u)">Undo</button>
-        <button id="restart" title="Restart puzzle (x)">Restart</button>
-
-        <button id="hint" title="Single-candidate hint">Hint</button>
-        <button id="solve-board">Solve</button>
-        <span id="error-badge" class="badge" aria-live="polite">Attempts: --</span>
-        <span id="hint-badge" class="badge" aria-live="polite">Hints: --</span>
-        <span id="clock-badge" class="badge" aria-live="polite">00:00</span>
-      </div>
     </header>
 
+    <!-- App Shell -->
     <main>
-      <div id="app" class="app"></div>
-      <div
-        id="over-overlay"
-        class="overlay hidden"
-        aria-hidden="true"
-        role="dialog"
-        aria-label="Game over"
-      >
-        <div class="overlay-card">
-          <div class="overlay-text" id="over-text">Game over</div>
-          <div style="display: flex; gap: 8px">
-            <button id="over-restart" class="ghost">Restart</button>
-            <button id="over-new" class="ghost">New</button>
+      <section class="app">
+        <!-- Row 1: Difficulty (segmented) -->
+        <div class="actions" aria-label="Controls">
+          <div id="difficulty-group" class="segmented" role="group" aria-label="Difficulty">
+            <button id="easy" type="button" aria-pressed="false">Easy</button>
+            <button id="medium" type="button" aria-pressed="true">Medium</button>
+            <button id="hard" type="button" aria-pressed="false">Hard</button>
           </div>
+
+          <!-- Row 2: Primary actions -->
+          <button id="new-puzzle" type="button">New</button>
+          <button id="undo" type="button">Undo</button>
+          <button id="restart" type="button">Restart</button>
+          <button id="hint" type="button">Hint</button>
+          <button id="solve-board" type="button">Solve</button>
+
+          <!-- Row 3: Badges (status counters) -->
+          <div id="error-badge" class="badge" title="Errors">Errors: 0/0</div>
+          <div id="hint-badge" class="badge" title="Hints">Hints: 0</div>
+          <div id="clock-badge" class="badge" title="Time">00:00</div>
         </div>
-      </div>
-      <div
-        id="gen-overlay"
-        class="overlay hidden"
-        aria-hidden="true"
-        role="dialog"
-        aria-label="Generating puzzle"
-      >
-        <div class="overlay-card">
-          <div class="spinner" aria-hidden="true"></div>
-          <div class="overlay-text">Generating puzzle…</div>
-          <button id="gen-cancel" class="ghost">Cancel</button>
+
+        <!-- Board -->
+        <div id="board" class="board" aria-label="Sudoku board" role="grid"></div>
+
+        <!-- Status -->
+        <div id="status" class="status" aria-live="polite">Ready</div>
+
+        <!-- Numpad -->
+        <div id="pad" class="numpad" aria-label="Numpad">
+          <!-- Your JS already wires these by data-value -->
+          <button type="button" data-value="1">1</button>
+          <button type="button" data-value="2">2</button>
+          <button type="button" data-value="3">3</button>
+          <button type="button" data-value="4">4</button>
+          <button type="button" data-value="5">5</button>
+          <button type="button" data-value="6">6</button>
+          <button type="button" data-value="7">7</button>
+          <button type="button" data-value="8">8</button>
+          <button type="button" data-value="9">9</button>
+          <button type="button" data-action="clear" class="muted">Clear</button>
         </div>
-      </div>
+      </section>
     </main>
 
-    <footer class="site-footer">
-      <small>KERANA-SARL-S © 2025</small>
-    </footer>
+    <!-- Overlay (used by your JS for loading/solved/game-over) -->
+    <div id="overlay" class="overlay hidden" aria-hidden="true">
+      <div class="overlay-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <div id="overlay-text" class="overlay-text">Working…</div>
+        <button id="overlay-close" class="ghost" type="button">Close</button>
+      </div>
+    </div>
 
-    <script type="module" src="src/main.js?v=3"></script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

@@ -16,18 +16,6 @@
   --grid-strong: #3e4468;
 }
 
-:root[data-theme='day'] {
-  --bg: #f7f8fb;
-  --panel: #ffffff;
-  --panel-2: #eef2ff;
-  --text: #0b1533;
-  --muted: #4b5568;
-  --primary: #0a84ff;
-  --danger: #d32f2f;
-  --grid: #ced3e0;
-  --grid-strong: #6b7280;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -55,7 +43,7 @@ body {
   touch-action: manipulation;
 }
 
-/* Header/App container widths capped to viewport */
+/* Header/App width capped to viewport */
 .site-header,
 .site-footer,
 .app {
@@ -63,10 +51,9 @@ body {
   margin: 12px auto;
   padding: 0 var(--pad);
 }
-
 .site-header {
   display: grid;
-  row-gap: 10px;
+  row-gap: 8px;
 }
 .site-header h1 {
   margin: 0;
@@ -75,12 +62,26 @@ body {
   letter-spacing: 0.2px;
 }
 
-/* Actions (top controls) */
+/* App card */
+main {
+  display: grid;
+  place-items: start center;
+}
+.app {
+  padding: var(--pad);
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: saturate(160%) blur(18px);
+}
+
+/* Actions */
 .actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
+  gap: 10px;
   overflow-x: auto;
+  margin-bottom: 10px;
 }
 .actions::-webkit-scrollbar {
   display: none;
@@ -117,32 +118,7 @@ body {
   -webkit-appearance: none;
 }
 
-#new-puzzle,
-#undo,
-#restart,
-#hint,
-#solve-board {
-  width: 100%;
-}
-
-/* Badges */
-.badge {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid #2a2f47;
-  color: var(--text);
-  font-size: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.badge.danger {
-  background: rgba(255, 0, 0, 0.08);
-  border-color: rgba(255, 0, 0, 0.35);
-}
-
-/* Segmented */
+/* Segmented difficulty */
 .segmented {
   display: inline-flex;
   align-items: stretch;
@@ -184,17 +160,227 @@ body {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-/* App card */
-main {
-  display: grid;
-  place-items: start center;
+/* Make “New” its own row by default (mobile-first) */
+#difficulty-group,
+#new-puzzle,
+#solve-board {
+  grid-column: 1 / -1;
 }
-.app {
-  padding: var(--pad);
-  background: color-mix(in oklab, var(--panel) 92%, transparent);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  backdrop-filter: saturate(160%) blur(18px);
+
+/* Badges */
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2a2f47;
+  color: var(--text);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+.badge.danger {
+  background: rgba(255, 0, 0, 0.08);
+  border-color: rgba(255, 0, 0, 0.35);
+}
+
+/* Desktop layout (stable, no clipping) */
+@media (min-width: 900px) {
+  .actions {
+    overflow: visible;
+    grid-template-columns: repeat(7, minmax(120px, 1fr));
+    column-gap: 12px;
+    row-gap: 10px;
+    margin-bottom: 10px;
+  }
+  /* Row 1 */
+  #difficulty-group {
+    grid-column: 1 / 3;
+  }
+  #new-puzzle {
+    grid-column: 3 / 4;
+  }
+  #undo {
+    grid-column: 4 / 5;
+  }
+  #restart {
+    grid-column: 5 / 6;
+  }
+  #hint {
+    grid-column: 6 / 7;
+  }
+  /* Row 2 */
+  #solve-board {
+    grid-column: 1 / 5;
+  }
+  #error-badge {
+    grid-column: 5 / 6;
+  }
+  #hint-badge {
+    grid-column: 6 / 7;
+  }
+  #clock-badge {
+    grid-column: 7 / 8;
+  }
+}
+
+/* Board */
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, var(--cell-size));
+  border: 5px solid var(--grid-strong);
+  background: var(--panel);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid var(--grid);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+/* vertical strong borders */
+.cell:nth-child(3n) {
+  border-right: 4px solid var(--grid-strong);
+}
+.cell:nth-child(9n + 1) {
+  border-left: 4px solid var(--grid-strong);
+}
+/* horizontal strong borders */
+.cell::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: 1px solid var(--grid);
+}
+.cell[data-row='2']::after,
+.cell[data-row='5']::after,
+.cell[data-row='8']::after {
+  border-bottom: 4px solid var(--grid-strong);
+}
+/* selections & highlights */
+.cell.selected {
+  outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
+  outline-offset: -3px;
+}
+.cell.hl-rc {
+  background: color-mix(in oklab, var(--panel-2) 85%, transparent);
+}
+.cell.hl-same {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+/* Inputs (iOS-safe, no sliced digits) */
+.cell input {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: calc(var(--cell-size) * 0.7);
+  line-height: 1.05;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  text-shadow: 0 0 0 currentColor;
+  -webkit-text-stroke: 0.2px transparent;
+  backface-visibility: visible;
+  transform: none;
+  caret-color: transparent;
+  pointer-events: auto;
+}
+.cell input[readonly] {
+  color: var(--muted);
+}
+.cell.prefill input {
+  color: var(--text);
+  font-weight: 600;
+}
+.cell.given input {
+  color: var(--primary);
+  font-weight: 600;
+}
+.cell.mistake input {
+  color: var(--danger) !important;
+  font-weight: 800;
+}
+.cell.mistake {
+  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--warning) 80%, transparent);
+}
+.cell.mistake-flash {
+  animation: mistakeFlash 0.26s ease;
+}
+@keyframes mistakeFlash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+}
+
+/* Status */
+.status {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: clamp(12px, 1.8vmin, 15px);
+}
+
+/* Numpad */
+.numpad {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  background: var(--panel);
+}
+.numpad button {
+  min-height: 44px;
+  min-width: 44px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  border-radius: 10px;
+  padding: 10px 0;
+  font-size: 16px; /* 16px: avoids iOS zoom */
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background 0.12s ease,
+    transform 0.08s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.numpad button:hover {
+  background: var(--panel-2);
+  transform: translateY(-0.5px);
+}
+.numpad button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.numpad .muted {
+  color: var(--muted);
 }
 
 /* Overlay */
@@ -234,96 +420,26 @@ main {
     transform: rotate(360deg);
   }
 }
-
-/* Board */
-.board {
-  display: grid;
-  grid-template-columns: repeat(9, var(--cell-size));
-  border: 5px solid var(--grid-strong);
-  background: var(--panel);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-}
-
-.cell {
-  width: var(--cell-size);
-  height: var(--cell-size);
-  border: 1px solid var(--grid);
-  display: grid;
-  place-items: center;
-  position: relative;
-}
-
-/* vertical strong borders */
-.cell:nth-child(3n) {
-  border-right: 4px solid var(--grid-strong);
-}
-.cell:nth-child(9n + 1) {
-  border-left: 4px solid var(--grid-strong);
-}
-
-/* horizontal strong borders */
-.cell::after {
-  content: '';
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  bottom: -1px;
-  height: 0;
-  border-bottom: 1px solid var(--grid);
-}
-.cell[data-row='2']::after,
-.cell[data-row='5']::after,
-.cell[data-row='8']::after {
-  border-bottom: 4px solid var(--grid-strong);
-}
-
-/* Selected + highlights */
-.cell.selected {
-  outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
-  outline-offset: -3px;
-}
-.cell.hl-rc {
-  background: color-mix(in oklab, var(--panel-2) 85%, transparent);
-}
-.cell.hl-same {
-  box-shadow: inset 0 0 0 2px var(--primary);
-}
-
-/* Inputs */
-/* Inputs inside each cell — iOS-safe */
-.cell input {
-  display: block;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  border: none;
-  outline: none;
+.overlay .ghost {
   background: transparent;
-
-  /* typography */
-  text-align: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: calc(var(--cell-size) * 0.7);
-  line-height: 1.05;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
   color: var(--text);
-
-  /* iOS rendering fixes — force repaint, no 3D accel */
-  -webkit-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  text-shadow: 0 0 0 currentColor;
-  -webkit-text-stroke: 0.2px transparent;
-  backface-visibility: visible;
-  transform: none;
-  caret-color: transparent;
-  pointer-events: auto;
+  border: 1px solid #3a3f58;
+  padding: 6px 10px;
+  border-radius: 8px;
 }
-/* iOS-specific safety net: never 3D-transform the board or inputs */
+
+/* Mobile/desktop spacing budgets (single source of truth) */
+.app {
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+} /* enough space so sticky pad never covers the board */
+.main,
+.content,
+.board-wrap {
+  max-height: calc(100dvh - 220px);
+  overflow: auto;
+}
+
+/* iOS-only: never 3D-transform text */
 @supports (-webkit-touch-callout: none) {
   .app,
   .board,
@@ -333,236 +449,14 @@ main {
   }
 }
 
-.cell input[readonly] {
-  color: var(--muted);
-}
-.cell.prefill input {
-  color: var(--text);
-  font-weight: 600;
-}
-.cell.given input {
-  color: var(--primary);
-  font-weight: 600;
-}
-.cell.mistake input {
-  color: var(--danger) !important;
-  font-weight: 800;
-}
-.cell.mistake {
-  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--warning) 80%, transparent);
-}
-.cell.mistake-flash {
-  animation: mistakeFlash 0.26s ease;
-}
-@keyframes mistakeFlash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
-  }
-}
+/* Touch devices: (optional) route taps to cell if you still see keyboard popups
+   NOTE: your JS already avoids focusing inputs on coarse pointers. Keep inputs clickable. */
+/* @media (hover:none) and (pointer:coarse){ .cell input{pointer-events:none} } */
 
-/* Numpad */
-.numpad {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(clamp(44px, 6vmin, 72px), 1fr));
-  gap: 8px;
-  position: sticky;
-  bottom: 0;
-  padding: 8px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-  background: var(--panel);
-}
-.numpad button {
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid #23263b;
-  padding: clamp(8px, 1.2vmin, 12px) 0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition:
-    background 0.12s ease,
-    transform 0.08s ease;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: 16px; /* keep 16px to avoid iOS zoom */
-  min-height: 44px;
-  min-width: 44px;
-  touch-action: manipulation;
-}
-.numpad button:hover {
-  background: var(--panel-2);
-  transform: translateY(-0.5px);
-}
-.numpad button[disabled] {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.numpad button.muted {
-  color: var(--muted);
-}
-
-/* Status */
-.status {
-  margin-top: 14px;
-  color: var(--muted);
-  font-size: clamp(12px, 1.8vmin, 15px);
-}
-
-/* Mobile hardening */
+/* General mobile niceties */
 button {
   font-size: 16px;
-} /* avoid iOS zoom on buttons */
+} /* iOS: avoid zoom on buttons */
 * {
   -webkit-tap-highlight-color: transparent;
-}
-.board,
-.numpad,
-button {
-  user-select: none;
-}
-
-/* Disable backdrop-filter on iOS to avoid glyph slicing */
-@supports (-webkit-touch-callout: none) {
-  .app,
-  .board {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-}
-
-/* Sticky topbars if present */
-.controls,
-.toolbar,
-.topbar,
-.hud {
-  position: sticky;
-  top: max(0px, env(safe-area-inset-top));
-  z-index: 10;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Middle content scroll so numpad stays visible */
-.main,
-.content,
-.board-wrap {
-  height: calc(100dvh - 160px);
-  overflow: auto;
-}
-
-/* On touch devices, let taps hit the CELL, not the INPUT (prevents soft keyboard) */
-@media (hover: none) and (pointer: coarse) {
-  .cell input {
-    pointer-events: none;
-  } /* tap goes to .cell */
-}
-
-/* Ensure the last board row is never hidden behind the sticky numpad */
-.app {
-  padding-bottom: 140px;
-} /* reserve space for the pad */
-/* ====== LAYOUT CONSOLIDATION (desktop + mobile) ====== */
-
-/* Mobile-first: clean rows, compact spacing, everything visible */
-#difficulty-group,
-#new-puzzle,
-#solve-board {
-  grid-column: 1 / -1;
-}
-
-#error-badge,
-#hint-badge,
-#clock-badge {
-  white-space: nowrap;
-}
-
-.site-header {
-  margin-bottom: 6px;
-}
-.actions {
-  row-gap: 8px;
-  margin-bottom: 8px;
-  padding-right: 4px;
-}
-.actions button,
-.actions select {
-  padding: 8px 10px;
-  font-size: 13px;
-}
-
-/* Desktop: stable 7-column grid, no clipping */
-@media (min-width: 900px) {
-  .actions {
-    overflow: visible;
-    grid-template-columns: repeat(7, minmax(120px, 1fr));
-    column-gap: 12px;
-    row-gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  /* Row 1 */
-  #difficulty-group {
-    grid-column: 1 / 3;
-  } /* E/M/H spans 2 */
-  #new-puzzle {
-    grid-column: 3 / 4;
-  }
-  #undo {
-    grid-column: 4 / 5;
-  }
-  #restart {
-    grid-column: 5 / 6;
-  }
-  #hint {
-    grid-column: 6 / 7;
-  }
-
-  /* Row 2 */
-  #solve-board {
-    grid-column: 1 / 5;
-  } /* wide button */
-
-  /* Row 2 (badges) */
-  #error-badge {
-    grid-column: 5 / 6;
-  }
-  #hint-badge {
-    grid-column: 6 / 7;
-  }
-  #clock-badge {
-    grid-column: 7 / 8;
-  }
-
-  /* Desktop: trim bottom padding */
-  .app {
-    padding-bottom: 96px;
-  }
-  .status {
-    margin-top: 8px;
-  }
-}
-
-/* Always: reserve just enough space for sticky numpad on small screens */
-.app {
-  padding-bottom: calc(110px + env(safe-area-inset-bottom));
-}
-
-/* Make middle content scroll so numpad never covers the board */
-.main,
-.content,
-.board-wrap {
-  max-height: calc(100dvh - 220px); /* header+actions+numpad budget */
-  overflow: auto;
-}
-
-/* On touch devices: route taps to .cell (prevents keyboard) */
-@media (hover: none) and (pointer: coarse) {
-  .cell input {
-    pointer-events: none;
-  }
 }
