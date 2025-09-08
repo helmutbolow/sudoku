@@ -512,25 +512,12 @@ input {
 }
 */
 
-/* Force digits to render cleanly on iOS Safari (cell inputs only) */
 .cell input {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: calc(var(--cell-size) * 0.7);
   line-height: 1.2;
   text-align: center;
   color: var(--text);
-  -webkit-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-/* iOS Safari: prevent sliced digits in inputs */
-.cell input {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: 20px;
-  line-height: 1.2;
-  text-align: center;
-  color: #111;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   backface-visibility: hidden;
