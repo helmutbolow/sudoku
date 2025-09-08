@@ -438,7 +438,12 @@ main {
 @media (max-width: 640px) {
   :root {
     --pad: 10px;
-    --cell-size: clamp(24px, calc((100vw - (2 * var(--pad))) / 9), 64px);
+    /* compute available space: viewport minus safe-area insets, padding and outer board borders */
+    --available-width: calc(
+      100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - (2 * var(--pad)) -
+        (2 * var(--border-outer))
+    );
+    --cell-size: clamp(24px, calc(var(--available-width) / 9), 64px);
     --board-size: calc(9 * var(--cell-size));
   }
 
@@ -561,48 +566,16 @@ body {
 
 .board .cell input {
   box-sizing: border-box;
-  /* leave a small inset so thick borders / outline don't clip the glyphs */
-  width: calc(var(--cell-size) - 10px);
-  height: calc(var(--cell-size) - 10px);
+  /* slightly larger inset and slightly smaller font to avoid clipping on narrow devices */
+  width: calc(var(--cell-size) - 12px);
+  height: calc(var(--cell-size) - 12px);
   padding: 0;
   margin: 0;
-  line-height: calc(var(--cell-size) - 10px);
+  line-height: calc(var(--cell-size) - 12px);
   text-align: center;
   font-family: var(--ui-font);
   font-weight: 700;
-  font-size: calc((var(--cell-size) - 10px) * 0.62);
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
-  border: 0;
-  background: transparent;
-  caret-color: var(--primary);
-}
-
-/* Keep givens slightly smaller so they never clash with separators */
-.board .cell.prefill input,
-.board .cell.given input {
-  font-size: calc((var(--cell-size) - 10px) * 0.58);
-}
-
-/* Final overrides to ensure inputs fit cleanly inside cells on narrow viewports */
-.board .cell {
-  box-sizing: border-box; /* ensure borders are included in cell size */
-  padding: 0;
-  overflow: hidden;
-}
-
-.board .cell input {
-  box-sizing: border-box;
-  /* leave a small inset so thick borders / outline don't clip the glyphs */
-  width: calc(var(--cell-size) - 10px);
-  height: calc(var(--cell-size) - 10px);
-  padding: 0;
-  margin: 0;
-  line-height: calc(var(--cell-size) - 10px);
-  text-align: center;
-  font-family: var(--ui-font);
-  font-weight: 700;
-  font-size: calc((var(--cell-size) - 10px) * 0.62);
+  font-size: calc((var(--cell-size) - 12px) * 0.6);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   border: 0;

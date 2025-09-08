@@ -438,7 +438,12 @@ main {
 @media (max-width: 640px) {
   :root {
     --pad: 10px;
-    --cell-size: clamp(24px, calc((100vw - (2 * var(--pad))) / 9), 64px);
+    /* compute available space: viewport minus safe-area insets, padding and outer board borders */
+    --available-width: calc(
+      100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - (2 * var(--pad)) -
+        (2 * var(--border-outer)) - 8px
+    );
+    --cell-size: clamp(24px, calc(var(--available-width) / 9), 64px);
     --board-size: calc(9 * var(--cell-size));
   }
 
