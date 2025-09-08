@@ -443,7 +443,7 @@ main {
       100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - (2 * var(--pad)) -
         (2 * var(--border-outer)) - 8px
     );
-    --cell-size: clamp(24px, calc(var(--available-width) / 9), 64px);
+    --cell-size: clamp(24px, calc(var(--available-width) / 9), 60px);
     --board-size: calc(9 * var(--cell-size));
   }
 
