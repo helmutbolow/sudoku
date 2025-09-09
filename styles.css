@@ -748,3 +748,29 @@ html {
   aspect-ratio: 1 / 1 !important;
   box-sizing: border-box !important;
 }
+
+/* Improve segmented switch on small screens and increase selected contrast */
+@media (max-width: 640px) {
+  .segmented {
+    width: auto;
+    max-width: 320px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+  .segmented button {
+    min-width: 0;
+    flex: 1;
+    padding: 8px 12px;
+  }
+}
+
+/* Stronger, high-contrast selected state for segmented buttons */
+.segmented button.active,
+.segmented button[aria-pressed='true'] {
+  background: var(--primary);
+  color: color-mix(in oklab, white 92%, var(--primary) 8%);
+  border-color: color-mix(in oklab, var(--primary) 60%, black 40%);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in oklab, var(--primary) 40%, transparent),
+    0 4px;
+}
