@@ -734,3 +734,17 @@ html {
   width: min(var(--board-size), calc(100% - 24px));
 }
 /* END TEMP */
+
+/* final override to force equal column widths and square cells */
+.board {
+  grid-template-columns: repeat(9, calc(100% / 9)) !important;
+  width: min(var(--board-size), calc(100% - 24px)) !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+}
+.board .cell {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  box-sizing: border-box !important;
+}
