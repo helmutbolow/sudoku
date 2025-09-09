@@ -773,3 +773,39 @@ html {
     inset 0 0 0 2px color-mix(in oklab, var(--primary) 40%, transparent),
     0 4px 10px rgba(0, 0, 0, 0.18);
 }
+
+/* --- Mobile fix: difficulty segmented control --- */
+@media (max-width: 640px) {
+  /* make the group span the row and never overflow */
+  .actions .segmented,
+  .segmented {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden; /* prevents the active pill from bulging out */
+    border-radius: 12px; /* keep nice corners on the group */
+  }
+
+  /* make buttons share space equally and shrink cleanly */
+  .segmented button {
+    flex: 1 1 0;
+    min-width: 0; /* allow shrink */
+    padding: 8px 12px;
+    border-radius: 0; /* no inner rounding - outer group handles it */
+  }
+
+  /* visible separators between buttons on tight widths */
+  .segmented button + button {
+    border-left: 1px solid #2a2f47;
+  }
+
+  /* keep active state neat; no outward glow that shifts layout */
+  .segmented button.active,
+  .segmented button[aria-pressed='true'] {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.04);
+  }
+}
