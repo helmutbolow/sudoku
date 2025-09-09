@@ -1,48 +1,37 @@
-:root {
-  --cell-size: clamp(32px, calc((100vw - (2 * var(--pad))) / 9), 84px);
-  --board-size: calc(9 * var(--cell-size));
-  --pad: clamp(16px, 2.4vmin, 24px);
-  --border-thin: 1px;
-  --border-strong: 4px; /* 3x3 separators */
-  --border-outer: 5px; /* outer board border */
+/* ============ Sudoku styles (clean build) ============ */
 
-  /* Night defaults */
+:root {
+  --cell-size: clamp(34px, 9vw, 84px);
+  --board-size: calc(9 * var(--cell-size));
+  --pad: clamp(10px, 2vmin, 20px);
+
   --bg: #0b0c10;
   --panel: #111319;
   --panel-2: #151826;
   --text: #e8f0fe;
   --muted: #b5bfd3;
-  --primary: #0a84ff; /* Apple accent blue */
-  --accent: #0a84ff;
-  --success: #30d158; /* Apple green */
+  --primary: #0a84ff;
   --warning: #ff9f0a;
   --danger: #ff6b6b;
-  --grid: #2b2f43; /* thin lines */
-  --grid-strong: #3e4468; /* thick lines */
-}
 
-:root[data-theme='day'] {
-  --bg: #f7f8fb;
-  --panel: #ffffff;
-  --panel-2: #eef2ff;
-  --text: #0b1533;
-  --muted: #4b5568;
-  --primary: #0a84ff;
-  --accent: #0a84ff;
-  --danger: #d32f2f;
-  --grid: #ced3e0;
-  --grid-strong: #6b7280;
+  --grid: #2b2f43;
+  --grid-strong: #3e4468;
 }
 
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
-  height: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
 }
+
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
   font:
     14px/1.4 system-ui,
     -apple-system,
@@ -54,195 +43,283 @@ body {
     Arial,
     'Apple Color Emoji',
     'Segoe UI Emoji';
-  color: var(--text);
-  background:
-    radial-gradient(1200px 600px at 10% -20%, #162039, transparent),
-    radial-gradient(900px 500px at 90% -10%, rgba(10, 132, 255, 0.08), transparent), var(--bg);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
 }
 
+/* ---------- Shell ---------- */
+
 .site-header,
-.site-footer {
-  width: min(100%, calc(var(--board-size) + 2 * var(--pad)));
-  max-width: 100vw;
-  overflow-x: hidden;
-  margin: 16px auto;
+.app {
+  width: min(100vw - 16px, calc(var(--board-size) + 2 * var(--pad)));
+  margin: 12px auto;
   padding: 0 var(--pad);
 }
+
 .site-header {
   display: grid;
-  row-gap: 10px;
+  row-gap: 6px;
 }
+
 .site-header h1 {
   margin: 0;
   font-size: clamp(22px, 3.4vmin, 32px);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.2px;
-}
-.actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  grid-auto-rows: auto;
-  gap: 12px;
-  justify-items: stretch;
-  align-items: stretch;
-}
-/* Ensure main action buttons fill their grid cells */
-#new-puzzle,
-#undo,
-#restart,
-#hint,
-#solve-board {
-  width: 100%;
-}
-/* Place the badges neatly in the row below */
-#error-badge {
-  grid-column: 1 / 2;
-}
-#hint-badge {
-  grid-column: 2 / 3;
-}
-#clock-badge {
-  grid-column: 3 / 4;
-}
-.actions .badge {
-  justify-self: stretch;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* Segmented difficulty switch occupies its own full row */
-.actions .segmented {
-  grid-column: 1 / -1;
-  justify-self: start;
-}
-.actions button,
-.actions select {
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid #23263b;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    border-color 120ms ease,
-    transform 80ms ease;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 1px 2px rgba(0, 0, 0, 0.25);
-  font-size: clamp(12px, 1.8vmin, 16px);
-}
-.actions button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.actions button:hover,
-.actions select:hover {
-  background: var(--panel-2);
-  transform: translateY(-0.5px);
-}
-.badge {
-  margin-left: 8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid #2a2f47;
-  color: var(--text);
-  font-size: 12px;
-}
-.badge.danger {
-  background: rgba(255, 0, 0, 0.08);
-  border-color: rgba(255, 0, 0, 0.35);
-}
-.actions select {
-  appearance: none;
-  -webkit-appearance: none;
-}
-.segmented {
-  display: inline-flex;
-  align-items: stretch;
-  background: color-mix(in oklab, var(--panel) 94%, transparent);
-  border: 1px solid #2a2f47;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  min-width: 260px;
-}
-.segmented button {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  padding: 10px 16px;
-  min-width: 86px;
-  color: var(--muted);
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    color 120ms ease,
-    box-shadow 120ms ease;
-  outline: none;
-}
-.segmented button + button {
-  border-left: 1px solid #2a2f47;
-}
-.segmented button:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-}
-.segmented button.active,
-.segmented button[aria-pressed='true'] {
-  background: color-mix(in oklab, var(--panel-2) 92%, transparent);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-.segmented button:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--primary);
-}
-.actions button[aria-pressed='true'] {
-  outline: 2px solid var(--primary);
-  outline-offset: -2px;
-}
-
-/* Screen-reader only label */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 main {
   display: grid;
   place-items: start center;
 }
+
 .app {
   padding: var(--pad);
-  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  background: var(--panel);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  backdrop-filter: saturate(160%) blur(18px);
-  transition:
-    background 200ms ease,
-    box-shadow 200ms ease;
-  width: min(100%, calc(var(--board-size) + 2 * var(--pad)));
-  max-width: 100vw;
-  overflow-x: hidden;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
 }
 
-/* Generation overlay */
+/* ---------- Difficulty Switch ---------- */
+
+.segmented {
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #2a2f47;
+  background: #131625;
+  margin: 4px 0;
+}
+
+.segmented button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 9px 14px;
+  min-width: 86px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.segmented button + button {
+  border-left: 1px solid #2a2f47;
+}
+
+.segmented button.active,
+.segmented button[aria-pressed='true'] {
+  background: #1a2033;
+  color: var(--text);
+}
+
+/* ---------- Actions & Badges ---------- */
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin: 8px 0 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.actions::-webkit-scrollbar {
+  display: none;
+}
+
+.actions button,
+.actions select {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    transform 0.08s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.actions button:hover,
+.actions select:hover {
+  background: var(--panel-2);
+  transform: translateY(-0.5px);
+}
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 6px 0 10px;
+}
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2a2f47;
+  color: var(--text);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ---------- Board ---------- */
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, var(--cell-size));
+  border: 5px solid var(--grid-strong);
+  background: var(--panel);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid var(--grid);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+/* separators */
+.cell:nth-child(3n) {
+  border-right: 4px solid var(--grid-strong);
+}
+.cell:nth-child(9n + 1) {
+  border-left: 4px solid var(--grid-strong);
+}
+
+.cell::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: 1px solid var(--grid);
+}
+.cell[data-row='2']::after,
+.cell[data-row='5']::after,
+.cell[data-row='8']::after {
+  border-bottom: 4px solid var(--grid-strong);
+}
+
+/* highlights */
+.cell.selected {
+  outline: 3px solid rgba(10, 132, 255, 0.7);
+  outline-offset: -3px;
+}
+.cell.hl-rc {
+  background: #1a1d2d;
+}
+.cell.hl-same {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+/* inputs */
+.cell input {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: calc(var(--cell-size) * 0.64);
+  line-height: var(--cell-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  caret-color: transparent;
+}
+.cell input[readonly] {
+  color: var(--muted);
+}
+.cell.prefill input {
+  color: var(--text);
+  font-weight: 600;
+}
+.cell.given input {
+  color: var(--primary);
+  font-weight: 600;
+}
+.cell.mistake input {
+  color: var(--danger) !important;
+  font-weight: 800;
+}
+
+/* ---------- Status ---------- */
+.status {
+  margin: 10px 0 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- Numpad ---------- */
+
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding: 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  background: var(--panel);
+  border-radius: 10px;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+.numpad button {
+  min-height: 44px;
+  min-width: 44px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #23263b;
+  border-radius: 10px;
+  padding: 10px 0;
+  font-size: 18px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background 0.12s ease,
+    transform 0.08s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.numpad button:hover {
+  background: var(--panel-2);
+  transform: translateY(-0.5px);
+}
+.numpad button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.numpad .muted {
+  color: var(--muted);
+}
+
+/* ---------- Overlay ---------- */
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -262,8 +339,8 @@ main {
   border-radius: 14px;
   min-width: 260px;
   display: grid;
-  justify-items: center;
   gap: 12px;
+  justify-items: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 .overlay .spinner {
@@ -279,497 +356,30 @@ main {
     transform: rotate(360deg);
   }
 }
-.overlay .overlay-text {
-  opacity: 0.9;
+
+/* ---------- Platform niceties ---------- */
+button {
+  font-size: 16px;
+} /* prevent iOS zoom */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
-.overlay .ghost {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid #3a3f58;
-  padding: 6px 10px;
-  border-radius: 8px;
+.board,
+.numpad,
+button {
+  user-select: none;
 }
 
-.numpad {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(clamp(44px, 6vmin, 72px), auto));
-  gap: 8px;
-}
-.numpad button {
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid #23263b;
-  padding: clamp(8px, 1.2vmin, 12px) 0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    transform 80ms ease;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: clamp(12px, 1.8vmin, 16px);
-}
-.numpad button:hover {
-  background: var(--panel-2);
-  transform: translateY(-0.5px);
-}
-.numpad button[disabled] {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.numpad button.muted {
-  color: var(--muted);
-}
-
-.cell.selected {
-  outline: 3px solid color-mix(in oklab, var(--primary) 70%, transparent);
-  outline-offset: -3px;
-}
-
-.board {
-  display: grid;
-  grid-template-columns: repeat(9, calc(var(--board-size) / 9));
-  gap: 0;
-  width: var(--board-size);
-  max-width: 100%;
-  box-sizing: border-box;
-  margin: 0 auto;
-  border: var(--border-outer) solid var(--grid-strong);
-  background: var(--panel);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.cell {
-  box-sizing: border-box;
-  width: calc(var(--board-size) / 9);
-  height: calc(var(--board-size) / 9);
-  border: var(--border-thin) solid var(--grid);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-.cell:nth-child(3n) {
-  border-right: var(--border-strong) solid var(--grid-strong);
-}
-.cell:nth-child(9n + 1) {
-  border-left: var(--border-strong) solid var(--grid-strong);
-}
-.board .cell input {
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  line-height: 1;
-  text-align: center;
-  font-family: var(--ui-font);
-  font-weight: 700;
-  font-size: calc(var(--cell-size) * 0.62);
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
-  border: 0;
-  background: transparent;
-  caret-color: var(--primary);
-}
-
-.cell {
-  width: calc(var(--board-size) / 9);
-  height: calc(var(--board-size) / 9);
-  border: var(--border-thin) solid var(--grid);
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-}
-
-.cell:nth-child(3n) {
-  border-right: var(--border-strong) solid var(--grid-strong);
-}
-.cell:nth-child(9n + 1) {
-  border-left: var(--border-strong) solid var(--grid-strong);
-}
-
-/* Horizontal 3x3 separators */
-.cell::after {
-  content: '';
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  bottom: -1px;
-  height: 0;
-  border-bottom: var(--border-thin) solid var(--grid);
-}
-.cell[data-row='2']::after,
-.cell[data-row='5']::after,
-.cell[data-row='8']::after {
-  border-bottom: var(--border-strong) solid var(--grid-strong);
-}
-
-.cell:nth-child(3n) {
-  border-right: var(--border-strong) solid var(--grid-strong);
-}
-.cell:nth-child(9n + 1) {
-  border-left: var(--border-strong) solid var(--grid-strong);
-}
-
-/* Horizontal 3x3 separators */
-.cell::after {
-  content: '';
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  bottom: -1px;
-  height: 0;
-  border-bottom: var(--border-thin) solid var(--grid);
-}
-.cell[data-row='2']::after,
-.cell[data-row='5']::after,
-.cell[data-row='8']::after {
-  border-bottom: var(--border-strong) solid var(--grid-strong);
-}
-/*
-*/
-
-.cell input[readonly] {
-  color: var(--muted);
-}
-.cell.invalid input {
-  color: var(--danger);
-  font-weight: 700;
-}
-.cell.mistake input {
-  color: var(--danger) !important;
-  font-weight: 800;
-}
-.cell.mistake {
-  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--warning) 80%, transparent);
-}
-.cell.mistake-flash {
-  animation: mistakeFlash 260ms ease;
-}
-@keyframes mistakeFlash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
-  }
-}
-.cell.prefill input {
-  color: var(--text);
-  font-weight: 600;
-}
-.cell.given input {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.status {
-  margin-top: 14px;
-  color: var(--muted);
-  font-size: clamp(12px, 1.8vmin, 15px);
-}
-
-/* Notes removed */
-.cell.value-pulse {
-  animation: valuePulse 180ms ease;
-}
-@keyframes valuePulse {
-  0% {
-    transform: scale(0.94);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-/* Notes removed */
-.cell.hl-rc {
-  background: color-mix(in oklab, var(--panel-2) 85%, transparent);
-}
-.cell.hl-same {
-  box-shadow: inset 0 0 0 2px var(--primary);
-}
-/* Responsive tweaks for narrow viewports */
+/* ---------- Small screen tweaks ---------- */
 @media (max-width: 640px) {
-  :root {
-    --pad: 10px;
-    /* compute available space: viewport minus safe-area insets, padding and outer board borders */
-    --available-width: calc(
-      100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - (2 * var(--pad)) -
-        (2 * var(--border-outer)) - 8px
-    );
-    --cell-size: clamp(24px, calc(var(--available-width) / 9), 60px);
-    --board-size: calc(9 * var(--cell-size));
-  }
-
-  .site-header,
-  .site-footer,
-  .app {
-    width: 100%;
-    box-sizing: border-box;
-    padding-left: var(--pad);
-    padding-right: var(--pad);
-  }
-
-  .site-header {
-    margin: 8px auto;
-    row-gap: 8px;
-  }
-
-  .site-header h1 {
-    font-size: clamp(16px, 5vmin, 20px);
-  }
-
-  .actions {
-    gap: 8px;
-    grid-template-columns: repeat(3, 1fr);
-    align-items: center;
-  }
-
-  .actions .segmented {
-    min-width: 180px;
-    grid-column: 1 / -1;
-  }
-
-  .numpad {
-    margin-top: 8px;
-    grid-template-columns: repeat(5, minmax(44px, 1fr));
-    gap: 6px;
-  }
-
-  .numpad button {
-    padding: 8px 0;
-    font-size: clamp(12px, 2.2vmin, 14px);
-  }
-}
-
-/* Safe-area and input sizing fixes for small devices */
-:root {
-  /* ensure sensible base system font for numbers */
-  --ui-font:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui,
-    'Segoe UI Emoji';
-}
-
-/* Respect the iPhone/Android safe area insets */
-body {
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-}
-
-/* Make containers aware of safe-area so they never overflow */
-.site-header,
-.site-footer,
-.app,
-
-/* Precise cell/input sizing to avoid clipping 
-*/
-
-/* slightly smaller prefilled/given font so it doesn't overflow thick borders */
-.cell.prefill input,
-.cell.given input {
-  font-size: calc(var(--cell-size) * 0.58);
-}
-
-/* Mobile tweaks: reduce segmented min width and button padding */
-@media (max-width: 640px) {
-  .segmented {
-    min-width: 0;
-    width: 100%;
-  }
-  .actions {
-    gap: 8px;
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .actions .segmented {
-    grid-column: 1 / -1;
-  }
   .actions button,
-  .actions select {
-    padding: 8px 10px;
+  .segmented button {
+    min-width: auto;
+    flex: 1 1 30%;
+    padding: 8px;
     font-size: 13px;
   }
-  /* tighten board border on very narrow screens */
-}
-
-/* Final overrides to ensure inputs fit cleanly inside cells on narrow viewports */
-.board .cell {
-  box-sizing: border-box; /* ensure borders are included in cell size */
-  padding: 0;
-  overflow: hidden;
-}
-
-.board .cell input {
-  box-sizing: border-box;
-  /* slightly larger inset and slightly smaller font to avoid clipping on narrow devices */
-  width: calc(var(--cell-size) - 12px);
-  height: calc(var(--cell-size) - 12px);
-  padding: 0;
-  margin: 0;
-  line-height: calc(var(--cell-size) - 12px);
-  text-align: center;
-  font-family: var(--ui-font);
-  font-weight: 700;
-  font-size: calc((var(--cell-size) - 12px) * 0.6);
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
-  border: 0;
-  background: transparent;
-  caret-color: var(--primary);
-}
-
-/* Keep givens slightly smaller so they never clash with separators */
-.board .cell.prefill input,
-.board .cell.given input {
-  font-size: calc((var(--cell-size) - 10px) * 0.58);
-}
-/* Force board to never exceed available viewport (accounts for safe-area + padding) */
-.board {
-  width: min(
-    var(--board-size),
-    calc(
-      100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - (2 * var(--pad)) - 12px
-        /* small safety buffer for rounding/borders */
-    )
-  );
-  max-width: 100%;
-  box-sizing: border-box;
-  margin-left: auto;
-  margin-right: auto;
-}
-/* Stronger, higher-contrast 3x3 horizontal separators */
-.board .cell::after {
-  /* expand slightly so it visually connects with outer border */
-  left: -2px;
-  right: -2px;
-  bottom: -1px;
-  height: 0;
-  border-bottom: var(--border-thin) solid var(--grid);
-  box-shadow: none;
-  transform: translateY(0);
-}
-
-.board .cell[data-row='2']::after,
-.board .cell[data-row='5']::after,
-.board .cell[data-row='8']::after {
-  /* make the major separators thicker and more visible */
-  border-bottom-width: 3px;
-  border-bottom-style: solid;
-  border-bottom-color: color-mix(in oklab, var(--grid-strong) 90%, black 10%);
-  /* subtle inner glow to increase perceived contrast without changing color */
-  box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--grid-strong) 55%, black 45%);
-  /* nudge to avoid 1px rounding gaps on some devices */
-  transform: translateY(1px);
-  z-index: 2;
-}
-
-/* Ensure separators render above cell backgrounds but below any selection outlines */
-.board .cell {
-  position: relative;
-  z-index: 1;
-}
-
-/* ===== layout fixes: center board and avoid scrollbar overlap ===== */
-html {
-  scrollbar-gutter: auto;
-}
-
-.app {
-  padding-left: var(--pad);
-  padding-right: var(--pad);
-  box-sizing: border-box;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: calc(100vw - 2 * var(--pad));
-}
-
-/* force the board to fit the app content area and center it */
-.board {
-  width: min(var(--board-size), calc(100% - (2 * var(--pad)) - 8px));
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-@media (min-width: 800px) {
-  .app {
-    padding-right: calc(var(--pad) + 18px);
+  .badges {
+    gap: 6px;
   }
-}
-
-/* Footer: reduce legal/copyright font */
-.site-footer {
-  font-size: clamp(11px, 1.6vmin, 13px);
-  text-align: center;
-  padding: 12px var(--pad);
-  color: var(--muted);
-}
-
-/* Small mobile safety */
-@media (max-width: 420px) {
-  :root {
-    --pad: 8px;
-    --cell-size: clamp(20px, calc((100vw - (2 * var(--pad))) / 9), 56px);
-    --board-size: calc(9 * var(--cell-size));
-  }
-  .app {
-    padding-left: calc(var(--pad) + env(safe-area-inset-left));
-    padding-right: calc(var(--pad) + env(safe-area-inset-right));
-  }
-}
-/* TEMP: force centered board and small page inset to avoid touching window scrollbar */
-.app {
-  max-width: calc(100vw - 40px);
-  padding-left: 20px;
-  padding-right: 20px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.board {
-  margin-left: auto;
-  margin-right: auto;
-  width: min(var(--board-size), calc(100% - 24px));
-}
-/* END TEMP */
-
-/* final override to force equal column widths and square cells */
-.board {
-  grid-template-columns: repeat(9, calc(100% / 9)) !important;
-  width: min(var(--board-size), calc(100% - 24px)) !important;
-  max-width: 100% !important;
-  margin: 0 auto !important;
-}
-.board .cell {
-  width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 1 / 1 !important;
-  box-sizing: border-box !important;
-}
-
-@media (max-width: 640px) {
-  .segmented {
-    width: auto;
-    max-width: 320px;
-    margin: 0 auto;
-    justify-content: center;
-  }
-  .segmented button {
-    min-width: 0;
-    flex: 1;
-    padding: 8px 12px;
-  }
-}
-
-/* Stronger, high-contrast selected state for segmented buttons */
-.segmented button.active,
-.segmented button[aria-pressed='true'] {
-  background: var(--primary);
-  color: color-mix(in oklab, white 92%, var(--primary) 8%);
-  border-color: color-mix(in oklab, var(--primary) 60%, black 40%);
-  box-shadow:
-    inset 0 0 0 2px color-mix(in oklab, var(--primary) 40%, transparent),
-    0 4px 10px rgba(0, 0, 0, 0.18);
 }
