@@ -664,7 +664,7 @@ html {
 
 @media (min-width: 800px) {
   .app {
-    padding-right: var(--pad);
+    padding-right: calc(var(--pad) + 12px);
   }
 }
 

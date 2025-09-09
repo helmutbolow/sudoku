@@ -662,7 +662,10 @@ html {
   box-sizing: border-box;
 }
 
-@media (min-width: 800px) { .app { padding-right: calc(var(--pad) + 12px); } }
+@media (min-width: 800px) {
+  .app {
+    padding-right: var(--pad);
+  }
 }
 
 /* Footer: reduce legal/copyright font */
