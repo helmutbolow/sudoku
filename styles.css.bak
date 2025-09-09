@@ -662,7 +662,10 @@ html {
   box-sizing: border-box;
 }
 
-@media (min-width: 800px) { .app { padding-right: calc(var(--pad) + 12px); } }
+@media (min-width: 800px) {
+  .app {
+    padding-right: calc(var(--pad) + 18px);
+  }
 }
 
 /* Footer: reduce legal/copyright font */
@@ -685,3 +688,17 @@ html {
     padding-right: calc(var(--pad) + env(safe-area-inset-right));
   }
 }
+/* TEMP: force centered board and small page inset to avoid touching window scrollbar */
+.app {
+  max-width: calc(100vw - 40px);
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.board {
+  margin-left: auto;
+  margin-right: auto;
+  width: min(var(--board-size), calc(100% - 24px));
+}
+/* END TEMP */

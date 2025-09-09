@@ -330,17 +330,49 @@ main {
 
 .board {
   display: grid;
-  /* compute columns from the final board width so rounding is consistent */
   grid-template-columns: repeat(9, calc(var(--board-size) / 9));
   gap: 0;
   width: var(--board-size);
   max-width: 100%;
   box-sizing: border-box;
+  margin: 0 auto;
   border: var(--border-outer) solid var(--grid-strong);
   background: var(--panel);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+.cell {
+  box-sizing: border-box;
+  width: calc(var(--board-size) / 9);
+  height: calc(var(--board-size) / 9);
+  border: var(--border-thin) solid var(--grid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.cell:nth-child(3n) {
+  border-right: var(--border-strong) solid var(--grid-strong);
+}
+.cell:nth-child(9n + 1) {
+  border-left: var(--border-strong) solid var(--grid-strong);
+}
+.board .cell input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  text-align: center;
+  font-family: var(--ui-font);
+  font-weight: 700;
+  font-size: calc(var(--cell-size) * 0.62);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  border: 0;
+  background: transparent;
+  caret-color: var(--primary);
 }
 
 .cell {
@@ -664,7 +696,7 @@ html {
 
 @media (min-width: 800px) {
   .app {
-    padding-right: calc(var(--pad) + 12px);
+    padding-right: calc(var(--pad) + 18px);
   }
 }
 
