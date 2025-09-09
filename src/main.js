@@ -61,6 +61,7 @@ onReady(() => {
   let currentDifficulty = 'medium';
   let errorCount = 0;
   const ERROR_LIMIT = { easy: 3, medium: 5, hard: 9 };
+  const HINT_LIMIT = { easy: 1, medium: 3, hard: 6 };
   let hintCount = 0;
   let timerId = null;
   let startTime = 0;
@@ -73,7 +74,7 @@ onReady(() => {
   }
   function updateHintsUI() {
     if (!hintBadge) return;
-    const max = ERROR_LIMIT[currentDifficulty] || 3;
+    const max = HINT_LIMIT[currentDifficulty] || 3;
     const remaining = Math.max(0, max - hintCount);
     hintBadge.textContent = `Hints: ${remaining}/${max}`;
     hintBadge.classList.toggle('danger', remaining <= 1);
@@ -332,7 +333,7 @@ onReady(() => {
 
   document.getElementById('hint').addEventListener('click', () => {
     if (!solutionGrid) return;
-    const maxHints = ERROR_LIMIT[currentDifficulty] || 3;
+    const maxHints = HINT_LIMIT[currentDifficulty] || 3;
     if (hintCount >= maxHints) {
       updateHintsUI();
       return;
