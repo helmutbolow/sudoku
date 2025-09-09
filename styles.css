@@ -749,7 +749,6 @@ html {
   box-sizing: border-box !important;
 }
 
-/* Improve segmented switch on small screens and increase selected contrast */
 @media (max-width: 640px) {
   .segmented {
     width: auto;
@@ -772,5 +771,5 @@ html {
   border-color: color-mix(in oklab, var(--primary) 60%, black 40%);
   box-shadow:
     inset 0 0 0 2px color-mix(in oklab, var(--primary) 40%, transparent),
-    0 4px;
+    0 4px 10px rgba(0, 0, 0, 0.18);
 }
