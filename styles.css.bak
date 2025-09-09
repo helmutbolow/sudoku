@@ -375,7 +375,6 @@ main {
   border-bottom: var(--border-strong) solid var(--grid-strong);
 }
 
-
 .cell:nth-child(3n) {
   border-right: var(--border-strong) solid var(--grid-strong);
 }
@@ -512,7 +511,7 @@ main {
     padding: 8px 0;
     font-size: clamp(12px, 2.2vmin, 14px);
   }
-
+}
 
 /* Safe-area and input sizing fixes for small devices */
 :root {
@@ -561,6 +560,7 @@ body {
     font-size: 13px;
   }
   /* tighten board border on very narrow screens */
+}
 
 /* Final overrides to ensure inputs fit cleanly inside cells on narrow viewports */
 .board .cell {
@@ -598,15 +598,57 @@ body {
   width: min(
     var(--board-size),
     calc(
-      100vw
-      - env(safe-area-inset-left)
-      - env(safe-area-inset-right)
-      - (2 * var(--pad))
-      - 12px /* small safety buffer for rounding/borders */
+      100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - (2 * var(--pad)) - 12px
+        /* small safety buffer for rounding/borders */
     )
   );
   max-width: 100%;
   box-sizing: border-box;
   margin-left: auto;
   margin-right: auto;
+}
+/* Stronger, higher-contrast 3x3 horizontal separators */
+.board .cell::after {
+  /* expand slightly so it visually connects with outer border */
+  left: -2px;
+  right: -2px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: var(--border-thin) solid var(--grid);
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.board .cell[data-row='2']::after,
+.board .cell[data-row='5']::after,
+.board .cell[data-row='8']::after {
+  /* make the major separators thicker and more visible */
+  border-bottom-width: 3px;
+  border-bottom-style: solid;
+  border-bottom-color: color-mix(in oklab, var(--grid-strong) 90%, black 10%);
+  /* subtle inner glow to increase perceived contrast without changing color */
+  box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--grid-strong) 55%, black 45%);
+  /* nudge to avoid 1px rounding gaps on some devices */
+  transform: translateY(1px);
+  z-index: 2;
+}
+
+/* Ensure separators render above cell backgrounds but below any selection outlines */
+.board .cell {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reserve scrollbar space and a small inset so the board doesn't butt up against the page scrollbar */
+.board,
+.app {
+  /* keep layout stable when the browser shows a vertical scrollbar */
+  scrollbar-gutter: stable both-edges;
+}
+
+/* On larger viewports provide a tiny right inset so the board never touches the scrollbar */
+@media (min-width: 800px) {
+  .app {
+    padding-right: calc(var(--pad) + 8px);
+  }
 }
