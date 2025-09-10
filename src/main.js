@@ -1,3 +1,5 @@
+//comment added on sep10 16:43
+
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
 //import { generatePuzzle } from './generator.js';
@@ -32,7 +34,7 @@ onReady(() => {
     });
     try {
       localStorage.setItem(LS_KEY, d);
-    } catch {}
+    } catch { }
   }
   function getDiffUI() {
     const active = diffGroup?.querySelector('button.active');
@@ -219,7 +221,7 @@ onReady(() => {
       arr.push({ ms, errors, hints, score, iq, ts: Date.now() });
       arr.sort((a, b) => a.ms - b.ms || a.errors - b.errors || a.hints - b.hints);
       localStorage.setItem(lbKey(d), JSON.stringify(arr.slice(0, 10)));
-    } catch {}
+    } catch { }
   }
 
   //let ignoreNextRecord = false; // set true when Solve button used
@@ -273,7 +275,7 @@ onReady(() => {
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) setDiffUI(saved);
-  } catch {}
+  } catch { }
   diffGroup?.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-diff]');
     if (!btn) return;
@@ -552,6 +554,6 @@ onReady(() => {
       if (saved) setDiffUI(saved);
       const difficulty = getDiffUI() || 'medium';
       await loadNewByDifficulty(difficulty);
-    } catch {}
+    } catch { }
   })();
 });
