@@ -1,3 +1,5 @@
+//testing git
+
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
 //import { generatePuzzle } from './generator.js';
