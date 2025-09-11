@@ -3,6 +3,7 @@ import { initAutoTheme } from './theme.js';
 import { primePool, getFromPool, generateOneAsync } from './pool.js';
 import { solve } from './solver.js';
 //new comment
+//new copmment 2
 // DOM ready helper
 function onReady(fn) {
   if (document.readyState === 'loading') {
