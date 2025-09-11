@@ -4,10 +4,10 @@
   "private": false,
   "license": "MIT",
   "scripts": {
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "devDependencies": {
-    "prettier": "^3.6.2"
+    "prettier": "3.3.3"
   }
 }

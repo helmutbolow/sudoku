@@ -55,8 +55,7 @@ body {
     'Apple Color Emoji',
     'Segoe UI Emoji';
   color: var(--text);
-  background:
-    radial-gradient(1200px 600px at 10% -20%, #162039, transparent),
+  background: radial-gradient(1200px 600px at 10% -20%, #162039, transparent),
     radial-gradient(900px 500px at 90% -10%, rgba(10, 132, 255, 0.08), transparent), var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -548,9 +547,8 @@ main {
 /* Safe-area and input sizing fixes for small devices */
 :root {
   /* ensure sensible base system font for numbers */
-  --ui-font:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui,
-    'Segoe UI Emoji';
+  --ui-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    system-ui, 'Segoe UI Emoji';
 }
 
 /* Respect the iPhone/Android safe area insets */
