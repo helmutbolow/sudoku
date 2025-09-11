@@ -102,43 +102,77 @@ onReady(() => {
     if (timerId) clearInterval(timerId);
     timerId = null;
   }
-  // --- Pause overlay orchestration
-  function isPaused() {
-    const ov = document.getElementById('pause-overlay');
-    return ov && !ov.classList.contains('hidden');
+
+  function isOverlayVisible(el) {
+    if (!el) return false;
+    // Guard on both class and aria state; tolerate either being the source of truth
+    const cls = !el.classList.contains('hidden');
+    const aria = el.getAttribute('aria-hidden') !== 'true';
+    return cls && aria;
+  }  // --- Pause overlay orchestration
+  // Use a unique name to avoid duplicate/ambiguous isPaused() definitions
+  function isPauseOverlayVisible() {
+    return isOverlayVisible(document.getElementById('pause-overlay'));
+  }
+
+  // --- Unified input gating (enable inputs only when NO blocking overlay is visible)
+  function isConfirmVisible() {
+    return isOverlayVisible(document.getElementById('confirm-overlay'));
+  }
+  function isGenVisible() {
+    return isOverlayVisible(document.getElementById('gen-overlay'));
+  }
+  // isSolvedOverlayVisible() already exists below; don't redeclare it.
+  function isAnyBlockingOverlayVisible() {
+    return isPauseOverlayVisible() || isConfirmVisible() || isGenVisible() || isSolvedOverlayVisible();
+  }
+  function syncInputEnabled() {
+    if (!api || !api.setEnabled) return;
+    api.setEnabled(!isAnyBlockingOverlayVisible());
   }
 
   // Returns true when the "solved" (game over) overlay is currently shown
   function isSolvedOverlayVisible() {
-    const ov = document.getElementById('over-overlay');
-    return ov && !ov.classList.contains('hidden');
+    return isOverlayVisible(document.getElementById('over-overlay'));
   }
 
   function showPause() {
     const ov = document.getElementById('pause-overlay');
-    if (!ov || isPaused()) return;
+    if (!ov || isPauseOverlayVisible()) return;
     // Snapshot elapsed and freeze the clock
     elapsedBeforePause = Math.max(0, Date.now() - startTime);
     stopClock();
-    if (api.setEnabled) api.setEnabled(false);
+
+
+    // reflect gating with the overlay about to show
+    syncInputEnabled();
     ov.classList.remove('hidden');
     ov.setAttribute('aria-hidden', 'false');
+    // overlay now visible -> inputs must remain disabled
+    syncInputEnabled();
   }
   function hidePause() {
     const ov = document.getElementById('pause-overlay');
-    if (!ov || !isPaused()) return;
+
+
+    if (!ov || !isPauseOverlayVisible()) return;
     ov.classList.add('hidden');
     ov.setAttribute('aria-hidden', 'true');
-    if (api.setEnabled) api.setEnabled(true);
+
+
+    syncInputEnabled();
     startClock(); // resumes from elapsedBeforePause
+    // Ensure final enablement after DOM paints
+    setTimeout(syncInputEnabled, 0);
   }
 
   // Wire buttons
   const btnPause = document.getElementById('pause');
   const btnPauseResume = document.getElementById('pause-resume');
+
   if (btnPause) {
     btnPause.addEventListener('click', () => {
-      if (isPaused()) hidePause();
+      if (isPauseOverlayVisible()) hidePause();
       else showPause();
     });
   }
@@ -146,14 +180,12 @@ onReady(() => {
     btnPauseResume.addEventListener('click', hidePause);
   }
 
-  // Auto-pause when tab/window loses focus
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && !isPaused()) showPause();
+    if (document.hidden && !isPauseOverlayVisible()) showPause();
   });
   window.addEventListener('blur', () => {
-    if (!isPaused()) showPause();
+    if (!isPauseOverlayVisible()) showPause();
   });
-
   // --- Confirm overlay (clock-aware)
   const confirmOv = document.getElementById('confirm-overlay');
   const confirmText = document.getElementById('confirm-text');
@@ -166,17 +198,17 @@ onReady(() => {
     if (!confirmOv) return;
     if (confirmText) confirmText.textContent = message || 'Continue?';
     confirmAction = typeof onYes === 'function' ? onYes : null;
-    // Snapshot whether timer was running (i.e., not paused) and stop it
-    confirmWasTicking = !!timerId && !isPaused();
+    confirmWasTicking = !!timerId && !isPauseOverlayVisible();
     if (confirmWasTicking) {
       // Accumulate elapsed and freeze clock
       elapsedBeforePause = Math.max(0, Date.now() - startTime);
       stopClock();
     }
-    // Disable inputs while confirm is shown
-    if (api.setEnabled) api.setEnabled(false);
+    syncInputEnabled();
     confirmOv.classList.remove('hidden');
     confirmOv.setAttribute('aria-hidden', 'false');
+    // overlay now visible -> inputs must remain disabled
+    syncInputEnabled();
   }
   function closeConfirm({ executed } = { executed: false }) {
     if (!confirmOv) return;
@@ -184,7 +216,7 @@ onReady(() => {
     confirmOv.setAttribute('aria-hidden', 'true');
     // If user cancelled (executed === false) and game was running before confirm, resume
     if (!executed && confirmWasTicking) {
-      if (api.setEnabled) api.setEnabled(true);
+      syncInputEnabled();
       startClock(); // resumes from elapsedBeforePause
     } else if (!executed && !confirmWasTicking) {
       // We were already paused before confirm; remain paused & inputs remain disabled by pause overlay
@@ -192,6 +224,8 @@ onReady(() => {
     // Clear callback & snapshot
     confirmAction = null;
     confirmWasTicking = false;
+    // final sync, in case other overlays changed while confirm was open
+    syncInputEnabled();
   }
   if (confirmNo) {
     confirmNo.addEventListener('click', () => closeConfirm({ executed: false }));
@@ -212,17 +246,20 @@ onReady(() => {
     over.classList.remove('hidden');
     over.setAttribute('aria-hidden', 'false');
     if (overText) overText.textContent = `Game over — errors exhausted`;
+    syncInputEnabled();
   }
   function hideGameOver() {
     if (!over) return;
     over.classList.add('hidden');
     over.setAttribute('aria-hidden', 'true');
+    syncInputEnabled();
   }
   function showSolved() {
     if (!over) return;
     // Do not overwrite overText here; content is prepared by checkSolved()
     over.classList.remove('hidden');
     over.setAttribute('aria-hidden', 'false');
+    syncInputEnabled();
   }
   if (overRestart) overRestart.addEventListener('click', () => btnRestart?.click());
   if (overNew)
@@ -277,8 +314,13 @@ onReady(() => {
     isUserCompleted = false;
     const btnHint = document.getElementById('hint');
     const btnPause = document.getElementById('pause');
+    const btnSolve = document.getElementById('solve-board');
+    const btnUndo = document.getElementById('undo');
     if (btnHint) btnHint.removeAttribute('disabled');
     if (btnPause) btnPause.removeAttribute('disabled');
+    if (btnSolve) btnSolve.removeAttribute('disabled');
+    if (btnUndo) btnUndo.removeAttribute('disabled');
+    syncInputEnabled();
   }
 
   function lbKey(d) {
@@ -329,8 +371,6 @@ onReady(() => {
     } catch { }
   }
 
-  //let ignoreNextRecord = false; // set true when Solve button used
-
   function checkSolved(saveRecord = true) {
     if (!solutionGrid) return false;
     const b = api.readBoard();
@@ -342,7 +382,6 @@ onReady(() => {
     // All cells match solution
     isUserCompleted = true;
     stopClock();
-    if (api.setEnabled) api.setEnabled(false);
     const elapsed = startTime ? Date.now() - startTime : 0;
     const { score, iq } = computeScore(elapsed, errorCount, hintCount, currentDifficulty);
     api.setStatus(
@@ -416,11 +455,13 @@ onReady(() => {
   let genAbort = null;
   const overlay = document.getElementById('gen-overlay');
   const btnCancel = document.getElementById('gen-cancel');
+
+
   function showOverlay(show) {
     overlay.classList.toggle('hidden', !show);
     overlay.setAttribute('aria-hidden', show ? 'false' : 'true');
+    syncInputEnabled();
   }
-
   btnCancel.addEventListener('click', () => {
     if (genAbort) genAbort.abort();
   });
@@ -454,16 +495,6 @@ onReady(() => {
       updateActionButtons();
     }
   }
-
-  /*const btnNew = document.getElementById('new-puzzle');
-  if (btnNew) {
-    btnNew.addEventListener('click', () => {
-      const difficulty = getDiffUI();
-      openConfirm('Start a new puzzle? Your current progress will be lost.', async () => {
-        await loadNewByDifficulty(difficulty);
-      });
-    });
-  }*/
 
   const btnNew = document.getElementById('new-puzzle');
   if (btnNew) {
@@ -554,9 +585,12 @@ onReady(() => {
     isSystemSolved = true;
     const btnHint = document.getElementById('hint');
     const btnPause = document.getElementById('pause');
+    const btnSolve = document.getElementById('solve-board');
+    const btnUndo = document.getElementById('undo');
     if (btnHint) btnHint.setAttribute('disabled', 'true');
     if (btnPause) btnPause.setAttribute('disabled', 'true');
-    stopClock();
+    if (btnSolve) btnSolve.setAttribute('disabled', 'true');
+    if (btnUndo) btnUndo.setAttribute('disabled', 'true');
     api.setStatus('Solved (auto).');
   });
 
@@ -579,16 +613,6 @@ onReady(() => {
       api.setStatus('Undid last move');
       updateActionButtons();
     });
-
-  /*if (btnRestart) {
-    btnRestart.addEventListener('click', () => {
-      if (!originalPuzzle) return;
-      openConfirm('Restart this puzzle from scratch?', () => {
-        setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
-        api.setStatus('Puzzle restarted');
-      });
-    });
-  }*/
 
   if (btnRestart) {
     btnRestart.addEventListener('click', () => {
@@ -641,7 +665,6 @@ onReady(() => {
     const max = ERROR_LIMIT[currentDifficulty] || 3;
     if (errorCount >= max) {
       api.setStatus(`Game over — errors: ${errorCount}/${max}`);
-      if (api.setEnabled) api.setEnabled(false);
       updateErrorsUI();
       stopClock();
       showGameOver();

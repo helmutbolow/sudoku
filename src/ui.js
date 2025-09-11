@@ -431,14 +431,33 @@ export function initUI(root) {
       recomputeValidity.solution = sol;
       recomputeValidity();
     },
+
+
     setEnabled(on) {
       for (let idx = 0; idx < 81; idx++) {
         const cell = boardEl.children[idx];
         const input = cell.querySelector('input');
-        if (!input.readOnly) input.readOnly = !on;
+        const isGiven = cell.classList.contains('given');
+        const isLockedCorrect = cell.classList.contains('prefill') && input.value !== '';
+
+        if (!on) {
+          // Going disabled: remember editables we are locking due to overlay
+          if (!isGiven && !isLockedCorrect && input.readOnly === false) {
+            input.dataset.wasEditable = '1';
+          }
+          input.readOnly = true;
+        } else {
+          // Going enabled: restore only what we locked ourselves
+          if (input.dataset.wasEditable === '1') {
+            input.readOnly = false;
+            delete input.dataset.wasEditable;
+          }
+        }
       }
       // Disable/enable numpad
       pad.querySelectorAll('button').forEach((b) => (b.disabled = !on));
+      // Keep pad state consistent with current selection
+      updatePad();
     },
 
     // Strict-only: UI no longer computes candidates. Hints are driven by main.js via solutionGrid.
