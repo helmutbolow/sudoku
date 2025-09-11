@@ -135,6 +135,12 @@ onReady(() => {
   function isGenVisible() {
     return isOverlayVisible(document.getElementById('gen-overlay'));
   }
+  function isGameOverOverlayVisible() {
+    const ov = document.getElementById('over-overlay');
+    const txt = document.getElementById('over-text');
+    return isOverlayVisible(ov) && !!txt && txt.textContent.trim().startsWith('Game over');
+  }
+
   // isSolvedOverlayVisible() already exists below; don't redeclare it.
   function isAnyBlockingOverlayVisible() {
     return (
@@ -148,7 +154,10 @@ onReady(() => {
 
   // Returns true when the "solved" (game over) overlay is currently shown
   function isSolvedOverlayVisible() {
-    return isOverlayVisible(document.getElementById('over-overlay'));
+    const ov = document.getElementById('over-overlay');
+    const txt = document.getElementById('over-text');
+    // checkSolved() writes "Solved!" into overText in your file
+    return isOverlayVisible(ov) && !!txt && txt.textContent.trim().startsWith('Solved');
   }
 
   function showPause() {
@@ -626,15 +635,21 @@ onReady(() => {
     btnRestart.addEventListener('click', () => {
       if (!originalPuzzle) return;
 
-      // If the user legitimately solved the puzzle and the solved overlay is visible,
-      // restart immediately WITHOUT asking.
+      // Solved overlay visible (user-solved) → restart immediately
       if (isUserCompleted && isSolvedOverlayVisible()) {
         setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
         api.setStatus('Puzzle restarted');
         return;
       }
 
-      // Otherwise, keep the confirmation flow.
+      // Game Over overlay visible → restart immediately
+      if (isGameOverOverlayVisible()) {
+        setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
+        api.setStatus('Puzzle restarted');
+        return;
+      }
+
+      // Mid-game → ask
       openConfirm('Restart this puzzle from scratch?', () => {
         setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
         api.setStatus('Puzzle restarted');
