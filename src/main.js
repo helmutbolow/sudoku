@@ -31,7 +31,7 @@ onReady(() => {
     });
     try {
       localStorage.setItem(LS_KEY, d);
-    } catch { }
+    } catch {}
   }
   function getDiffUI() {
     const active = diffGroup?.querySelector('button.active');
@@ -46,7 +46,6 @@ onReady(() => {
   const overText = document.getElementById('over-text');
   const overRestart = document.getElementById('over-restart');
   const overNew = document.getElementById('over-new');
-
 
   // Game state
   let originalPuzzle = null; // 9x9 numbers (0 empty)
@@ -63,8 +62,8 @@ onReady(() => {
   // Accumulated elapsed time while paused (ms)
   let elapsedBeforePause = 0;
   // State flags
-  let isSystemSolved = false;   // set when Solve button fills the board
-  let isUserCompleted = false;  // set when the USER legitimately completes the puzzle
+  let isSystemSolved = false; // set when Solve button fills the board
+  let isUserCompleted = false; // set when the USER legitimately completes the puzzle
 
   function updateErrorsUI() {
     if (!errorBadge) return;
@@ -109,7 +108,7 @@ onReady(() => {
     const cls = !el.classList.contains('hidden');
     const aria = el.getAttribute('aria-hidden') !== 'true';
     return cls && aria;
-  }  // --- Pause overlay orchestration
+  } // --- Pause overlay orchestration
   // Use a unique name to avoid duplicate/ambiguous isPaused() definitions
   function isPauseOverlayVisible() {
     return isOverlayVisible(document.getElementById('pause-overlay'));
@@ -124,7 +123,9 @@ onReady(() => {
   }
   // isSolvedOverlayVisible() already exists below; don't redeclare it.
   function isAnyBlockingOverlayVisible() {
-    return isPauseOverlayVisible() || isConfirmVisible() || isGenVisible() || isSolvedOverlayVisible();
+    return (
+      isPauseOverlayVisible() || isConfirmVisible() || isGenVisible() || isSolvedOverlayVisible()
+    );
   }
   function syncInputEnabled() {
     if (!api || !api.setEnabled) return;
@@ -143,7 +144,6 @@ onReady(() => {
     elapsedBeforePause = Math.max(0, Date.now() - startTime);
     stopClock();
 
-
     // reflect gating with the overlay about to show
     syncInputEnabled();
     ov.classList.remove('hidden');
@@ -154,11 +154,9 @@ onReady(() => {
   function hidePause() {
     const ov = document.getElementById('pause-overlay');
 
-
     if (!ov || !isPauseOverlayVisible()) return;
     ov.classList.add('hidden');
     ov.setAttribute('aria-hidden', 'true');
-
 
     syncInputEnabled();
     startClock(); // resumes from elapsedBeforePause
@@ -337,7 +335,6 @@ onReady(() => {
     }
   }
 
-
   function computeScore(ms, errors, hints, difficulty) {
     // Expected finish times (seconds) by difficulty
     const EXPECTED_SECS = { easy: 10 * 60, medium: 18 * 60, hard: 28 * 60 };
@@ -368,7 +365,7 @@ onReady(() => {
       arr.push({ ms, errors, hints, score, iq, ts: Date.now() });
       arr.sort((a, b) => a.ms - b.ms || a.errors - b.errors || a.hints - b.hints);
       localStorage.setItem(lbKey(d), JSON.stringify(arr.slice(0, 10)));
-    } catch { }
+    } catch {}
   }
 
   function checkSolved(saveRecord = true) {
@@ -385,7 +382,7 @@ onReady(() => {
     const elapsed = startTime ? Date.now() - startTime : 0;
     const { score, iq } = computeScore(elapsed, errorCount, hintCount, currentDifficulty);
     api.setStatus(
-      `Solved! Time ${fmtClock(elapsed)}. Errors ${errorCount}. Hints ${hintCount}. Score ${score}, IQ ${iq}.`
+      `Solved! Time ${fmtClock(elapsed)}. Errors ${errorCount}. Hints ${hintCount}. Score ${score}, IQ ${iq}.`,
     );
     if (saveRecord) {
       // store record and show top list
@@ -397,7 +394,7 @@ onReady(() => {
         .slice(0, 5)
         .map(
           (r, i) =>
-            `${i + 1}. ${fmtClock(r.ms)} (E${r.errors}, H${r.hints}, S${r.score ?? '-'}, IQ${r.iq ?? '-'})`
+            `${i + 1}. ${fmtClock(r.ms)} (E${r.errors}, H${r.hints}, S${r.score ?? '-'}, IQ${r.iq ?? '-'})`,
         )
         .join('<br/>');
       overText.innerHTML = `Solved!<br/>Time ${fmtClock(elapsed)} — Errors ${errorCount}, Hints ${hintCount}, Score ${score}, IQ ${iq}<br/><br/>Best ${currentDifficulty}:<br/>${top}`;
@@ -416,7 +413,7 @@ onReady(() => {
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) setDiffUI(saved);
-  } catch { }
+  } catch {}
   // Difficulty change requires confirmation; revert UI on cancel
   if (diffGroup) {
     diffGroup.addEventListener('click', (e) => {
@@ -455,7 +452,6 @@ onReady(() => {
   let genAbort = null;
   const overlay = document.getElementById('gen-overlay');
   const btnCancel = document.getElementById('gen-cancel');
-
 
   function showOverlay(show) {
     overlay.classList.toggle('hidden', !show);
@@ -534,7 +530,7 @@ onReady(() => {
           new CustomEvent('cell-change', {
             bubbles: true,
             detail: { idx: r * 9 + c, oldVal: '', newVal: selInput.value },
-          })
+          }),
         );
         filled = true;
       }
@@ -551,7 +547,7 @@ onReady(() => {
               new CustomEvent('cell-change', {
                 bubbles: true,
                 detail: { idx, oldVal: '', newVal: input.value },
-              })
+              }),
             );
             filled = true;
             break outer;
@@ -563,7 +559,6 @@ onReady(() => {
     updateHintsUI();
     checkSolved();
   });
-
 
   document.getElementById('solve-board').addEventListener('click', () => {
     if (!solutionGrid) {
@@ -596,7 +591,6 @@ onReady(() => {
 
   // Undo/Restart handlers (Redo removed)
   if (btnUndo)
-
     btnUndo.addEventListener('click', () => {
       if (history.length <= 1) return;
 
@@ -656,7 +650,7 @@ onReady(() => {
     // Avoid double-counting same wrong digit on same cell
     if (digit !== null && prev === digit) {
       api.setStatus(
-        `Still wrong: ${digit} at R${r}C${c} — Errors: ${errorCount}/${ERROR_LIMIT[currentDifficulty]}`
+        `Still wrong: ${digit} at R${r}C${c} — Errors: ${errorCount}/${ERROR_LIMIT[currentDifficulty]}`,
       );
       return;
     }
@@ -694,6 +688,6 @@ onReady(() => {
       if (saved) setDiffUI(saved);
       const difficulty = getDiffUI() || 'medium';
       await loadNewByDifficulty(difficulty);
-    } catch { }
+    } catch {}
   })();
 });

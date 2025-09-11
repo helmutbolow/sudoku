@@ -1,6 +1,5 @@
 const EMPTY = 0;
 
-
 function createCell(r, c) {
   const cell = document.createElement('div');
   cell.className = 'cell';
@@ -14,7 +13,6 @@ function createCell(r, c) {
   // Prevent mobile keyboard:
   input.readOnly = true; // prevents native keyboard
   input.setAttribute('inputmode', 'none'); // extra hint for some browsers
-
 
   cell.appendChild(input);
 
@@ -118,7 +116,6 @@ export function initUI(root) {
   }
 
   function selectCell(idx) {
-
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
     selectedIdx = idx;
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.add('selected');
@@ -167,13 +164,13 @@ export function initUI(root) {
         flashError(cell);
         recomputeValidity();
         cell.dispatchEvent(
-          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } }),
         );
         cell.dispatchEvent(
           new CustomEvent('cell-change', {
             bubbles: true,
             detail: { idx: r * 9 + c, oldVal, newVal: val },
-          })
+          }),
         );
         return;
       } else {
@@ -188,7 +185,7 @@ export function initUI(root) {
           new CustomEvent('cell-change', {
             bubbles: true,
             detail: { idx: r * 9 + c, oldVal, newVal: val },
-          })
+          }),
         );
         return;
       }
@@ -200,7 +197,7 @@ export function initUI(root) {
       new CustomEvent('cell-change', {
         bubbles: true,
         detail: { idx: r * 9 + c, oldVal, newVal: '' },
-      })
+      }),
     );
   });
 
@@ -245,13 +242,13 @@ export function initUI(root) {
         flashError(cell);
         recomputeValidity();
         cell.dispatchEvent(
-          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
+          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } }),
         );
         cell.dispatchEvent(
           new CustomEvent('cell-change', {
             bubbles: true,
             detail: { idx: r * 9 + c, oldVal, newVal: key },
-          })
+          }),
         );
       } else {
         input.value = key;
@@ -265,7 +262,7 @@ export function initUI(root) {
           new CustomEvent('cell-change', {
             bubbles: true,
             detail: { idx: r * 9 + c, oldVal, newVal: key },
-          })
+          }),
         );
         // move right to next cell for faster entry
         moveSelection(0, 1);
@@ -282,7 +279,7 @@ export function initUI(root) {
         new CustomEvent('cell-change', {
           bubbles: true,
           detail: { idx: r * 9 + c, oldVal, newVal: '' },
-        })
+        }),
       );
       e.preventDefault();
     } else if (key === 'Home') {
@@ -310,7 +307,6 @@ export function initUI(root) {
     const has = cell.querySelector('input').value !== '';
     cell.classList.toggle('has-value', has);
   }
-
 
   function recomputeValidity() {
     // Strict-only normalization against solution (no row/col/box legality)
@@ -431,7 +427,6 @@ export function initUI(root) {
       recomputeValidity.solution = sol;
       recomputeValidity();
     },
-
 
     setEnabled(on) {
       for (let idx = 0; idx < 81; idx++) {

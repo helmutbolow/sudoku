@@ -25,10 +25,10 @@ function pattern(r, c) {
 
 function generateComplete() {
   const rows = [].concat(
-    ...shuffled([0, 1, 2]).map((g) => shuffled([0, 1, 2]).map((r) => g * SUB + r))
+    ...shuffled([0, 1, 2]).map((g) => shuffled([0, 1, 2]).map((r) => g * SUB + r)),
   );
   const cols = [].concat(
-    ...shuffled([0, 1, 2]).map((g) => shuffled([0, 1, 2]).map((c) => g * SUB + c))
+    ...shuffled([0, 1, 2]).map((g) => shuffled([0, 1, 2]).map((c) => g * SUB + c)),
   );
   const nums = shuffled([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
