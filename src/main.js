@@ -1,9 +1,9 @@
-//test git prettier config 3
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
 import { primePool, getFromPool, generateOneAsync } from './pool.js';
 import { solve } from './solver.js';
 
+// DOM ready helper
 function onReady(fn) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', fn);
@@ -12,6 +12,11 @@ function onReady(fn) {
   }
 }
 
+// Main app logic
+// Assumes DOM is ready
+// Manages game state, buttons, overlays, and interactions with the UI module
+// Does NOT handle actual puzzle generation/solving logic (see pool.js and solver.js)
+// Does NOT handle UI rendering (see ui.js)
 onReady(() => {
   // Auto theme based on local time
   initAutoTheme();
@@ -24,6 +29,7 @@ onReady(() => {
   primePool('hard');
   const diffGroup = document.getElementById('difficulty-group');
   const LS_KEY = 'sudoku:difficulty';
+  // Difficulty segmented control
   function setDiffUI(d) {
     diffGroup?.querySelectorAll('button').forEach((b) => {
       const isActive = b.dataset.diff === d;
@@ -32,12 +38,14 @@ onReady(() => {
     });
     try {
       localStorage.setItem(LS_KEY, d);
-    } catch {}
+    } catch { }
   }
+  // Returns currently selected difficulty, or 'medium' if none found
   function getDiffUI() {
     const active = diffGroup?.querySelector('button.active');
     return active?.dataset.diff || 'medium';
   }
+  // Buttons and badges
   const btnUndo = document.getElementById('undo');
   const btnRestart = document.getElementById('restart');
   const errorBadge = document.getElementById('error-badge');
@@ -65,7 +73,7 @@ onReady(() => {
   // State flags
   let isSystemSolved = false; // set when Solve button fills the board
   let isUserCompleted = false; // set when the USER legitimately completes the puzzle
-
+  // Update error badge based on current errorCount and difficulty
   function updateErrorsUI() {
     if (!errorBadge) return;
     const max = ERROR_LIMIT[currentDifficulty] || 3;
@@ -73,6 +81,7 @@ onReady(() => {
     errorBadge.textContent = `Errors: ${remaining}/${max}`;
     errorBadge.classList.toggle('danger', remaining <= 2);
   }
+  // Update hint badge based on current hintCount and difficulty
   function updateHintsUI() {
     if (!hintBadge) return;
     const max = HINT_LIMIT[currentDifficulty] || 3;
@@ -82,13 +91,15 @@ onReady(() => {
     const btnHint = document.getElementById('hint');
     if (btnHint) btnHint.disabled = remaining <= 0;
   }
+  // Clock formatting and ticking
   function fmtClock(ms) {
     const total = Math.floor(ms / 1000);
     const m = Math.floor(total / 60);
     const s = total % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
-
+  // Starts or resumes clock from startTime
+  // If already running, resets and restarts  
   function startClock() {
     if (timerId) clearInterval(timerId);
     // If resuming from pause, honor accumulated elapsed
@@ -98,11 +109,12 @@ onReady(() => {
       if (clockBadge) clockBadge.textContent = fmtClock(Date.now() - startTime);
     }, 1000);
   }
+  // Stops clock and clears timerId
   function stopClock() {
     if (timerId) clearInterval(timerId);
     timerId = null;
   }
-
+  // Returns true if the given overlay element is currently visible
   function isOverlayVisible(el) {
     if (!el) return false;
     // Guard on both class and aria state; tolerate either being the source of truth
@@ -366,7 +378,7 @@ onReady(() => {
       arr.push({ ms, errors, hints, score, iq, ts: Date.now() });
       arr.sort((a, b) => a.ms - b.ms || a.errors - b.errors || a.hints - b.hints);
       localStorage.setItem(lbKey(d), JSON.stringify(arr.slice(0, 10)));
-    } catch {}
+    } catch { }
   }
 
   function checkSolved(saveRecord = true) {
@@ -414,7 +426,7 @@ onReady(() => {
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) setDiffUI(saved);
-  } catch {}
+  } catch { }
   // Difficulty change requires confirmation; revert UI on cancel
   if (diffGroup) {
     diffGroup.addEventListener('click', (e) => {
@@ -689,6 +701,6 @@ onReady(() => {
       if (saved) setDiffUI(saved);
       const difficulty = getDiffUI() || 'medium';
       await loadNewByDifficulty(difficulty);
-    } catch {}
+    } catch { }
   })();
 });
