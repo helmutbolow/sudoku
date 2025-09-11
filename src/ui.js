@@ -428,6 +428,8 @@ export function initUI(root) {
     root,
     boardEl,
     selectCell,
+    // expose for external hard resets on transitions
+    clearHighlights,
     setSolution(sol) {
       recomputeValidity.solution = sol;
       recomputeValidity();
@@ -475,6 +477,12 @@ export function initUI(root) {
       }
       // Reset any previous lock based on new values
       recomputeValidity();
+      // Also reset selection and all highlights on any full board write
+      if (typeof selectedIdx !== 'undefined' && selectedIdx != null) {
+        getCellByIndex(selectedIdx)?.classList?.remove('selected');
+      }
+      selectedIdx = null;
+      clearHighlights();
     },
     markPrefill(prefillMask) {
       for (let r = 0; r < 9; r++) {

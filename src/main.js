@@ -161,6 +161,9 @@ onReady(() => {
     updateErrorsUI();
     hideGameOver();
     startClock();
+    // Hard reset any lingering selection/highlights (“bubbles”)
+    if (api.clearHighlights) api.clearHighlights();
+    if (api.selectCell) api.selectCell(null);
   }
 
   function lbKey(d) {
