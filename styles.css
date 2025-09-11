@@ -740,6 +740,7 @@ html {
   max-width: 100% !important;
   margin: 0 auto !important;
 }
+
 .board .cell {
   width: 100% !important;
   height: auto !important;
@@ -806,4 +807,24 @@ html {
   .segmented button[aria-pressed='true'] {
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.04);
   }
+}
+/* Make ONLY the horizontal 3×3 separators match the vertical strong thickness */
+.cell[data-row='2']::after,
+.cell[data-row='5']::after {
+  /* rows 2 and 5 (0-based) are the separators after rows 3 and 6 */
+  border-bottom: var(--border-strong) solid var(--grid-strong) !important;
+  transform: none !important; /* remove any 0.5px nudges that make it look thinner */
+  box-shadow: none !important; /* kill any softening that visually thins the line */
+}
+/* Make the Sudoku board scale uniformly */
+#board {
+  width: 95vw !important; /* fill most of the screen width */
+  max-width: 900px !important; /* optional: cap it on large desktop */
+  aspect-ratio: 1 / 1 !important; /* keep it a perfect square */
+  height: auto !important; /* height follows width */
+}
+
+/* Scale the numbers with the board so they don't look small */
+#board .cell input {
+  font-size: clamp(18px, 4vw, 42px);
 }
