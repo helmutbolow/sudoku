@@ -24,3 +24,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run format:check
+      - run: node -p "process.version"
+      - run: npx prettier --version
+      - run: npx prettier src/main.js --check --log-level debug
+      - run: git ls-files --eol | grep 'src/main.js' || true
