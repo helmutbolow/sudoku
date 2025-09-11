@@ -816,15 +816,3 @@ html {
   transform: none !important; /* remove any 0.5px nudges that make it look thinner */
   box-shadow: none !important; /* kill any softening that visually thins the line */
 }
-/* Make the Sudoku board scale uniformly */
-#board {
-  width: 95vw !important; /* fill most of the screen width */
-  max-width: 900px !important; /* optional: cap it on large desktop */
-  aspect-ratio: 1 / 1 !important; /* keep it a perfect square */
-  height: auto !important; /* height follows width */
-}
-
-/* Scale the numbers with the board so they don't look small */
-#board .cell input {
-  font-size: clamp(18px, 4vw, 42px);
-}
