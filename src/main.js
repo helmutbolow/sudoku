@@ -47,6 +47,7 @@ onReady(() => {
   const overRestart = document.getElementById('over-restart');
   const overNew = document.getElementById('over-new');
 
+
   // Game state
   let originalPuzzle = null; // 9x9 numbers (0 empty)
   let prefillMask = null; // 9x9 booleans
@@ -61,6 +62,9 @@ onReady(() => {
   let startTime = 0;
   // Accumulated elapsed time while paused (ms)
   let elapsedBeforePause = 0;
+  // State flags
+  let isSystemSolved = false;   // set when Solve button fills the board
+  let isUserCompleted = false;  // set when the USER legitimately completes the puzzle
 
   function updateErrorsUI() {
     if (!errorBadge) return;
@@ -101,6 +105,12 @@ onReady(() => {
   // --- Pause overlay orchestration
   function isPaused() {
     const ov = document.getElementById('pause-overlay');
+    return ov && !ov.classList.contains('hidden');
+  }
+
+  // Returns true when the "solved" (game over) overlay is currently shown
+  function isSolvedOverlayVisible() {
+    const ov = document.getElementById('over-overlay');
     return ov && !ov.classList.contains('hidden');
   }
 
@@ -262,6 +272,13 @@ onReady(() => {
     // Hard reset any lingering selection/highlights (“bubbles”)
     if (api.clearHighlights) api.clearHighlights();
     if (api.selectCell) api.selectCell(null);
+    // Reset “solved” state and re-enable controls
+    isSystemSolved = false;
+    isUserCompleted = false;
+    const btnHint = document.getElementById('hint');
+    const btnPause = document.getElementById('pause');
+    if (btnHint) btnHint.removeAttribute('disabled');
+    if (btnPause) btnPause.removeAttribute('disabled');
   }
 
   function lbKey(d) {
@@ -323,6 +340,7 @@ onReady(() => {
       }
     }
     // All cells match solution
+    isUserCompleted = true;
     stopClock();
     if (api.setEnabled) api.setEnabled(false);
     const elapsed = startTime ? Date.now() - startTime : 0;
@@ -437,10 +455,28 @@ onReady(() => {
     }
   }
 
-  const btnNew = document.getElementById('new-puzzle');
+  /*const btnNew = document.getElementById('new-puzzle');
   if (btnNew) {
     btnNew.addEventListener('click', () => {
       const difficulty = getDiffUI();
+      openConfirm('Start a new puzzle? Your current progress will be lost.', async () => {
+        await loadNewByDifficulty(difficulty);
+      });
+    });
+  }*/
+
+  const btnNew = document.getElementById('new-puzzle');
+  if (btnNew) {
+    btnNew.addEventListener('click', async () => {
+      const difficulty = getDiffUI();
+
+      if (isUserCompleted) {
+        // User already finished this puzzle: go straight to a new one (no confirm)
+        await loadNewByDifficulty(difficulty);
+        return;
+      }
+
+      // Otherwise, still guard with confirm
       openConfirm('Start a new puzzle? Your current progress will be lost.', async () => {
         await loadNewByDifficulty(difficulty);
       });
@@ -449,6 +485,7 @@ onReady(() => {
 
   document.getElementById('hint').addEventListener('click', () => {
     if (!solutionGrid) return;
+    if (isSystemSolved) return; // ignore hints after Solve
     const maxHints = HINT_LIMIT[currentDifficulty] || 3;
     if (hintCount >= maxHints) {
       updateHintsUI();
@@ -513,6 +550,13 @@ onReady(() => {
       cell.classList.add('prefill');
     }
     stopClock();
+    // After auto-solve: lock down hint/pause and freeze time
+    isSystemSolved = true;
+    const btnHint = document.getElementById('hint');
+    const btnPause = document.getElementById('pause');
+    if (btnHint) btnHint.setAttribute('disabled', 'true');
+    if (btnPause) btnPause.setAttribute('disabled', 'true');
+    stopClock();
     api.setStatus('Solved (auto).');
   });
 
@@ -536,7 +580,7 @@ onReady(() => {
       updateActionButtons();
     });
 
-  if (btnRestart) {
+  /*if (btnRestart) {
     btnRestart.addEventListener('click', () => {
       if (!originalPuzzle) return;
       openConfirm('Restart this puzzle from scratch?', () => {
@@ -544,7 +588,28 @@ onReady(() => {
         api.setStatus('Puzzle restarted');
       });
     });
+  }*/
+
+  if (btnRestart) {
+    btnRestart.addEventListener('click', () => {
+      if (!originalPuzzle) return;
+
+      // If the user legitimately solved the puzzle and the solved overlay is visible,
+      // restart immediately WITHOUT asking.
+      if (isUserCompleted && isSolvedOverlayVisible()) {
+        setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
+        api.setStatus('Puzzle restarted');
+        return;
+      }
+
+      // Otherwise, keep the confirmation flow.
+      openConfirm('Restart this puzzle from scratch?', () => {
+        setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
+        api.setStatus('Puzzle restarted');
+      });
+    });
   }
+
   // Snapshot on user edit
   api.boardEl.addEventListener('cell-change', () => {
     // Re-evaluate board to keep strict mistake highlights in sync
