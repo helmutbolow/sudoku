@@ -15,8 +15,6 @@ function createCell(r, c) {
   input.readOnly = true; // prevents native keyboard
   input.setAttribute('inputmode', 'none'); // extra hint for some browsers
 
-  // keep keyboard available for desktop if you want: (optional)
-  // if (!('ontouchstart' in window)) input.readOnly = false;
 
   cell.appendChild(input);
 
@@ -82,7 +80,6 @@ export function initUI(root) {
   }
 
   let selectedIdx = null;
-  //let lockedIdx = null; // soft validation only
 
   function getCellByIndex(idx) {
     return boardEl.children[idx];
@@ -132,7 +129,7 @@ export function initUI(root) {
     }
     updatePad();
     // add row/col + same-number highlights
-    /*if (typeof updateHighlights === 'function') */ updateHighlights();
+    updateHighlights();
   }
 
   // Click to select
@@ -144,7 +141,7 @@ export function initUI(root) {
   // Update pad when any cell changes
   boardEl.addEventListener('cell-change', () => {
     updatePad();
-    /*if (typeof updateHighlights === 'function') */ updateHighlights();
+    updateHighlights();
   });
 
   // Handle pad clicks
