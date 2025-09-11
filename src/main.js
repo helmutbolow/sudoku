@@ -66,6 +66,7 @@ onReady(() => {
   let startTime = 0;
   // Accumulated elapsed time while paused (ms)
   let elapsedBeforePause = 0;
+
   function updateErrorsUI() {
     if (!errorBadge) return;
     const max = ERROR_LIMIT[currentDifficulty] || 3;
@@ -377,12 +378,43 @@ onReady(() => {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) setDiffUI(saved);
   } catch { }
-  diffGroup?.addEventListener('click', (e) => {
+  /*diffGroup?.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-diff]');
     if (!btn) return;
     setDiffUI(btn.dataset.diff);
-  });
+  });*/
 
+  // Difficulty change requires confirmation; revert UI on cancel
+  if (diffGroup) {
+    diffGroup.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-diff]');
+      if (!btn) return;
+
+      const next = btn.dataset.diff;
+      const prev = currentDifficulty; // single shared declaration exists above
+
+      // No-op if same difficulty
+      if (!next || next === prev) {
+        setDiffUI(prev);
+        return;
+      }
+
+      // Optimistically reflect the clicked difficulty for immediate feedback
+      setDiffUI(next);
+
+      // One-shot revert on "No"
+      const onNo = () => setDiffUI(prev);
+      if (typeof confirmNo !== 'undefined' && confirmNo && confirmNo.addEventListener) {
+        confirmNo.addEventListener('click', onNo, { once: true });
+      }
+
+      // Open confirm (this stops clock + disables inputs via openConfirm)
+      openConfirm(`Switch to ${next} and start a new game?`, async () => {
+        // Commit difficulty and start a fresh puzzle of that level
+        await loadNewByDifficulty(next); // this updates currentDifficulty internally
+      });
+    });
+  }
   // notes removed
 
   // remove legacy clear button if present
