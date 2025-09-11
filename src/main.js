@@ -64,6 +64,8 @@ onReady(() => {
   let hintCount = 0;
   let timerId = null;
   let startTime = 0;
+  // Accumulated elapsed time while paused (ms)
+  let elapsedBeforePause = 0;
   function updateErrorsUI() {
     if (!errorBadge) return;
     const max = ERROR_LIMIT[currentDifficulty] || 3;
@@ -86,10 +88,19 @@ onReady(() => {
     const s = total % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
+  /* function startClock() {
+     if (timerId) clearInterval(timerId);
+     startTime = Date.now();
+     if (clockBadge) clockBadge.textContent = '00:00';
+     timerId = setInterval(() => {
+       if (clockBadge) clockBadge.textContent = fmtClock(Date.now() - startTime);
+     }, 1000);
+   }*/
   function startClock() {
     if (timerId) clearInterval(timerId);
-    startTime = Date.now();
-    if (clockBadge) clockBadge.textContent = '00:00';
+    // If resuming from pause, honor accumulated elapsed
+    startTime = Date.now() - (elapsedBeforePause || 0);
+    if (clockBadge) clockBadge.textContent = fmtClock(Date.now() - startTime);
     timerId = setInterval(() => {
       if (clockBadge) clockBadge.textContent = fmtClock(Date.now() - startTime);
     }, 1000);
@@ -98,6 +109,53 @@ onReady(() => {
     if (timerId) clearInterval(timerId);
     timerId = null;
   }
+  // --- Pause overlay orchestration
+  function isPaused() {
+    const ov = document.getElementById('pause-overlay');
+    return ov && !ov.classList.contains('hidden');
+  }
+
+  function showPause() {
+    const ov = document.getElementById('pause-overlay');
+    if (!ov || isPaused()) return;
+    // Snapshot elapsed and freeze the clock
+    elapsedBeforePause = Math.max(0, Date.now() - startTime);
+    stopClock();
+    if (api.setEnabled) api.setEnabled(false);
+    ov.classList.remove('hidden');
+    ov.setAttribute('aria-hidden', 'false');
+  }
+  function hidePause() {
+    const ov = document.getElementById('pause-overlay');
+    if (!ov || !isPaused()) return;
+    ov.classList.add('hidden');
+    ov.setAttribute('aria-hidden', 'true');
+    if (api.setEnabled) api.setEnabled(true);
+    startClock(); // resumes from elapsedBeforePause
+  }
+
+  // Wire buttons
+  const btnPause = document.getElementById('pause');
+  const btnPauseResume = document.getElementById('pause-resume');
+  if (btnPause) {
+    btnPause.addEventListener('click', () => {
+      if (isPaused()) hidePause();
+      else showPause();
+    });
+  }
+  if (btnPauseResume) {
+    btnPauseResume.addEventListener('click', hidePause);
+  }
+
+  // Auto-pause when tab/window loses focus
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !isPaused()) showPause();
+  });
+  window.addEventListener('blur', () => {
+    if (!isPaused()) showPause();
+  });
+
+
   function showGameOver() {
     if (!over) return;
     over.classList.remove('hidden');
@@ -160,6 +218,8 @@ onReady(() => {
     updateActionButtons();
     updateErrorsUI();
     hideGameOver();
+    // Reset pause accumulator on fresh puzzle
+    elapsedBeforePause = 0;
     startClock();
     // Hard reset any lingering selection/highlights (“bubbles”)
     if (api.clearHighlights) api.clearHighlights();

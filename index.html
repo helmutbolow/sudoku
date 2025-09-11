@@ -24,7 +24,7 @@
         <button id="new-puzzle">New</button>
         <button id="undo" title="Undo last entry (u)">Undo</button>
         <button id="restart" title="Restart puzzle (x)">Restart</button>
-
+        <button id="pause" title="Pause (p)">Pause</button>
         <button id="hint" title="Single-candidate hint">Hint</button>
         <button id="solve-board">Solve</button>
         <span id="error-badge" class="badge" aria-live="polite">Attempts: --</span>
@@ -48,6 +48,18 @@
             <button id="over-restart" class="ghost">Restart</button>
             <button id="over-new" class="ghost">New</button>
           </div>
+        </div>
+      </div>
+      <div
+      id="pause-overlay"
+        class="overlay hidden"
+        aria-hidden="true"
+        role="dialog"
+        aria-label="Paused"
+      >
+        <div class="overlay-card">
+          <div class="overlay-text">Paused</div>
+          <button id="pause-resume" class="ghost">Resume</button>
         </div>
       </div>
       <div
