@@ -1,13 +1,21 @@
 {
   "name": "sudoku",
-  "version": "0.1.0",
-  "private": false,
-  "license": "MIT",
-  "devDependencies": {
-    "prettier": "3.3.3"
-  },
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "prettier": "3.3.3"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx,css,scss,md,html,json,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
