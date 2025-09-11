@@ -1,55 +1,5 @@
 const EMPTY = 0;
 
-/*function createCell(r, c) {
-  const cell = document.createElement('div');
-  cell.className = 'cell';
-  cell.dataset.row = String(r);
-  cell.dataset.col = String(c);
-
-  const input = document.createElement('input');
-  input.setAttribute('inputmode', 'numeric');
-  input.setAttribute('maxlength', '1');
-  input.setAttribute('aria-label', `Row ${r + 1} Col ${c + 1}`);
-  input.readOnly = true; // strict-only: lock until setSolution() is called
-  input.addEventListener('input', (e) => {
-    const v = input.value.replace(/\D/g, '');
-    input.value = v.slice(0, 1);
-    if (input.value) {
-      // Strict mode per requirement: keep wrong editable in red, lock correct
-      const digit = Number(input.value);
-      const r = Number(cell.dataset.row),
-        c = Number(cell.dataset.col);
-      if (!strictAccept(cell, digit)) {
-        input.readOnly = false;
-        cell.classList.add('mistake');
-        flashError(cell);
-        cell.dispatchEvent(
-          new CustomEvent('strict-error', { bubbles: true, detail: { idx: r * 9 + c, digit } })
-        );
-      } else {
-        input.readOnly = true;
-        cell.classList.remove('mistake');
-        cell.classList.add('prefill');
-        pulse(cell);
-      }
-    }
-    recomputeValidity();
-    const r = Number(cell.dataset.row),
-      c = Number(cell.dataset.col);
-    cell.dispatchEvent(
-      new CustomEvent('cell-change', {
-        bubbles: true,
-        detail: { idx: r * 9 + c, newVal: input.value },
-      })
-    );
-  });
-  input.addEventListener('focus', () => cell.classList.add('focus'));
-  input.addEventListener('blur', () => cell.classList.remove('focus'));
-
-  // No notes grid; only a single input per cell
-  cell.appendChild(input);
-  return cell;
-}*/
 
 function createCell(r, c) {
   const cell = document.createElement('div');
@@ -89,57 +39,6 @@ function createCell(r, c) {
 
   return cell;
 }
-
-/*
-function validateCell(cell) {
-  cell.classList.remove('invalid');
-  const input = cell.querySelector('input');
-  const val = input.value;
-  if (val === '') return true;
-  const r = Number(cell.dataset.row);
-  const c = Number(cell.dataset.col);
-  const grid = cell.parentElement;
-  // row/col duplicates
-  const rowCells = [...grid.children].filter((el) => Number(el.dataset.row) === r);
-  const colCells = [...grid.children].filter((el) => Number(el.dataset.col) === c);
-  const dupInRow = rowCells.some((el) => el !== cell && el.querySelector('input').value === val);
-  const dupInCol = colCells.some((el) => el !== cell && el.querySelector('input').value === val);
-  // 3x3 block duplicates
-  const br = Math.floor(r / 3) * 3;
-  const bc = Math.floor(c / 3) * 3;
-  let dupInBlock = false;
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      const idx = (br + i) * 9 + (bc + j);
-      const other = grid.children[idx];
-      if (other !== cell && other.querySelector('input').value === val) dupInBlock = true;
-    }
-  }
-  if (dupInRow || dupInCol || dupInBlock) {
-    cell.classList.add('invalid');
-    return false;
-  }
-  return true;
-}
-*/
-/*
-function computeCandidates(board, r, c) {
-  if (board[r][c] !== EMPTY) return new Set();
-  const cand = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-  for (let i = 0; i < 9; i++) {
-    cand.delete(board[r][i]);
-    cand.delete(board[i][c]);
-  }
-  const br = Math.floor(r / 3) * 3;
-  const bc = Math.floor(c / 3) * 3;
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      cand.delete(board[br + i][bc + j]);
-    }
-  }
-  return cand;
-}
-  */
 
 export function initUI(root) {
   root.innerHTML = '';
@@ -188,44 +87,6 @@ export function initUI(root) {
   function getCellByIndex(idx) {
     return boardEl.children[idx];
   }
-  /*
-    function buildBoard() {
-      const board = Array.from({ length: 9 }, () => Array(9).fill(EMPTY));
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-          const idx = r * 9 + c;
-          const v = boardEl.children[idx].querySelector('input').value;
-          board[r][c] = v ? Number(v) : EMPTY;
-        }
-      }
-      return board;
-    }
-  */
-  /*
-   function updatePad() {
-     // Default: enable all numbers; only disable globally exhausted numbers
-     buttons.forEach((b) => b.removeAttribute('disabled'));
-     clearBtn.removeAttribute('disabled');
-     if (selectedIdx == null) return;
-     const cell = getCellByIndex(selectedIdx);
-     const input = cell.querySelector('input');
-     if (input.readOnly) {
-       // Prefill: disable pad
-       buttons.forEach((b) => b.setAttribute('disabled', ''));
-       clearBtn.setAttribute('disabled', '');
-       return;
-     }
-     const counts = Array(10).fill(0);
-     for (let idx = 0; idx < 81; idx++) {
-       const v = boardEl.children[idx].querySelector('input').value;
-       if (v) counts[Number(v)]++;
-     }
-     buttons.forEach((b) => {
-       const n = Number(b.dataset.value);
-       if (counts[n] >= 9) b.setAttribute('disabled', '');
-     });
-   }
-     */
 
   function updatePad() {
     // enable everything by default
@@ -260,20 +121,6 @@ export function initUI(root) {
   }
 
   function selectCell(idx) {
-    /*
-    if (lockedIdx != null && idx !== lockedIdx) {
-      // Force selection to the locked invalid cell
-      if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
-      selectedIdx = lockedIdx;
-      const locked = getCellByIndex(lockedIdx);
-      locked.classList.add('selected');
-      locked.querySelector('input').focus();
-      //setStatus('Fix or clear the conflicting cell first.');
-      setStatus('Fix or clear this cell first.');
-      updatePad();
-      return;
-    }
-      */
 
     if (selectedIdx != null) getCellByIndex(selectedIdx).classList.remove('selected');
     selectedIdx = idx;
@@ -466,49 +313,7 @@ export function initUI(root) {
     const has = cell.querySelector('input').value !== '';
     cell.classList.toggle('has-value', has);
   }
-  /*
-    function recomputeValidity() {
-      // Soft validation + strict coloring
-      lockedIdx = null;
-      for (let idx = 0; idx < 81; idx++) {
-        const cell = boardEl.children[idx];
-        //validateCell(cell);
-        if (typeof recomputeValidity.solution === 'undefined' || !recomputeValidity.solution)
-          continue;
-        const input = cell.querySelector('input');
-        const r = Number(cell.dataset.row);
-        const c = Number(cell.dataset.col);
-        const sol = recomputeValidity.solution[r][c];
-        const isGiven = cell.classList.contains('given');
-        if (isGiven) {
-          input.readOnly = true;
-          cell.classList.add('prefill');
-          cell.classList.remove('mistake');
-          continue;
-        }
-        if (!input.value) {
-          cell.classList.remove('mistake');
-          cell.classList.remove('prefill');
-          input.readOnly = false;
-          continue;
-        }
-        const v = Number(input.value);
-        if (v === sol) {
-          input.readOnly = true;
-          cell.classList.add('prefill');
-          cell.classList.remove('mistake');
-        } else {
-          input.readOnly = false;
-          cell.classList.add('mistake');
-          cell.classList.remove('prefill');
-        }
-      }
-      if (selectedIdx != null) {
-        //const ok = validateCell(getCellByIndex(selectedIdx));
-        //setStatus(ok ? 'Ready' : 'This entry conflicts. Fix or clear it.');
-      }
-    }
-  */
+
 
   function recomputeValidity() {
     // Strict-only normalization against solution (no row/col/box legality)
@@ -636,44 +441,7 @@ export function initUI(root) {
       // Disable/enable numpad
       pad.querySelectorAll('button').forEach((b) => (b.disabled = !on));
     },
-    /*
-    hint() {
-      // Try selected cell first
-      const board = this.readBoard();
-      const tryFill = (idx) => {
-        const cell = boardEl.children[idx];
-        const input = cell.querySelector('input');
-        if (input.readOnly) return false;
-        const r = Number(cell.dataset.row);
-        const c = Number(cell.dataset.col);
-        const cand = Array.from(computeCandidates(board, r, c));
-        if (cand.length === 1) {
-          input.value = String(cand[0]);
-          updateHasValue(cell);
-          pulse(cell);
-          //validateCell(cell);
-          cell.dispatchEvent(new CustomEvent('cell-change', { bubbles: true }));
-          this.setStatus(`Hint: filled ${cand[0]} at R${r + 1}C${c + 1}`);
-          return true;
-        } else if (cand.length > 1 && idx === selectedIdx) {
-          this.setStatus(`R${r + 1}C${c + 1}: ${cand.length} candidates — ${cand.join(', ')}`);
-          return false;
-        }
-        return false;
-      };
 
-      if (selectedIdx != null && tryFill(selectedIdx)) return;
-
-      // Otherwise scan board for a single-candidate cell
-      for (let idx = 0; idx < 81; idx++) {
-        if (tryFill(idx)) {
-          selectCell(idx);
-          return;
-        }
-      }
-      this.setStatus('No single-candidate cells found.');
-    },
-    */
     // Strict-only: UI no longer computes candidates. Hints are driven by main.js via solutionGrid.
     // Keep a safe stub so external callers won't crash.
     hint() {

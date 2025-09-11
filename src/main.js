@@ -1,8 +1,5 @@
-//testing git
-
 import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
-//import { generatePuzzle } from './generator.js';
 import { primePool, getFromPool, generateOneAsync } from './pool.js';
 import { solve } from './solver.js';
 
@@ -179,17 +176,7 @@ onReady(() => {
       return [];
     }
   }
-  /*
-  function computeScore(ms, errors, hints, difficulty) {
-    const base = { easy: 1000, medium: 2000, hard: 3000 }[difficulty] || 1500;
-    const timePenalty = Math.floor(ms / 1000); // 1 point per second
-    const errPenalty = errors * 50;
-    const hintPenalty = hints * 80;
-    const raw = Math.max(0, base - timePenalty - errPenalty - hintPenalty);
-    // Normalize IQ around 100 with a spread; purely cosmetic
-    const iq = Math.max(60, Math.min(160, 60 + Math.floor(raw / 20)));
-    return { score: raw, iq };
-  }*/
+
 
   function computeScore(ms, errors, hints, difficulty) {
     // Expected finish times (seconds) by difficulty
@@ -242,13 +229,10 @@ onReady(() => {
     api.setStatus(
       `Solved! Time ${fmtClock(elapsed)}. Errors ${errorCount}. Hints ${hintCount}. Score ${score}, IQ ${iq}.`
     );
-    if (/*!ignoreNextRecord && */ saveRecord) {
+    if (saveRecord) {
       // store record and show top list
       saveBestTime(currentDifficulty, elapsed, errorCount, hintCount);
-    } /* else {
-      // reset the flag; do not save this auto-solve time
-      ignoreNextRecord = false;
-    }*/
+    }
     const best = loadBestTimes(currentDifficulty);
     if (overText) {
       const top = best
@@ -381,29 +365,7 @@ onReady(() => {
     updateHintsUI();
     checkSolved();
   });
-  /*
-    document.getElementById('solve-board').addEventListener('click', () => {
-      const board = api.readBoard();
-      const solved = solutionGrid || solve(board);
-      if (!solved) {
-        api.setStatus('No solution found or invalid puzzle.');
-        return;
-      }
-      // Fill the board and lock everything, but DO NOT record time/score/IQ or show overlay
-      setBoard(api, solved);
-      solutionGrid = solved;
-      // lock all cells
-      for (let i = 0; i < 81; i++) {
-        const cell = api.boardEl.children[i];
-        const input = cell.querySelector('input');
-        input.readOnly = true;
-        cell.classList.remove('mistake');
-        cell.classList.add('prefill');
-      }
-      stopClock();
-      api.setStatus('Solved (auto).');
-    });
-  */
+
 
   document.getElementById('solve-board').addEventListener('click', () => {
     if (!solutionGrid) {
@@ -426,44 +388,6 @@ onReady(() => {
 
   // Undo/Restart handlers (Redo removed)
   if (btnUndo)
-    /*
-    btnUndo.addEventListener('click', () => {
-      // Clear only the last placed entry; do not refill erased cells
-      if (!placements.length) return;
-      while (placements.length) {
-        const idx = placements.pop();
-        const cell = api.boardEl.children[idx];
-        const input = cell.querySelector('input');
-        if (input && !input.readOnly && input.value) {
-          const old = input.value;
-          input.value = '';
-          api.boardEl.dispatchEvent(
-            new CustomEvent('cell-change', {
-              bubbles: true,
-              detail: { idx, oldVal: old, newVal: '' },
-            })
-          );
-          api.setStatus('Undid last entry');
-          break;
-        }
-      }
-    });
-    */
-    /*
-     btnUndo.addEventListener('click', () => {
-       // Need at least the original snapshot + one change
-       if (history.length <= 1) return;
- 
-       // Discard current snapshot and restore the previous one
-       history.pop();
-       applySnapshot(history[history.length - 1]);
- 
-       // Recompute strict state so lock/mistake styling is correct
-       if (solutionGrid && api.setSolution) api.setSolution(solutionGrid);
- 
-       api.setStatus('Undid last move');
-       updateActionButtons();
-     });*/
 
     btnUndo.addEventListener('click', () => {
       if (history.length <= 1) return;
@@ -506,11 +430,7 @@ onReady(() => {
     const digit = typeof d.digit === 'number' ? d.digit : null;
     const r = idx >= 0 ? Math.floor(idx / 9) + 1 : null;
     const c = idx >= 0 ? (idx % 9) + 1 : null;
-    // Visually enforce mistake state in case the UI path didn't mark it
-    //if (idx >= 0) {
-    //  const cell = api.boardEl.children[idx];
-    //  cell?.classList?.add('mistake');
-    //}
+
     const prev = lastWrong.get(idx);
     // Avoid double-counting same wrong digit on same cell
     if (digit !== null && prev === digit) {
