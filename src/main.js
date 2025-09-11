@@ -155,6 +155,60 @@ onReady(() => {
     if (!isPaused()) showPause();
   });
 
+  // --- Confirm overlay (clock-aware)
+  const confirmOv = document.getElementById('confirm-overlay');
+  const confirmText = document.getElementById('confirm-text');
+  const confirmYes = document.getElementById('confirm-yes');
+  const confirmNo = document.getElementById('confirm-no');
+  let confirmAction = null;
+  let confirmWasTicking = false;
+
+  function openConfirm(message, onYes) {
+    if (!confirmOv) return;
+    if (confirmText) confirmText.textContent = message || 'Continue?';
+    confirmAction = typeof onYes === 'function' ? onYes : null;
+    // Snapshot whether timer was running (i.e., not paused) and stop it
+    confirmWasTicking = !!timerId && !isPaused();
+    if (confirmWasTicking) {
+      // Accumulate elapsed and freeze clock
+      elapsedBeforePause = Math.max(0, Date.now() - startTime);
+      stopClock();
+    }
+    // Disable inputs while confirm is shown
+    if (api.setEnabled) api.setEnabled(false);
+    confirmOv.classList.remove('hidden');
+    confirmOv.setAttribute('aria-hidden', 'false');
+  }
+  function closeConfirm({ executed } = { executed: false }) {
+    if (!confirmOv) return;
+    confirmOv.classList.add('hidden');
+    confirmOv.setAttribute('aria-hidden', 'true');
+    // If user cancelled (executed === false) and game was running before confirm, resume
+    if (!executed && confirmWasTicking) {
+      if (api.setEnabled) api.setEnabled(true);
+      startClock(); // resumes from elapsedBeforePause
+    } else if (!executed && !confirmWasTicking) {
+      // We were already paused before confirm; remain paused & inputs remain disabled by pause overlay
+    }
+    // Clear callback & snapshot
+    confirmAction = null;
+    confirmWasTicking = false;
+  }
+  if (confirmNo) {
+    confirmNo.addEventListener('click', () => closeConfirm({ executed: false }));
+  }
+  if (confirmYes) {
+    confirmYes.addEventListener('click', async () => {
+      const fn = confirmAction;
+      // Close first; don't resume old clock — the action will reset/start as needed
+      closeConfirm({ executed: true });
+      if (typeof fn === 'function') {
+        await fn();
+      }
+    });
+  }
+
+
 
   function showGameOver() {
     if (!over) return;
@@ -375,10 +429,19 @@ onReady(() => {
     }
   }
 
-  document.getElementById('new-puzzle').addEventListener('click', async () => {
+  /*document.getElementById('new-puzzle').addEventListener('click', async () => {
     const difficulty = getDiffUI();
     await loadNewByDifficulty(difficulty);
-  });
+  });*/
+  const btnNew = document.getElementById('new-puzzle');
+  if (btnNew) {
+    btnNew.addEventListener('click', () => {
+      const difficulty = getDiffUI();
+      openConfirm('Start a new puzzle? Your current progress will be lost.', async () => {
+        await loadNewByDifficulty(difficulty);
+      });
+    });
+  }
 
   document.getElementById('hint').addEventListener('click', () => {
     if (!solutionGrid) return;
@@ -468,14 +531,21 @@ onReady(() => {
       api.setStatus('Undid last move');
       updateActionButtons();
     });
-  if (btnRestart)
+  /*if (btnRestart)
     btnRestart.addEventListener('click', () => {
       if (!originalPuzzle) return;
       setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
       api.setStatus('Puzzle restarted');
+    });*/
+  if (btnRestart) {
+    btnRestart.addEventListener('click', () => {
+      if (!originalPuzzle) return;
+      openConfirm('Restart this puzzle from scratch?', () => {
+        setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
+        api.setStatus('Puzzle restarted');
+      });
     });
-  // Check removed
-
+  }
   // Snapshot on user edit
   api.boardEl.addEventListener('cell-change', () => {
     // Re-evaluate board to keep strict mistake highlights in sync
