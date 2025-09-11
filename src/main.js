@@ -38,7 +38,7 @@ onReady(() => {
     });
     try {
       localStorage.setItem(LS_KEY, d);
-    } catch { }
+    } catch {}
   }
   // Returns currently selected difficulty, or 'medium' if none found
   function getDiffUI() {
@@ -99,7 +99,7 @@ onReady(() => {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
   // Starts or resumes clock from startTime
-  // If already running, resets and restarts  
+  // If already running, resets and restarts
   function startClock() {
     if (timerId) clearInterval(timerId);
     // If resuming from pause, honor accumulated elapsed
@@ -378,7 +378,7 @@ onReady(() => {
       arr.push({ ms, errors, hints, score, iq, ts: Date.now() });
       arr.sort((a, b) => a.ms - b.ms || a.errors - b.errors || a.hints - b.hints);
       localStorage.setItem(lbKey(d), JSON.stringify(arr.slice(0, 10)));
-    } catch { }
+    } catch {}
   }
 
   function checkSolved(saveRecord = true) {
@@ -426,7 +426,7 @@ onReady(() => {
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) setDiffUI(saved);
-  } catch { }
+  } catch {}
   // Difficulty change requires confirmation; revert UI on cancel
   if (diffGroup) {
     diffGroup.addEventListener('click', (e) => {
@@ -701,6 +701,6 @@ onReady(() => {
       if (saved) setDiffUI(saved);
       const difficulty = getDiffUI() || 'medium';
       await loadNewByDifficulty(difficulty);
-    } catch { }
+    } catch {}
   })();
 });
