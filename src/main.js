@@ -38,9 +38,7 @@ onReady(() => {
     return active?.dataset.diff || 'medium';
   }
   const btnUndo = document.getElementById('undo');
-  //const btnRedo = document.getElementById('redo');
   const btnRestart = document.getElementById('restart');
-  //const btnCheck = document.getElementById('check');
   const errorBadge = document.getElementById('error-badge');
   const hintBadge = document.getElementById('hint-badge');
   const clockBadge = document.getElementById('clock-badge');
@@ -48,15 +46,12 @@ onReady(() => {
   const overText = document.getElementById('over-text');
   const overRestart = document.getElementById('over-restart');
   const overNew = document.getElementById('over-new');
-  // notes removed
 
   // Game state
   let originalPuzzle = null; // 9x9 numbers (0 empty)
   let prefillMask = null; // 9x9 booleans
   let solutionGrid = null; // 9x9 numbers
   const history = []; // snapshots of boards
-  //const future = [];
-  //const placements = []; // strict undo stack
   let currentDifficulty = 'medium';
   let errorCount = 0;
   const ERROR_LIMIT = { easy: 3, medium: 5, hard: 9 };
@@ -89,14 +84,7 @@ onReady(() => {
     const s = total % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
-  /* function startClock() {
-     if (timerId) clearInterval(timerId);
-     startTime = Date.now();
-     if (clockBadge) clockBadge.textContent = '00:00';
-     timerId = setInterval(() => {
-       if (clockBadge) clockBadge.textContent = fmtClock(Date.now() - startTime);
-     }, 1000);
-   }*/
+
   function startClock() {
     if (timerId) clearInterval(timerId);
     // If resuming from pause, honor accumulated elapsed
@@ -209,8 +197,6 @@ onReady(() => {
     });
   }
 
-
-
   function showGameOver() {
     if (!over) return;
     over.classList.remove('hidden');
@@ -245,9 +231,7 @@ onReady(() => {
   }
   function updateActionButtons() {
     if (btnUndo) btnUndo.disabled = history.length <= 1;
-    //if (btnRedo) btnRedo.disabled = future.length === 0;
     if (btnRestart) btnRestart.disabled = !originalPuzzle;
-    // if (btnCheck) btnCheck.disabled = true;
     if (solutionGrid) updateErrorsUI();
     // Always refresh hints badge
     if (typeof updateHintsUI === 'function') updateHintsUI();
@@ -266,7 +250,6 @@ onReady(() => {
     if (api.setSolution) api.setSolution(solutionGrid);
     history.length = 0;
     history.push(cloneBoard(originalPuzzle));
-    //future.length = 0;
     // Reset counters based on difficulty
     errorCount = 0;
     hintCount = 0;
@@ -369,7 +352,6 @@ onReady(() => {
     const current = api.readBoard();
     if (!history.length || !boardsEqual(history[history.length - 1], current)) {
       history.push(cloneBoard(current));
-      //future.length = 0;
       updateActionButtons();
     }
   }
@@ -378,12 +360,6 @@ onReady(() => {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) setDiffUI(saved);
   } catch { }
-  /*diffGroup?.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-diff]');
-    if (!btn) return;
-    setDiffUI(btn.dataset.diff);
-  });*/
-
   // Difficulty change requires confirmation; revert UI on cancel
   if (diffGroup) {
     diffGroup.addEventListener('click', (e) => {
@@ -461,10 +437,6 @@ onReady(() => {
     }
   }
 
-  /*document.getElementById('new-puzzle').addEventListener('click', async () => {
-    const difficulty = getDiffUI();
-    await loadNewByDifficulty(difficulty);
-  });*/
   const btnNew = document.getElementById('new-puzzle');
   if (btnNew) {
     btnNew.addEventListener('click', () => {
@@ -563,12 +535,7 @@ onReady(() => {
       api.setStatus('Undid last move');
       updateActionButtons();
     });
-  /*if (btnRestart)
-    btnRestart.addEventListener('click', () => {
-      if (!originalPuzzle) return;
-      setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
-      api.setStatus('Puzzle restarted');
-    });*/
+
   if (btnRestart) {
     btnRestart.addEventListener('click', () => {
       if (!originalPuzzle) return;
