@@ -129,7 +129,7 @@ body {
 .actions select {
   background: var(--panel);
   color: var(--text);
-  border: 1px solid #23263b;
+  border: 1px solid #2d3352; /* slightly lighter */
   padding: 10px 14px;
   border-radius: 10px;
   cursor: pointer;
@@ -156,7 +156,7 @@ body {
   padding: 8px 12px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid #2a2f47;
+  border: 1px solid #364066; /* slightly lighter */
   color: var(--text);
   font-size: 14px;
 }
@@ -172,7 +172,7 @@ body {
   display: inline-flex;
   align-items: stretch;
   background: color-mix(in oklab, var(--panel) 94%, transparent);
-  border: 1px solid #2a2f47;
+  border: 1px solid #364066; /* slightly lighter */
   border-radius: 12px;
   overflow: hidden;
   box-shadow:
@@ -197,7 +197,7 @@ body {
   outline: none;
 }
 .segmented button + button {
-  border-left: 1px solid #2a2f47;
+  border-left: 1px solid #364066; /* slightly lighter */
 }
 .segmented button:hover {
   background: rgba(255, 255, 255, 0.04);
@@ -258,7 +258,7 @@ main {
 .overlay-card {
   background: var(--panel);
   color: var(--text);
-  border: 1px solid #23263b;
+  border: 1px solid #2d3352; /* slightly lighter */
   padding: 16px 18px;
   border-radius: 14px;
   min-width: 260px;
@@ -286,7 +286,7 @@ main {
 .overlay .ghost {
   background: transparent;
   color: var(--text);
-  border: 1px solid #3a3f58;
+  border: 1px solid #495279; /* slightly lighter */
   padding: 6px 10px;
   border-radius: 8px;
 }
@@ -300,7 +300,7 @@ main {
 .numpad button {
   background: var(--panel);
   color: var(--text);
-  border: 1px solid #23263b;
+  border: 1px solid #2d3352; /* slightly lighter */
   padding: clamp(8px, 1.2vmin, 12px) 0;
   border-radius: 10px;
   cursor: pointer;
@@ -622,7 +622,7 @@ html {
   }
 
   .segmented button + button {
-    border-left: 1px solid #2a2f47;
+    border-left: 1px solid #364066; /* slightly lighter */
   }
 
   /* keep active state neat; no outward glow that shifts layout */
