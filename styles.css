@@ -17,8 +17,9 @@
   --success: #30d158; /* Apple green */
   --warning: #ff9f0a;
   --danger: #ff6b6b;
-  --grid: #3b4464;
-  --grid-strong: #56608a;
+  /* Slightly lighter board grid lines (dark mode) */
+  --grid: #475281; /* was #3b4464 */
+  --grid-strong: #6a74a0; /* was #56608a */
 }
 
 :root[data-theme='day'] {
@@ -30,8 +31,9 @@
   --primary: #0a84ff;
   --accent: #0a84ff;
   --danger: #d32f2f;
-  --grid: #ced3e0;
-  --grid-strong: #6b7280;
+  /* Slightly lighter board grid lines (light mode) */
+  --grid: #d7dbe7; /* was #ced3e0 */
+  --grid-strong: #7a8090; /* was #6b7280 */
 }
 
 /* Light mode: remove dark top gradient entirely for a cleaner look */
