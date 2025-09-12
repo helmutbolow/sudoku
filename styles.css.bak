@@ -146,12 +146,12 @@ body {
 }
 .badge {
   margin-left: 8px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid #2a2f47;
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
 }
 .badge.danger {
   background: rgba(255, 0, 0, 0.08);
@@ -374,6 +374,62 @@ main {
   caret-color: var(--primary);
 }
 
+.cell {
+  width: calc(var(--board-size) / 9);
+  height: calc(var(--board-size) / 9);
+  border: var(--border-thin) solid var(--grid);
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+}
+
+.cell:nth-child(3n) {
+  border-right: var(--border-strong) solid var(--grid-strong);
+}
+.cell:nth-child(9n + 1) {
+  border-left: var(--border-strong) solid var(--grid-strong);
+}
+
+/* Horizontal 3x3 separators */
+.cell::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: var(--border-thin) solid var(--grid);
+}
+.cell[data-row='2']::after,
+.cell[data-row='5']::after,
+.cell[data-row='8']::after {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}
+
+.cell:nth-child(3n) {
+  border-right: var(--border-strong) solid var(--grid-strong);
+}
+.cell:nth-child(9n + 1) {
+  border-left: var(--border-strong) solid var(--grid-strong);
+}
+
+/* Horizontal 3x3 separators */
+.cell::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 0;
+  border-bottom: var(--border-thin) solid var(--grid);
+}
+.cell[data-row='2']::after,
+.cell[data-row='5']::after,
+.cell[data-row='8']::after {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}
+/*
+*/
 
 .cell input[readonly] {
   color: var(--muted);
@@ -383,7 +439,7 @@ main {
   font-weight: 700;
 }
 .cell.mistake input {
-  color: var(--danger);
+  color: var(--danger) !important;
   font-weight: 800;
 }
 .cell.mistake {
@@ -760,39 +816,3 @@ html {
   transform: none !important; /* remove any 0.5px nudges that make it look thinner */
   box-shadow: none !important; /* kill any softening that visually thins the line */
 }
-
-
-
-.actions button:active,
-.numpad button:active {
-  transform: scale(0.95);
-}
-
-
-
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
-}
-
-.cell.invalid {
-  animation: shake 0.3s ease-in-out;
-}
-
-
-
-.segmented button:active {
-  transform: translateY(0.5px);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
-
-
-
-.board .cell input:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: -2px;
-}
-
