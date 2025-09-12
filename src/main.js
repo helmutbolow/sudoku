@@ -519,8 +519,12 @@ onReady(() => {
   if (btnNew) {
     btnNew.addEventListener('click', async () => {
       const difficulty = getDiffUI();
-
-      if (isUserCompleted) {
+      if (
+        (isUserCompleted && isSolvedOverlayVisible()) ||
+        isGameOverOverlayVisible() ||
+        isSystemSolved
+      ) {
+        //if (isUserCompleted) {
         // User already finished this puzzle: go straight to a new one (no confirm)
         await loadNewByDifficulty(difficulty);
         return;
@@ -636,14 +640,11 @@ onReady(() => {
       if (!originalPuzzle) return;
 
       // Solved overlay visible (user-solved) → restart immediately
-      if (isUserCompleted && isSolvedOverlayVisible()) {
-        setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
-        api.setStatus('Puzzle restarted');
-        return;
-      }
-
-      // Game Over overlay visible → restart immediately
-      if (isGameOverOverlayVisible()) {
+      if (
+        (isUserCompleted && isSolvedOverlayVisible()) ||
+        isGameOverOverlayVisible() ||
+        isSystemSolved
+      ) {
         setNewPuzzle(originalPuzzle, prefillMask, solutionGrid);
         api.setStatus('Puzzle restarted');
         return;
