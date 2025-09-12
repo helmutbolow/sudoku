@@ -4,7 +4,7 @@
   --pad: clamp(16px, 2.4vmin, 24px);
   --border-thin: 1px;
   --border-strong: 4px; /* 3x3 separators */
-  --border-outer: 5px; /* outer board border */
+  --border-outer: var(--border-strong); /* outer board border */
 
   /* Night defaults */
   --bg: #0b0c10;
@@ -64,8 +64,8 @@ body {
 
 .site-header,
 .site-footer {
-  width: min(100%, calc(var(--board-size) + 2 * var(--pad)));
-  max-width: 100vw;
+  width: calc(var(--board-size) + 2 * var(--pad));
+  max-width: calc(var(--board-size) + 2 * var(--pad));
   overflow-x: hidden;
   margin: 16px auto;
   padding: 0 var(--pad);
@@ -236,8 +236,8 @@ main {
   transition:
     background 200ms ease,
     box-shadow 200ms ease;
-  width: min(100%, calc(var(--board-size) + 2 * var(--pad)));
-  max-width: 100vw;
+  width: calc(var(--board-size) + 2 * var(--pad));
+  max-width: calc(var(--board-size) + 2 * var(--pad));
   overflow-x: hidden;
 }
 
@@ -335,7 +335,7 @@ main {
   max-width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
-  border: var(--border-outer) solid var(--grid-strong);
+  border: var(--border-strong) solid var(--grid-strong);
   background: var(--panel);
   border-radius: 10px;
   overflow: hidden;
@@ -765,7 +765,7 @@ html {
 
 .actions button:active,
 .numpad button:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 
 
