@@ -415,7 +415,7 @@ main {
   font-size: clamp(12px, 1.8vmin, 15px);
 }
 
-/* Notes removed */
+
 .cell.value-pulse {
   animation: valuePulse 180ms ease;
 }
@@ -427,7 +427,7 @@ main {
     transform: scale(1);
   }
 }
-/* Notes removed */
+
 .cell.hl-rc {
   background: color-mix(in oklab, var(--panel-2) 85%, transparent);
 }
@@ -583,19 +583,30 @@ body {
 }
 /* Stronger, higher-contrast 3x3 horizontal separators */
 .board .cell::after {
-  /* expand slightly so it visually connects with outer border */
-  left: -2px;
-  right: -2px;
+  /* expand slig.cell::after {
+  content: 
+  position: absolute;
+  left: -1px;
+  right: -1px;
   bottom: -1px;
   height: 0;
   border-bottom: var(--border-thin) solid var(--grid);
-  box-shadow: none;
+}
+.cell[data-row=\'2\']::after,
+.cell[data-row=\'5\']::after,
+.cell[data-row=\'8\']::after {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}
+.cell[data-row=\'2\']::after,
+.cell[data-row=\'5\']::after,
+.cell[data-row=\'8\']::after {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}  box-shadow: none;
   transform: translateY(0);
 }
 
-.board .cell[data-row='2']::after,
-.board .cell[data-row='5']::after,
-.board .cell[data-row='8']::after {
+.board .cell[data-row=\'2\']::after,
+.cell[data-row=\'5\']::after {:after {
   /* make the major separators thicker and more visible */
   border-bottom-width: 3px;
   border-bottom-style: solid;
@@ -795,4 +806,28 @@ html {
   outline: 2px solid var(--primary);
   outline-offset: -2px;
 }
+
+
+
+.cell[data-row=\'2\']::after,
+.cell[data-row=\'5\']::after {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}
+
+
+
+
+
+
+.cell[data-row="2"], .cell[data-row="5"] {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}
+
+
+
+
+.cell[data-row="2"], .cell[data-row="5"] {
+  border-bottom: var(--border-strong) solid var(--grid-strong);
+}
+
 
