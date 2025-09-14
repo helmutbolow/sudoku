@@ -48,10 +48,10 @@ function holesForDifficulty(difficulty) {
     case 'hard':
       return 54; // very challenging
     case 'impossible':
-      return 54; // very challenging
+      return 63; // very challenging
     case 'medium':
     default:
-      return 40;
+      return 45;
   }
 }
 

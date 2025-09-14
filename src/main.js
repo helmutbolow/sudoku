@@ -65,8 +65,8 @@ onReady(() => {
   const history = []; // snapshots of boards
   let currentDifficulty = 'medium';
   let errorCount = 0;
-  const ERROR_LIMIT = { easy: 3, medium: 4, hard: 5, impossible: 3 };
-  const HINT_LIMIT = { easy: 1, medium: 2, hard: 3, impossible: 1 };
+  const ERROR_LIMIT = { easy: 3, medium: 3, hard: 3, impossible: 3 };
+  const HINT_LIMIT = { easy: 2, medium: 2, hard: 2, impossible: 1 };
   let hintCount = 0;
   let timerId = null;
   let startTime = 0;
@@ -610,10 +610,12 @@ onReady(() => {
     const btnPause = document.getElementById('pause');
     const btnSolve = document.getElementById('solve-board');
     const btnUndo = document.getElementById('undo');
+    const btnRestart = document.getElementById('restart');
     if (btnHint) btnHint.setAttribute('disabled', 'true');
     if (btnPause) btnPause.setAttribute('disabled', 'true');
     if (btnSolve) btnSolve.setAttribute('disabled', 'true');
     if (btnUndo) btnUndo.setAttribute('disabled', 'true');
+    if (btnRestart) btnRestart.setAttribute('disabled', 'true');
     api.setStatus('Solved (auto).');
   });
 
