@@ -2,15 +2,15 @@
 import { generatePuzzle } from './generator.js';
 
 const targetPerDifficulty = { easy: 3, medium: 3, hard: 2 };
-const pool = { easy: [], medium: [], hard: [] };
-const busy = { easy: false, medium: false, hard: false };
+const pool = { easy: [], medium: [], hard: [], impossible: [] };
+const busy = { easy: false, medium: false, hard: false, impossible: false };
 
 function lsKey(d) {
   return `sudoku:pool:${d}`;
 }
 
 function loadFromLS() {
-  ['easy', 'medium', 'hard'].forEach((d) => {
+  ['easy', 'medium', 'hard', 'impossible'].forEach((d) => {
     try {
       const raw = localStorage.getItem(lsKey(d));
       if (raw) {

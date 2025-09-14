@@ -28,6 +28,7 @@ onReady(() => {
   primePool('easy');
   primePool('medium');
   primePool('hard');
+  primePool('impossible');
   const diffGroup = document.getElementById('difficulty-group');
   const LS_KEY = 'sudoku:difficulty';
   // Difficulty segmented control
@@ -64,8 +65,8 @@ onReady(() => {
   const history = []; // snapshots of boards
   let currentDifficulty = 'medium';
   let errorCount = 0;
-  const ERROR_LIMIT = { easy: 3, medium: 5, hard: 9 };
-  const HINT_LIMIT = { easy: 1, medium: 3, hard: 6 };
+  const ERROR_LIMIT = { easy: 3, medium: 4, hard: 5, impossible: 3 };
+  const HINT_LIMIT = { easy: 1, medium: 2, hard: 3, impossible: 1 };
   let hintCount = 0;
   let timerId = null;
   let startTime = 0;
@@ -360,7 +361,7 @@ onReady(() => {
 
   function computeScore(ms, errors, hints, difficulty) {
     // Expected finish times (seconds) by difficulty
-    const EXPECTED_SECS = { easy: 10 * 60, medium: 18 * 60, hard: 28 * 60 };
+    const EXPECTED_SECS = { easy: 10 * 60, medium: 18 * 60, hard: 28 * 60, impossible: 40 * 60 };
     const errPenaltySec = 30; // each error ~30s
     const hintPenaltySec = 45; // each hint ~45s
 

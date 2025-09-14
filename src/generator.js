@@ -47,6 +47,8 @@ function holesForDifficulty(difficulty) {
       return 27; // empties (easier: fewer blanks)
     case 'hard':
       return 54; // very challenging
+    case 'impossible':
+      return 54; // very challenging
     case 'medium':
     default:
       return 40;
