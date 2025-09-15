@@ -361,7 +361,7 @@ onReady(() => {
 
   function computeScore(ms, errors, hints, difficulty) {
     // Expected finish times (seconds) by difficulty
-    const EXPECTED_SECS = { easy: 10 * 60, medium: 18 * 60, hard: 28 * 60, impossible: 40 * 60 };
+    const EXPECTED_SECS = { easy: 6 * 60, medium: 10 * 60, hard: 20 * 60, impossible: 25 * 60 };
     const errPenaltySec = 30; // each error ~30s
     const hintPenaltySec = 45; // each hint ~45s
 
@@ -537,52 +537,101 @@ onReady(() => {
       });
     });
   }
+  /*
+  //old - pick selected or first empty
+    document.getElementById('hint').addEventListener('click', () => {
+      if (!solutionGrid) return;
+      if (isSystemSolved) return; // ignore hints after Solve
+      const maxHints = HINT_LIMIT[currentDifficulty] || 3;
+      if (hintCount >= maxHints) {
+        updateHintsUI();
+        return;
+      }
+      let filled = false;
+      const selInput = api.boardEl.querySelector('.cell.selected input');
+      if (selInput) {
+        const cell = selInput.parentElement;
+        const r = Number(cell.dataset.row),
+          c = Number(cell.dataset.col);
+        if (!selInput.readOnly && !selInput.value) {
+          selInput.value = String(solutionGrid[r][c]);
+          api.boardEl.dispatchEvent(
+            new CustomEvent('cell-change', {
+              bubbles: true,
+              detail: { idx: r * 9 + c, oldVal: '', newVal: selInput.value },
+            }),
+          );
+          filled = true;
+        }
+      }
+      if (!filled) {
+        outer: for (let r = 0; r < 9; r++)
+          for (let c = 0; c < 9; c++) {
+            const idx = r * 9 + c;
+            const cell = api.boardEl.children[idx];
+            const input = cell.querySelector('input');
+            if (!input.readOnly && !input.value) {
+              input.value = String(solutionGrid[r][c]);
+              api.boardEl.dispatchEvent(
+                new CustomEvent('cell-change', {
+                  bubbles: true,
+                  detail: { idx, oldVal: '', newVal: input.value },
+                }),
+              );
+              filled = true;
+              break outer;
+            }
+          }
+      }
+      // consume one hint independently
+      hintCount = Math.min(maxHints, hintCount + 1);
+      updateHintsUI();
+      checkSolved();
+    });
+  */
 
   document.getElementById('hint').addEventListener('click', () => {
+    // Randomly fill one empty cell w hint
     if (!solutionGrid) return;
     if (isSystemSolved) return; // ignore hints after Solve
+
     const maxHints = HINT_LIMIT[currentDifficulty] || 3;
     if (hintCount >= maxHints) {
       updateHintsUI();
       return;
     }
-    let filled = false;
-    const selInput = api.boardEl.querySelector('.cell.selected input');
-    if (selInput) {
-      const cell = selInput.parentElement;
-      const r = Number(cell.dataset.row),
-        c = Number(cell.dataset.col);
-      if (!selInput.readOnly && !selInput.value) {
-        selInput.value = String(solutionGrid[r][c]);
-        api.boardEl.dispatchEvent(
-          new CustomEvent('cell-change', {
-            bubbles: true,
-            detail: { idx: r * 9 + c, oldVal: '', newVal: selInput.value },
-          }),
-        );
-        filled = true;
+
+    // Collect all empty, non-readonly cells
+    const emptyCells = [];
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const idx = r * 9 + c;
+        const cell = api.boardEl.children[idx];
+        const input = cell.querySelector('input');
+        if (!input.readOnly && !input.value) {
+          emptyCells.push({ r, c, idx, input });
+        }
       }
     }
-    if (!filled) {
-      outer: for (let r = 0; r < 9; r++)
-        for (let c = 0; c < 9; c++) {
-          const idx = r * 9 + c;
-          const cell = api.boardEl.children[idx];
-          const input = cell.querySelector('input');
-          if (!input.readOnly && !input.value) {
-            input.value = String(solutionGrid[r][c]);
-            api.boardEl.dispatchEvent(
-              new CustomEvent('cell-change', {
-                bubbles: true,
-                detail: { idx, oldVal: '', newVal: input.value },
-              }),
-            );
-            filled = true;
-            break outer;
-          }
-        }
+
+    // If none, consume nothing and exit
+    if (emptyCells.length === 0) {
+      updateHintsUI();
+      checkSolved();
+      return;
     }
-    // consume one hint independently
+
+    // Pick one at random and fill it
+    const choice = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    choice.input.value = String(solutionGrid[choice.r][choice.c]);
+    api.boardEl.dispatchEvent(
+      new CustomEvent('cell-change', {
+        bubbles: true,
+        detail: { idx: choice.idx, oldVal: '', newVal: choice.input.value },
+      }),
+    );
+
+    // Consume one hint, update UI, and evaluate
     hintCount = Math.min(maxHints, hintCount + 1);
     updateHintsUI();
     checkSolved();
