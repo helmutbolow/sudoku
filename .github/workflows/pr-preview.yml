@@ -39,7 +39,7 @@ jobs:
           retention-days: 14
 
       - name: Comment with preview link
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           ARTIFACT_NAME: site-pr-${{ steps.meta.outputs.pr }}-${{ steps.meta.outputs.short_sha }}
         with:
