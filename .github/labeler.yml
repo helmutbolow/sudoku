@@ -1,23 +1,27 @@
 frontend:
-  - 'src/**'
-  - 'index.html'
-  - 'styles.css'
-  - 'styles.css.bak'
-  - 'scratch.js'
+  - changed-files:
+      - any-glob-to-any-file: src/**
+      - any-glob-to-any-file: index.html
+      - any-glob-to-any-file: styles.css
+      - any-glob-to-any-file: styles.css.bak
+      - any-glob-to-any-file: scratch.js
 
 docs:
-  - 'README.md'
-  - 'CONTRIBUTING.md'
-  - 'SECURITY.md'
-  - '.github/ISSUE_TEMPLATE/**'
-  - '.github/pull_request_template.md'
-  - 'prd.md'
+  - changed-files:
+      - any-glob-to-any-file: README.md
+      - any-glob-to-any-file: CONTRIBUTING.md
+      - any-glob-to-any-file: SECURITY.md
+      - any-glob-to-any-file: .github/ISSUE_TEMPLATE/**
+      - any-glob-to-any-file: .github/pull_request_template.md
+      - any-glob-to-any-file: prd.md
 
 ci:
-  - '.github/workflows/**'
-  - '.github/labeler.yml'
-  - '.github/labels.yml'
+  - changed-files:
+      - any-glob-to-any-file: .github/workflows/**
+      - any-glob-to-any-file: .github/labeler.yml
+      - any-glob-to-any-file: .github/labels.yml
 
 dependencies:
-  - 'package.json'
-  - 'package-lock.json'
+  - changed-files:
+      - any-glob-to-any-file: package.json
+      - any-glob-to-any-file: package-lock.json
