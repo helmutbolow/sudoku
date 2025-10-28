@@ -16,23 +16,6 @@ function createCell(r, c) {
 
   cell.appendChild(input);
 
-  // Handle pointer/tap to open custom numpad / select cell without focusing input
-  cell.addEventListener('pointerdown', (ev) => {
-    ev.preventDefault(); // IMPORTANT: stops native focus/keyboard
-    // call your existing selection helper — replace with your function name
-    // e.g. selectCell(cell) or uiSelectCell(cell)
-    if (typeof selectCell === 'function') selectCell(cell);
-  });
-
-  // keep keyboard-based entry working on desktop if needed:
-  cell.addEventListener('keydown', (ev) => {
-    // optional: handle keyboard digits for desktop users
-    if (/^[1-9]$/.test(ev.key)) {
-      // handle input via your existing API
-      if (typeof handleDigit === 'function') handleDigit(cell, ev.key);
-    }
-  });
-
   return cell;
 }
 
@@ -129,9 +112,14 @@ export function initUI(root) {
     updateHighlights();
   }
 
-  // Click to select
+  // Pointer/tap to select without focusing the native input.
+  // Prevent the default focus change so our custom keypad stays in control.
   for (let idx = 0; idx < boardEl.children.length; idx++) {
     const cell = boardEl.children[idx];
+    cell.addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      selectCell(idx);
+    });
     cell.addEventListener('click', () => selectCell(idx));
   }
 
