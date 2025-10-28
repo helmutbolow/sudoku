@@ -2,6 +2,8 @@ import { initUI, setBoard, clearBoard, fillSample } from './ui.js';
 import { initAutoTheme } from './theme.js';
 import { primePool, getFromPool, generateOneAsync } from './pool.js';
 import { solve } from './solver.js';
+import { createMask } from './puzzles/catalog.js';
+import { getScheduledPuzzleForDate, markScheduledPuzzleConsumed } from './puzzles/schedule.js';
 //new comment
 //new copmment 2
 // DOM ready helper
@@ -64,6 +66,7 @@ onReady(() => {
   let solutionGrid = null; // 9x9 numbers
   const history = []; // snapshots of boards
   let currentDifficulty = 'medium';
+  let currentPuzzleSummary = '';
   let errorCount = 0;
   const ERROR_LIMIT = { easy: 3, medium: 3, hard: 3, impossible: 3 };
   const HINT_LIMIT = { easy: 2, medium: 2, hard: 2, impossible: 1 };
@@ -490,10 +493,31 @@ onReady(() => {
     currentDifficulty = difficulty;
     // clear any mistake highlights
     [...api.boardEl.children].forEach((el) => el.classList.remove('mistake'));
+    const today = new Date();
+    const scheduled = getScheduledPuzzleForDate(today, difficulty);
+    if (scheduled) {
+      const mask = createMask(scheduled.puzzle);
+      setNewPuzzle(scheduled.puzzle, mask, scheduled.solution);
+      const scheduleInfo = scheduled.schedule || null;
+      const variantLabel = scheduled.variant
+        ? `${scheduled.variant.charAt(0).toUpperCase()}${scheduled.variant.slice(1)}`
+        : 'Daily';
+      const label = scheduled.name || 'Daily puzzle';
+      const extras = [];
+      if (Array.isArray(scheduled.rules) && scheduled.rules.length)
+        extras.push(scheduled.rules.join(' · '));
+      if (scheduled.summary) extras.push(scheduled.summary);
+      currentPuzzleSummary = [`${label} (${variantLabel})`, ...extras].join(' — ');
+      api.setStatus(currentPuzzleSummary);
+      if (scheduleInfo) markScheduledPuzzleConsumed(scheduleInfo);
+      return;
+    }
+
     const cached = getFromPool(difficulty);
     if (cached) {
       setNewPuzzle(cached.puzzle, cached.mask, cached.solution);
-      api.setStatus(`Random puzzle loaded (${difficulty})`);
+      currentPuzzleSummary = `Random puzzle loaded (${difficulty})`;
+      api.setStatus(currentPuzzleSummary);
       return;
     }
     // Generate async with cancel
@@ -504,7 +528,8 @@ onReady(() => {
     try {
       const next = await generateOneAsync(difficulty, controller.signal);
       setNewPuzzle(next.puzzle, next.mask, next.solution);
-      api.setStatus(`Random puzzle loaded (${difficulty})`);
+      currentPuzzleSummary = `Random puzzle loaded (${difficulty})`;
+      api.setStatus(currentPuzzleSummary);
       // top up pool
       primePool(difficulty);
     } catch (e) {
