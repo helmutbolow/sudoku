@@ -2,6 +2,8 @@ frontend:
   - 'src/**'
   - 'index.html'
   - 'styles.css'
+  - 'styles.css.bak'
+  - 'scratch.js'
 
 docs:
   - 'README.md'
@@ -9,9 +11,12 @@ docs:
   - 'SECURITY.md'
   - '.github/ISSUE_TEMPLATE/**'
   - '.github/pull_request_template.md'
+  - 'prd.md'
 
 ci:
   - '.github/workflows/**'
+  - '.github/labeler.yml'
+  - '.github/labels.yml'
 
 dependencies:
   - 'package.json'
