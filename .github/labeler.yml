@@ -1,31 +1,31 @@
 frontend:
   - changed-files:
       - any-glob-to-any-file:
-          - src/**
-          - index.html
-          - styles.css
-          - styles.css.bak
-          - scratch.js
+          - 'src/**'
+          - 'index.html'
+          - 'styles.css'
+          - 'styles.css.bak'
+          - 'scratch.js'
 
 docs:
   - changed-files:
       - any-glob-to-any-file:
-          - README.md
-          - CONTRIBUTING.md
-          - SECURITY.md
-          - .github/ISSUE_TEMPLATE/**
-          - .github/pull_request_template.md
-          - prd.md
+          - 'README.md'
+          - 'CONTRIBUTING.md'
+          - 'SECURITY.md'
+          - '.github/ISSUE_TEMPLATE/**'
+          - '.github/pull_request_template.md'
+          - 'prd.md'
 
 ci:
   - changed-files:
       - any-glob-to-any-file:
-          - .github/workflows/**
-          - .github/labeler.yml
-          - .github/labels.yml
+          - '.github/workflows/**'
+          - '.github/labeler.yml'
+          - '.github/labels.yml'
 
 dependencies:
   - changed-files:
       - any-glob-to-any-file:
-          - package.json
-          - package-lock.json
+          - 'package.json'
+          - 'package-lock.json'
