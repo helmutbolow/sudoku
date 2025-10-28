@@ -1,5 +1,6 @@
-frontend:
-  - changed-files:
+labels:
+  - label: frontend
+    changed-files:
       - any-glob-to-any-file:
           - 'src/**'
           - 'index.html'
@@ -7,8 +8,8 @@ frontend:
           - 'styles.css.bak'
           - 'scratch.js'
 
-docs:
-  - changed-files:
+  - label: docs
+    changed-files:
       - any-glob-to-any-file:
           - 'README.md'
           - 'CONTRIBUTING.md'
@@ -17,15 +18,15 @@ docs:
           - '.github/pull_request_template.md'
           - 'prd.md'
 
-ci:
-  - changed-files:
+  - label: ci
+    changed-files:
       - any-glob-to-any-file:
           - '.github/workflows/**'
           - '.github/labeler.yml'
           - '.github/labels.yml'
 
-dependencies:
-  - changed-files:
+  - label: dependencies
+    changed-files:
       - any-glob-to-any-file:
           - 'package.json'
           - 'package-lock.json'
