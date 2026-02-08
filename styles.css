@@ -462,7 +462,7 @@ main {
   text-align: center;
   font-family: var(--ui-font);
   font-weight: 700;
-  font-size: calc((var(--cell-size) - 12px) * 0.6);
+  font-size: max(16px, calc((var(--cell-size) - 12px) * 0.6));
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   border: 0;
@@ -473,7 +473,7 @@ main {
 /* Keep givens slightly smaller so they never clash with separators */
 .board .cell.prefill input,
 .board .cell.given input {
-  font-size: calc((var(--cell-size) - 10px) * 0.58);
+  font-size: max(16px, calc((var(--cell-size) - 10px) * 0.58));
 }
 /* Force board to never exceed available viewport (accounts for safe-area + padding) */
 /* consolidated into the final .board override (bottom-most wins) */
@@ -496,6 +496,16 @@ main {
 /* ===== layout fixes: center board and avoid scrollbar overlap ===== */
 html {
   scrollbar-gutter: auto;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  min-height: 100svh;
+  overscroll-behavior: none;
 }
 
 .app {
